@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+    margin: 0;
+    padding: 0;
+  
+}
+
+
+.header, .footer {
+  height: 60px;
+  padding: 10px;
+  background-color: #ffffff;
+  color: #000;
+  text-align: center;
+}
+
+.content {
+  height: calc(100vh - 120px);
+  background: url('../assets/banner_bp1.jpg') no-repeat center center fixed; 
+  background-size: cover;
+  margin: 0;
+  padding: 0;
+}
+
+
+
+
+.ant-menu-horizontal{
+  border-bottom:none!important
+}
+.ant-btn-primary {
+  background-color: #1677ff!important;
+}
+/* .ant-menu-light.ant-menu-horizontal >.ant-menu-item-selected::after{
+  border-width: 0!important;
+} */
