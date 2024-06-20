@@ -1,0 +1,27 @@
+.table-wrapper {
+    overflow-x: auto;
+}
+
+thead th {
+    background-color: #fafafa;
+    color: #4F6475;
+    font-weight: 400;
+}
+
+tr {
+    color: #4a4a4a; 
+}
+
+td {
+    vertical-align: middle;
+}
+
+div.button + .button {
+    margin-left: 10px;
+}
+
+.no-record {
+    width: 61px;
+    margin: 60px auto;
+    display: block;
+}
