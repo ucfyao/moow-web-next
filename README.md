@@ -29,12 +29,21 @@ Then, install the dependencies:
 npm install
 ```
 
+
+Make sure you're using the correct version of Node.js:
+```bash
+nvm use 20
+```
+
+
 To start the development server, run:
 
 ```bash
-npm start
+npm run dev
 ```
 This will start the application on http://localhost:3000.
+
+
 ## Compiles and minifies for production
 ```bash
 npm run build
