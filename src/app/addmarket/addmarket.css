@@ -1,0 +1,23 @@
+.box {
+  margin: 0 auto;
+  padding: 50px;
+}
+
+@media screen and (max-width: 768px) {
+  .section {
+    padding: 20px 0;
+  }
+
+  .box {
+    padding: 30px 10px;
+  }
+}
+
+.exchange-item {
+  width: 168px;
+  /*min-height: 70px;*/
+}
+
+.input {
+  width: 600px;
+}
