@@ -1,0 +1,9 @@
+/* activate.css */
+.box {
+  margin: 0 auto;
+  max-width: 800px;
+}
+
+.content {
+  padding: 50px 50px 80px;
+}
