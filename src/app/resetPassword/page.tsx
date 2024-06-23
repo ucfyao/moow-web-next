@@ -2,12 +2,10 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
-import { Layout, Input, Button, Form } from 'antd';
 import '../styles/resetPassword.css';
 import axios from 'axios';
 import {getInvalidFields} from '../utils/validator'
 
-const { Header, Footer, Sider, Content } = Layout;
 interface InvalidFields {
   password?: { message: string }[];
   passwordCheck?: { message: string }[];
@@ -84,53 +82,51 @@ const resetPassword = () => {
   };
 
   return (
-    <Layout>
-      <Content>
-        <section className='section'>
-          <div className='container'>
-            <div className='box'>
-              <div className='header'>
-                <p className='is-size-6 is-pulled-left margin-right: 10px;'>{('caption.reset_password')}</p>
+    <div>
+      <section className='section'>
+        <div className='container'>
+          <div className='box'>
+            <div className='header'>
+              <p className='is-size-6 is-pulled-left margin-right: 10px;'>{('caption.reset_password')}</p>
+            </div>
+            <div className='field'>
+              <label className='label'><span className='has-text-danger'>*</span>{('label.input')}{('label.new_password')}</label>
+              <div className='control has-icons-left'>
+                <input 
+                  className='input' type='password' value={formData.password} placeholder='password'
+                />
+                <span className='icon is-small is-left'>
+                    <i className='fa fa-lock'></i>
+                  </span>
               </div>
-              <div className='field'>
-                <label className='label'><span className='has-text-danger'>*</span>{('label.input')}{('label.new_password')}</label>
-                <div className='control has-icons-left'>
-                  <Input 
-                    className='input' type='password' value={formData.password} placeholder='password'
-                  />
-                  <span className='icon is-small is-left'>
-                      <i className='fa fa-lock'></i>
-                    </span>
-                </div>
-                {invalidFields.password && <p className='help is-danger' ></p>}
+              {invalidFields.password && <p className='help is-danger' ></p>}
+            </div>
+            <div className='field'>
+              <label className='label'><span className='has-text-danger'>*</span>{('label.input')}{('label.confirm_password')}</label>
+              <div className='control has-icons-left'>
+                <input 
+                  className='input' type='password' value={formData.passwordCheck} placeholder='Confirm password'
+                />
+                <span className='icon is-small is-left'>
+                    <i className='fa fa-lock'></i>
+                  </span>
               </div>
-              <div className='field'>
-                <label className='label'><span className='has-text-danger'>*</span>{('label.input')}{('label.confirm_password')}</label>
-                <div className='control has-icons-left'>
-                  <Input 
-                    className='input' type='password' value={formData.passwordCheck} placeholder='Confirm password'
-                  />
-                  <span className='icon is-small is-left'>
-                      <i className='fa fa-lock'></i>
-                    </span>
-                </div>
-                {invalidFields.passwordCheck && <p className='help is-danger' ></p>}
-              </div>
-              <div className='field is-grouped'>
-                <div className='control'>
-                  <Button 
-                    className={`button is-link is-fullwidth is-focused ${isProccessing ? 'is-loading' : ''}`}
-                    onClick={handleResetPassword}
-                    disabled={isProccessing}>
-                    {('action.confirm')}
-                  </Button>
-                </div>
+              {invalidFields.passwordCheck && <p className='help is-danger' ></p>}
+            </div>
+            <div className='field is-grouped'>
+              <div className='control'>
+                <button 
+                  className={`button is-link is-fullwidth is-focused ${isProccessing ? 'is-loading' : ''}`}
+                  onClick={handleResetPassword}
+                  disabled={isProccessing}>
+                  {('action.confirm')}
+                </button>
               </div>
             </div>
           </div>
-        </section>
-      </Content>
-    </Layout>
+        </div>
+      </section>
+    </div>
   );
 };
 

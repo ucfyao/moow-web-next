@@ -2,13 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Layout, Input, Button, Form } from 'antd';
 import '../styles/login.css';
 import axios from 'axios';
 import auth from '../utils/auth'
 import {getInvalidFields} from '../utils/validator'
-import '../globals.css';
-const { Header, Content } = Layout;
+import '../../styles/globals.css';
+
 interface InvalidFields {
   email?: { message: string }[];
   password?: { message: string }[];
@@ -74,139 +73,137 @@ const Login = () => {
   };
 
   return (
-    <Layout>
-      <Content>
-        <section className='section home'>
-          <div className='container login-wrap'>
-            <div className='columns'>
-              <div className='column has-text-white-bis is-hidden-mobile pt-200'>
-              </div>
-              <div className='column'>
-                <div className='card '>
-                  <header className='card-header'>
-                    <p className='card-header-title is-centered'>
-                      Sign In
-                    </p>
-                  </header>
-                  <div className = 'card-content'>
-                    <div className = 'field'>
-                      <div className = 'control has-icons-left has-icons-right'>
-                        <Input 
-                          className='input'
-                          type = 'email' 
-                          placeholder = 'placeholder.email' 
-                          value = {formData.email} 
-                        />
-                        <span className = 'icon is-small is-left'>
-                          <i className = 'fa fa-envelope'></i>
-                        </span>
-                      </div>
-                      {invalidFields.email && <p className='help is-danger'></p>}
+    <div>
+      <section className='section home'>
+        <div className='container login-wrap'>
+          <div className='columns'>
+            <div className='column has-text-white-bis is-hidden-mobile pt-200'>
+            </div>
+            <div className='column'>
+              <div className='card '>
+                <header className='card-header'>
+                  <p className='card-header-title is-centered'>
+                    Sign In
+                  </p>
+                </header>
+                <div className = 'card-content'>
+                  <div className = 'field'>
+                    <div className = 'control has-icons-left has-icons-right'>
+                      <input 
+                        className='input'
+                        type = 'email' 
+                        placeholder = 'placeholder.email' 
+                        value = {formData.email} 
+                      />
+                      <span className = 'icon is-small is-left'>
+                        <i className = 'fa fa-envelope'></i>
+                      </span>
                     </div>
-                    <div className = 'field'>
-                      <div className = 'control has-icons-left'>
-                        <Input 
-                          className='input'
-                          type='password' 
-                          placeholder = 'placeholder.password' 
-                          value = {formData.password} 
-                        />
-                        <span className = 'icon is-small is-left'>
-                          <i className = 'fa fa-lock'></i>
-                        </span>
-                      </div>
-                      {invalidFields.password && <p className='help is-danger'></p>}
+                    {invalidFields.email && <p className='help is-danger'></p>}
+                  </div>
+                  <div className = 'field'>
+                    <div className = 'control has-icons-left'>
+                      <input 
+                        className='input'
+                        type='password' 
+                        placeholder = 'placeholder.password' 
+                        value = {formData.password} 
+                      />
+                      <span className = 'icon is-small is-left'>
+                        <i className = 'fa fa-lock'></i>
+                      </span>
                     </div>
-                    <div className = 'field'>
-                      <div className = 'field is-grouped'>
-                        <p className = 'control is-expanded'>
-                          <Input 
-                            className='input'
-                            type='text' 
-                            placeholder='placeholder.captcha' 
-                            value={formData.captcha} 
-                          />
-                        </p>
-                        <p className ='control'>
-                          <Image                 
-                            className='captcha' 
-                            src={captchaSrc} 
-                            alt='prompt.click_refresh_captcha' 
-                            title='prompt.click_refresh_captcha' 
-                            onClick={updateCaptcha}
-                            width={150}
-                            height={50}
-                          />       
+                    {invalidFields.password && <p className='help is-danger'></p>}
+                  </div>
+                  <div className = 'field'>
+                    <div className = 'field is-grouped'>
+                      <p className = 'control is-expanded'>
+                        <input 
+                          className='input'
+                          type='text' 
+                          placeholder='placeholder.captcha' 
+                          value={formData.captcha} 
+                        />
+                      </p>
+                      <p className ='control'>
+                        <Image                 
+                          className='captcha' 
+                          src={captchaSrc} 
+                          alt='prompt.click_refresh_captcha' 
+                          title='prompt.click_refresh_captcha' 
+                          onClick={updateCaptcha}
+                          width={150}
+                          height={50}
+                        />       
 
-                        </p>
-                      </div>
-                      {invalidFields.captcha && <p className='help is-danger'></p>}
-                    </div>
-                    <div className='field' style={{ marginTop: '30px' }}>
-                      <p className='control'>
-                        <button 
-                          className={`button is-link is-fullwidth is-focused ${isLoging ? 'is-loading' : ''}`}
-                          onClick={handleLogin}
-                          disabled={isLoging}>
-                          Sign In
-                        </button>
                       </p>
                     </div>
-                    <div className='field'>
-                      <div className='control forget-password'>
-                        <a href='/forgetPassword'>Forgot Password?</a>
-                      </div>
+                    {invalidFields.captcha && <p className='help is-danger'></p>}
+                  </div>
+                  <div className='field' style={{ marginTop: '30px' }}>
+                    <p className='control'>
+                      <button 
+                        className={`button is-link is-fullwidth is-focused ${isLoging ? 'is-loading' : ''}`}
+                        onClick={handleLogin}
+                        disabled={isLoging}>
+                        Sign In
+                      </button>
+                    </p>
+                  </div>
+                  <div className='field'>
+                    <div className='control forget-password'>
+                      <a href='/forgetPassword'>Forgot Password?</a>
                     </div>
                   </div>
-                  <footer className='card-footer'>
-                    <p className='card-footer-item'>
-                      Don't have an account? 
-                      <a href='/signup'>Sign Up Now</a>
-                    </p>
-                  </footer>
                 </div>
+                <footer className='card-footer'>
+                  <p className='card-footer-item'>
+                    Don't have an account? 
+                    <a href='/signup'>Sign Up Now</a>
+                  </p>
+                </footer>
               </div>
             </div>
           </div>
-        </section>
-        <section className='section feature'>
-          <nav className='columns'>
-            <div className='column has-text-centered'>
-              <div>
-                <p className='title is-4'>
-                  <strong>Multiple Strategies</strong>
-                </p>
-                <p className='subtitle is-6'>Ordinary price investment, intelligent value investment, etc.</p>
-              </div>
+        </div>
+      </section>
+      <section className='section feature'>
+        <nav className='columns'>
+          <div className='column has-text-centered'>
+            <div>
+              <p className='title is-4'>
+                <strong>Multiple Strategies</strong>
+              </p>
+              <p className='subtitle is-6'>Ordinary price investment, intelligent value investment, etc.</p>
             </div>
-            <div className='column has-text-centered'>
-              <div>
-                <p className='title is-4'>
-                  <strong>Strict Risk Control</strong>
-                </p>
-                <p className='subtitle is-6'>Secure storage and strict operation flow</p>
-              </div>
+          </div>
+          <div className='column has-text-centered'>
+            <div>
+              <p className='title is-4'>
+                <strong>Strict Risk Control</strong>
+              </p>
+              <p className='subtitle is-6'>Secure storage and strict operation flow</p>
             </div>
-            <div className='column has-text-centered'>
-              <div>
-                <p className='title is-4'>
-                  <strong>Transparent Transactions</strong>
-                </p>
-                <p className='subtitle is-6'>One-click hosting, transparent API transactions</p>
-              </div>
+          </div>
+          <div className='column has-text-centered'>
+            <div>
+              <p className='title is-4'>
+                <strong>Transparent Transactions</strong>
+              </p>
+              <p className='subtitle is-6'>One-click hosting, transparent API transactions</p>
             </div>
-            <div className='column has-text-centered'>
-              <div>
-                <p className='title is-4'>
-                  <strong>Open Data</strong>
-                </p>
-                <p className='subtitle is-6'>Multidimensional and intuitive visualization of investment data</p>
-              </div>
+          </div>
+          <div className='column has-text-centered'>
+            <div>
+              <p className='title is-4'>
+                <strong>Open Data</strong>
+              </p>
+              <p className='subtitle is-6'>Multidimensional and intuitive visualization of investment data</p>
             </div>
-          </nav>
-        </section>
-      </Content>
-    </Layout>
+          </div>
+        </nav>
+      </section>
+    </div>
   );
 };
 
