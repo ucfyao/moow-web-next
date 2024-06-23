@@ -145,7 +145,7 @@ export default function RootLayout({
 
 
               <div className="hidden md:flex justify-center items-center gap-3">
-                <Link href="/">
+                <Link href="/login">
                   <button className="inline-block bg-[#3273dc] py-1 rounded-3xl p-3 text-white">
                     Login/Register
                   </button>
