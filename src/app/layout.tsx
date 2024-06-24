@@ -28,8 +28,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  
-  
+
+
 
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolling, setScrolling] = useState(false)
@@ -49,7 +49,7 @@ export default function RootLayout({
       setScrolling(false)
     }
   }
-  
+
 
 
   return (
@@ -60,12 +60,11 @@ export default function RootLayout({
         <nav className="relative">
           <div
             onChange={handleScroll}
-            className={`fixed z-20 top-0 left-0 right-0 bg-black ${
-              scrolling ? 'bg-opacity-30' : ''
-            } h-[60px] px-2 md:px-8 py-3 text-white`}
+            className={`fixed z-20 top-0 left-0 right-0 bg-black ${scrolling ? 'bg-opacity-30' : ''
+              } h-[60px] px-2 md:px-8 py-3 text-white`}
           >
             <div className="flex justify-between md:justify-around items-center relative">
-              
+
               {/* Navbar Start */}
               <div className="flex justify-center items-center gap-6">
                 <Image src={logo1} alt="Logo" width={96} className="mx-2" />
@@ -258,7 +257,7 @@ export default function RootLayout({
             <p>©2023 AntClony All right reserved</p>
           </div>
         </div>
-        
+
       </body>
     </html>
   );
