@@ -5,6 +5,7 @@ import { Layout, Button, message } from 'antd';
 import axios from 'axios';
 import RootLayout from '../layout';
 import { useNavigate } from 'react-router-dom';
+import "../styles/newmarket.css"
 
 // const { Header, Footer, Content } = Layout;
 
@@ -36,8 +37,17 @@ const AddApiKeyForm: React.FC = () => {
     queryMarketList();
   }, []);
 
+  // Use get method to search all the marketlist
   const queryMarketList = async () => {
-    // Need to be completed.
+    try {
+      const response = await axios.get('/api/keys');
+      // Check the response data and update the status
+      if (response.data && Array.isArray(response.data.list)) {
+        setExchangeList(response.data.list);
+      }
+    } catch (error) {
+      console.error('Failed to fetch market list', error);
+    }
   };
 
   const handleSelectExchange = ( ) => {
