@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import axios from 'axios';
 import '../styles/activate.css';
 
-interface ActivateProps {
-  userId: string;
-}
-
-const Activate: React.FC<ActivateProps> = ({ userId }) => {
+const Activate: React.FC = () => {
   const [timerCounter, setTimerCounter] = useState(0);
   const [buttonDisabled, setButtonDisabled] = useState(false);
+  const router = useRouter();
+  const { userId } = router.query; //dynamic params
 
   const sendActivateEmail = async () => {
     setTimerCounter(60); // Reset the timer to 60 seconds
