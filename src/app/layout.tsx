@@ -2,7 +2,7 @@
 
 // import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "../styles/globals.css";
+import "./globals.css";
 
 import React from 'react'
 import Link from 'next/link'
@@ -73,8 +73,8 @@ export default function RootLayout({
                   <Link href="/" className="px-1 md:px-3 py-2">
                     Home
                   </Link>
-                  <Link href="/" className="px-1 md:px-3 py-2">
-                    Invertment Plan
+                  <Link href="/strategies" className="px-1 md:px-3 py-2">
+                    Investment Plan
                   </Link>
                   <Link href="/" className="px-1 md:px-3 py-2">
                     Arbitrage
@@ -192,8 +192,8 @@ export default function RootLayout({
                   <Link href="/" className="px-3 py-2 ">
                     Home
                   </Link>
-                  <Link href="/" className="px-3 py-2 ">
-                    Invertment
+                  <Link href="/strategies" className="px-3 py-2 ">
+                    Investment
                   </Link>
                   <Link href="/" className="px-3 py-2 ">
                     Arbitrage

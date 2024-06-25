@@ -1,4 +1,4 @@
-import "../../styles/table.css";
+import "./table.css";
 import { FC } from "react";
 import TableCell from "./tableCell";
 
