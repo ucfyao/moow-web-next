@@ -1,7 +1,8 @@
 "use client"  
 
 import React from 'react'
-import Image from 'next/image';
+import Image from 'next/image'
+import Link from 'next/link'
 import slider from '../assets/banner_bp1.jpg'
 import icon_ui2 from '../assets/icon-ui.png'
 import Icon_down from '../assets/icon-down.png'
@@ -145,9 +146,11 @@ export default function Home() {
 
         {/* Invest Button */}
         <div className="flex justify-center items-center">
-          <button className="border-2 text-white bg-[#209cee] text-lg p-2 rounded-md">
-            Invest Now
-          </button>
+          <Link href="/strategies">
+            <button className="border-2 text-white bg-[#209cee] text-lg p-2 rounded-md">
+              Invest Now
+            </button>
+          </Link>
         </div>
       </div>
     </div>
