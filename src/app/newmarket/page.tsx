@@ -4,7 +4,7 @@ import React, { useState, useEffect, ChangeEvent } from 'react';
 import { Layout, Button, message } from 'antd';
 import axios from 'axios';
 import RootLayout from '../layout';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import "../styles/newmarket.css"
 
 // const { Header, Footer, Content } = Layout;
@@ -22,8 +22,8 @@ interface FormData {
   desc: string;
 }
 
-const AddApiKeyForm: React.FC = () => {
-  const navigate = useNavigate(); 
+const NewmarketForm: React.FC = () => {
+  const router = useRouter();
   const [exchangeList, setExchangeList] = useState<Market[]>([]);
   const [formData, setFormData] = useState<FormData>({
     exchange: '',
@@ -32,15 +32,17 @@ const AddApiKeyForm: React.FC = () => {
     desc: '',
   });
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
     queryMarketList();
   }, []);
 
   // Use get method to search all the marketlist
   const queryMarketList = async () => {
     try {
-      const response = await axios.get('/api/keys');
+      const response = await axios.get('/'); // "/api/keys"
       // Check the response data and update the status
       if (response.data && Array.isArray(response.data.list)) {
         setExchangeList(response.data.list);
@@ -63,8 +65,13 @@ const AddApiKeyForm: React.FC = () => {
   };
 
   const goBack = () => {
-    navigate(-1); 
+    router.back();
   };
+
+  if (!isClient) {
+    // Show empty content when server rendering to avoid hydration errors
+    return null;
+  }
 
   return (
     <RootLayout>
@@ -132,7 +139,7 @@ const AddApiKeyForm: React.FC = () => {
   );
 };
 
-export default AddApiKeyForm;
+export default NewmarketForm;
 
 
 
