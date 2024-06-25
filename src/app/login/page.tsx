@@ -6,8 +6,9 @@ import '../styles/login.css';
 import axios from 'axios';
 import auth from '../utils/auth'
 import {getInvalidFields} from '../utils/validator'
-import '../../styles/globals.css';
+import '../styles/globals.css';
 
+const { Header, Content } = Layout;
 interface InvalidFields {
   email?: { message: string }[];
   password?: { message: string }[];
