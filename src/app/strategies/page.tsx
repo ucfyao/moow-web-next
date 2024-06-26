@@ -3,134 +3,130 @@
 // TODO: complete datatable and util files.
 // import DataTable from '../../components/table/dataTable';
 // import Util from '../utils/util';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Image from 'next/image';
+import { format } from 'date-fns';
+import no_record from '../../assets/images/no_record.png';
+import '../styles/strategies.css';
 
 const strayegyList: React.FC = () => {
-    const [tableData, setTableData] = useState();
 
-    // todo: fetch data from backend
-    // useEffect(() => {
-    //     const queryStrategies = async () => {
-    //       try {
-    //         const response = await axios.get('/api/v1/strategies');
-    //         setTableData(response.data);
-    //       } catch (error) {
-    //         console.error(error);
-    //       }
-    //     };
-    //     queryStrategies();
-    //   }, []);
+    const [tableData, setTableData] = useState([]);
 
-    const [isDisabled, setIsDisabled] = useState(false);
-    
-    const switchStrategyStatus = () => {
-        setIsDisabled(!isDisabled);
-    };
-
-    const getClassNameForProfit = (profit) => {
-        return profit >= 0 ? 'has-text-success' : 'has-text-danger';
-    };
-
-    const getClassNameForPercentage = (percentage) => {
-        return percentage >= 0 ? 'has-text-success' : 'has-text-danger';
-    };
-
-    const getClassNameForStatus = (status) => {
-        return status === 'Normal' ? 'has-text-success' : 'has-text-danger';
-    };
-    
-    //for testing
-    const data = [
-        {
-            title: '2024-1-1',
-            exchange: 'Exchange1',
-            symbol: 'Symbol1',
-            quoteTotal: 1000,
-            priceNative: 10.5,
-            priceAverage: 10.0,
-            profit: 50,
-            profitPercentage: 5,
-            status: 'Normal'
-        },
-        {
-            title: '2024-1-2',
-            exchange: 'Exchange2',
-            symbol: 'Symbol2',
-            quoteTotal: 2000,
-            priceNative: 1,
-            priceAverage: 20.0,
-            profit: -20,
-            profitPercentage: -5,
-            status: 'Normal'
-        },
-    ];
-
-    const editStrategy = useCallback((strategyId) => {
+    useEffect(() => {
+        const queryStrategies = async () => {
+            try {
+                // todo: use baseURL instead of hardcode
+                const response = await axios.get('http://127.0.0.1:3001/api/v1/strategies');
+                setTableData(response.data.data);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        queryStrategies();
     }, []);
 
-    const viewStrategy = useCallback((strategy) => {
-    }, []);
+    const getStatusText = (status: string): string => {
+        switch (status) {
+            case '1':
+                return 'Normal';
+            case '2':
+                return 'Stopped';
+            case '3':
+                return 'Deleted';
+            default:
+                return 'Unknown';
+        }
+    };
+
+    const switchStrategyStatus = (strategyId: string) => {
+        setTableData((prevData) =>
+            prevData.map((strategy) =>
+                strategy._id === strategyId
+                    ? { ...strategy, status: strategy.status === '1' ? '2' : '1' }
+                    : strategy
+            )
+        );
+    };
+
+    const editStrategy = (strategyId: string) => {
+        console.log('edit');
+    };
+
+    const viewStrategy = (strategyId: string) => {
+        console.log('view');
+    };
         
     return (
     <div className='container'>
         <section className='section'>
         <div className='box'>
-            <a href='/newStrategy' className='tabs' >
-                New Strategy
-            </a>
+            <a href='/newStrategy' className='tabs-more' > New Strategy </a>
             <div className='tabs'>
-            <ul>
-                <li className='is-active'><a>Investment Plans</a></li>
-            </ul>
+                <ul className='tabs'>
+                    <li className='tabs is-active'><a> Investment Plans </a></li>
+                </ul>
             </div>
-            <table className='table is-fullwidth is-striped' style={{ minWidth: '1050px', fontSize: '0.85rem' }}>
-            <thead>
-                <tr>
-                    <th>Create At</th>
-                    <th>Exchange</th>
-                    <th>Symbol</th>
-                    <th>Quote Total</th>
-                    <th>Price Native</th>
-                    <th>Price Average</th>
-                    <th>Profit</th>
-                    <th>Profit Percentage</th>
-                    <th>Status</th>
-                    <th>Operations</th>
-                </tr>
-            </thead>
-            <tbody>
-            {data.map((row, index) => (
-                <tr key={index}>
-                    <td>{row.title}</td>
-                    <td>{row.exchange}</td>
-                    <td>{row.symbol}</td>
-                    <td>{row.quoteTotal}</td>
-                    <td>{row.priceNative}</td>
-                    <td>{row.priceAverage}</td>
-                    <td className={getClassNameForProfit(row.profit)}>{row.profit}</td>
-                    <td className={getClassNameForPercentage(row.profitPercentage)}>{row.profitPercentage}%</td>
-                    <td className={getClassNameForStatus(row.status)}>{row.status}</td>
-                    <td>
-                        <div className='flex'>
-                        <a className='button is-small is-info is-outlined' 
-                            onClick={editStrategy}>
-                                Edit
-                        </a>
-                        <a className={`button is-small ${isDisabled ? 'is-success' : 'is-danger'} is-outlined`}
-                            onClick={switchStrategyStatus}>
-                                {isDisabled ? 'Enable' : 'Disable'}
-                        </a>
-                        <a className='button is-small is-primary is-outlined'
-                            onClick={viewStrategy}>
-                                View
-                        </a>
-                        </div>
-                    </td>
-                </tr>
-            ))}
-            </tbody>
-            </table>
+
+            <div className='table-wrapper'>
+            {tableData && tableData.length > 0 ? (
+                <table className='table is-fullwidth is-striped' style={{ minWidth: '1050px', fontSize: '0.85rem' }}>
+                    <thead>
+                        <tr>
+                            <th>Create At</th>
+                            <th>Exchange</th>
+                            <th>Symbol</th>
+                            <th>Quote Total</th>
+                            <th>Price Native</th>
+                            <th>Price Average</th>
+                            <th>Profit</th>
+                            <th>Profit Percentage</th>
+                            <th>Status</th>
+                            <th>Operations</th>
+                        </tr>
+                    </thead>
+                    
+                        <tbody>
+                        {tableData.map((row, index) => (
+                            <tr key={index}>
+                                <td>{format(new Date(row.createdAt), 'yyyy/MM/dd HH:mm')}</td>
+                                <td>{row.exchange}</td>
+                                <td>{row.symbol}</td>
+                                <td>{row.quote_total}</td>
+                                <td>{row.price_native}</td>
+                                <td>{(row.base_total/row.quote_total).toString()}</td>
+                                <td className={row.profit >= 0 ? 'has-text-success' : 'has-text-danger'}>{row.profit}</td>
+                                <td className={row.profit_percentage >= 0 ? 'has-text-success' : 'has-text-danger'}>{row.profitPercentage}%</td>
+                                <td className={row.status === '1' ? 'has-text-success' : 'has-text-danger'}>{getStatusText(row.status)}</td>
+
+                                <td>
+                                    <div className='flex'>
+                                        <a className='button is-small is-info is-outlined' 
+                                            onClick={() => editStrategy(row._id)}>
+                                                Edit
+                                        </a>
+                                        <a className={`button is-small 
+                                            ${row.status === '1' ? 'is-danger' : 'is-info'} is-outlined`}
+                                            onClick={() => switchStrategyStatus(row._id)}>
+                                                {row.status==='1' ? 'Disable' : 'Enable'}
+                                        </a>
+                                        <a className='button is-small is-primary is-outlined'
+                                            onClick={() => viewStrategy(row._id)}>
+                                                View 
+                                        </a>
+                                    </div>
+                                </td>
+
+                            </tr>
+                        ))}
+                        </tbody>
+                </table>
+            ) : (
+                <Image src={no_record} alt='No records found' />
+            )}
+                
+            </div>
         </div>
         </section>
     </div>
