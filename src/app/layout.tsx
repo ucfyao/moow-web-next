@@ -76,7 +76,7 @@ export default function RootLayout({
                   <Link href="/strategies" className="px-1 md:px-3 py-2">
                     Investment Plan
                   </Link>
-                  <Link href="/" className="px-1 md:px-3 py-2">
+                  <Link href="/market" className="px-1 md:px-3 py-2">
                     Arbitrage
                   </Link>
                   <div className="relative inline-block text-left group">
