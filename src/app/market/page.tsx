@@ -1,12 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Layout, Menu, MenuProps, Button, Table, Modal, message } from "antd";
 import axios from "axios";
-import { ColumnsType } from "antd/lib/table";
 import RootLayout from "../layout";
+import Link from 'next/link'
 
-const { Header, Footer, Content } = Layout;
 
 interface Market {
   exchange: string;
@@ -15,8 +13,21 @@ interface Market {
   action: string;
 }
 
-const MarketPage: React.FC = () => {
-  const [data, setData] = useState<Market[]>([]);
+const MarketPage = () => {
+  const [data, setData] = useState([
+    {
+      exchange: 'Binance',
+      accessKey: 'abc123',
+      secretKey: 'def456',
+      action: 'Edit'
+    },
+    {
+      exchange: 'Coinbase',
+      accessKey: 'xyz789',
+      secretKey: 'uvw012',
+      action: 'Edit'
+    }
+  ]);
 
   const newMarket = () => {
     // Handle the navigation to add market page，tbd
@@ -27,51 +38,43 @@ const MarketPage: React.FC = () => {
     // Handle the delete of API, tbd
   };
 
-  const columns: ColumnsType<Market> = [
-    {
-      title: 'Exchange',
-      dataIndex: 'exchange',
-      key: 'exchange',
-    },
-    {
-      title: 'Access Key',
-      dataIndex: 'accessKey',
-      key: 'accessKey',
-    },
-    {
-      title: 'Secret Key',
-      dataIndex: 'secretKey',
-      key: 'secretKey',
-    },
-    {
-      title: 'Actions',
-      key: 'action',
-      render: (_, record) => (
-        <Button type="link" onClick={() => removeMarket(record)}>Delete</Button>
-      ),
-    },
-  ];
-
   return (
     <RootLayout>
         <div className="container mx-auto" style={{ marginTop: '70px', maxWidth: '1200px' }}>
             <section className="section">
                 <div className="box">
                   <div className="flex justify-between items-center mb-4">
-                  <a>Exchange Key API Auth</a>
-                    <div className="tabs">
-                      <ul>
-                        <li className="is-active"></li>
-                        <li className="is-active"><a className="tabs-more" onClick={newMarket}>Add API Key</a></li>
-                      </ul>
-                    </div>
+                  <a className="text-blue-600 border-b-2 border-blue-600 pb-1">Exchange Key API Auth</a>
+                  <div className="column has-text-right">
+                    <Link href="/newmarket" legacyBehavior>
+                      <a className="text-blue-600 hover:text-black">Add API Key</a>
+                    </Link>
                   </div>
-                <Table
-                    columns={columns}
-                    dataSource={data}
-                    className="is-fullwidth is-striped"
-                    style={{ minWidth: '800px', fontSize: '0.85rem' }}
-                />
+                  </div>
+                  <div className="table-container">
+                    <table className="table is-fullwidth is-striped">
+                      <thead>
+                        <tr>
+                          <th>Exchanges</th>
+                          <th>Access Key</th>
+                          <th>Secret Key</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {data.map((record, index) => (
+                          <tr key={index}>
+                            <td>{record.exchange}</td>
+                            <td>{record.accessKey}</td>
+                            <td>{record.secretKey}</td>
+                            <td>
+                              <button className="button is-link is-small" onClick={() => removeMarket(record)}>Delete</button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
             </section>
         </div>
