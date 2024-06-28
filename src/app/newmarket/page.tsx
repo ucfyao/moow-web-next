@@ -24,7 +24,13 @@ interface FormData {
 
 const NewmarketForm: React.FC = () => {
   const router = useRouter();
-  const [exchangeList, setExchangeList] = useState<Market[]>([]);
+
+  const [exchangeList, setExchangeList] = useState([
+    { exchange: 'binance', name: 'Binance', url: 'https://www.binance.com' },
+    { exchange: 'huobi', name: 'HuoBi', url: 'https://www.huobi.com' },
+    { exchange: 'okex', name: 'OKEx', url: 'https://www.okex.com' }
+  ]);
+
   const [formData, setFormData] = useState<FormData>({
     exchange: '',
     key: '',
@@ -52,8 +58,8 @@ const NewmarketForm: React.FC = () => {
     }
   };
 
-  const handleSelectExchange = ( ) => {
-    // Need to be completed.
+  const handleSelectExchange = (exchange) => {
+    setFormData({ ...formData, exchange });
   };
 
   const handleInputChange = ( ) => {
@@ -90,7 +96,7 @@ const NewmarketForm: React.FC = () => {
                     <li
                       key={item.exchange}
                       className={`exchange-item ${formData.exchange === item.exchange ? 'active' : ''}`}
-                      // onClick={() => handleSelectExchange(item.exchange)}
+                      onClick={() => handleSelectExchange(item.exchange)}
                     >
                       <p className="tit"><img style={{ width: '22px', marginRight: '5px' }} src={`/images/${item.exchange}.png`} alt={item.name} />{item.name}</p>
                       <p className="desc">{item.url}</p>

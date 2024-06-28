@@ -21,3 +21,36 @@
 .input {
   width: 600px;
 }
+
+.choice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.exchange-item {
+  flex: 1 1 auto;
+  max-width: 200px;
+  padding: 16px;
+  background-color: rgb(246, 246, 246);
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.exchange-item.active {
+  border-color: #007bff;
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+}
+
+.tit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.desc {
+  margin-top: 8px;
+  font-size: 0.9em;
+}
