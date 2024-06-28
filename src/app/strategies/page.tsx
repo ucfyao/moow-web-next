@@ -62,7 +62,7 @@ const strayegyList: React.FC = () => {
     <div className='container'>
         <section className='section'>
         <div className='box'>
-            <a href='/newStrategy' className='tabs-more' > New Strategy </a>
+            <a href='/strategy/new' className='tabs-more' > New Strategy </a>
             <div className='tabs'>
                 <ul className='tabs'>
                     <li className='tabs is-active'><a> Investment Plans </a></li>
