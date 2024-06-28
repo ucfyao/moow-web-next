@@ -1,9 +1,35 @@
 'use client';
 
 import React from 'react';
-import styles from './NewStrategy.module.css';
+import styles from './New.module.css';
+import { useState } from 'react';   
 
 const NewStrategy = () => {
+  const [formData, setFormData] = useState({
+    user_market_id: "",
+    exchange: "",
+    key: "",
+    secret: "",
+    symbol: "",
+    base: "",
+    base_limit: "",
+    quote: "",
+    type: "1",
+    period: "",
+    period_value: [],
+    desc: "",
+    stop_profit_percentage: "",
+    drawdown: ""
+  });
+  const [invalidFields, setInvalidFields] = useState({});
+  
+  const handleInputChange = (e) => {   
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };  
+  
   return (
     <div className="container">
       <section className={styles.section}>
@@ -78,9 +104,11 @@ const NewStrategy = () => {
               label.single_purchase_amount
             </label>
             <div className={styles.control}>
-              <input className={styles.input} type="text" />
+              <input className={styles.input} type="text" name="base_limit" value={formData.base_limit} onChange={handleInputChange} placeholder='input_single_purchase_amount'/>
             </div>
-            <p className="help is-danger" >(invalidFields.base_limit)</p>
+            {invalidFields.base_limit && (
+              <p className="help is-danger">{invalidFields.base_limit}</p>
+            )}
           </div>
 
           <div className="field">
@@ -112,21 +140,21 @@ const NewStrategy = () => {
           <div className="field">
             <label className="label">label.stop_profit_rate</label>
             <div className={styles.control}>
-              <input className={styles.input} type="text" />
+              <input className={styles.input} type="text" name="stop_profit_percentage" value={formData.stop_profit_percentage} onChange={handleInputChange} placeholder='stop_profit_percentage'/>
             </div>
-            <p className="help is-danger">
-              invalidFields.stop_profit_percentage
-            </p>
+            {invalidFields.drawdownstop_profit_percentage && (
+              <p className="help is-danger">{invalidFields.stop_profit_percentage}</p>
+            )}
           </div>
 
           <div className="field">
             <label className="label">label.drawdown</label>
             <div className={styles.control}>
-              <input className={styles.input} type="text" />
-              <p className="help is-danger">
-                invalidFields.drawdown
-              </p>
+              <input className={styles.input} type="text" name="drawdown" value={formData.drawdown} onChange={handleInputChange} placeholder='drawdown_percentage' />
             </div>
+            {invalidFields.drawdown && (
+              <p className="help is-danger">{invalidFields.drawdown}</p>
+            )}
           </div>
 
           <div className="field is-grouped">
