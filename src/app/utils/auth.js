@@ -1,7 +1,5 @@
-/**
- * Created by wainguo on 18/8/8.
- */
 import Cookie from 'js-cookie'
+
 const KEY_OF_LOCALE = 'locale'
 const KEY_OF_USER = 'user'
 const KEY_OF_TOKEN = 'token'
@@ -12,16 +10,20 @@ const KEY_OF_EXCHANGES = 'exchanges'
 const KEY_OF_REFRESHINTERVAL = 'refreshinterval'
 const KEY_OF_ISAUTHENTICATED = 'is-authenticated'
 
+const isClient = typeof window !== 'undefined';
+
 export default {
   getLocale: () => {
-    return window.localStorage.getItem(KEY_OF_LOCALE) || 'zh';
+    return isClient ? window.localStorage.getItem(KEY_OF_LOCALE) || 'zh' : 'zh';
   },
   setLocale: (locale) => {
-    window.localStorage.setItem(KEY_OF_LOCALE, locale);
-    Cookie.set(KEY_OF_LOCALE, locale)
+    if (isClient) {
+      window.localStorage.setItem(KEY_OF_LOCALE, locale);
+      Cookie.set(KEY_OF_LOCALE, locale)
+    }
   },
   login: (loginData) => {
-    if (typeof loginData === 'object') {
+    if (typeof loginData === 'object' && isClient) {
       const user = loginData.user;
       const token = loginData.token;
       const permissionList = loginData.permission && (loginData.permission.resource || []);
@@ -33,79 +35,89 @@ export default {
       window.localStorage.setItem(KEY_OF_TOKEN, token);
 
       window.localStorage.setItem(KEY_OF_PERMISSION, JSON.stringify(permission));
-      window.localStorage.setItem(KEY_OF_ISAUTHENTICATED, true);
+      window.localStorage.setItem(KEY_OF_ISAUTHENTICATED, 'true');
       return true
     }
     return false
   },
   logout: () => {
-    window.localStorage.removeItem(KEY_OF_USER)
-    window.localStorage.removeItem(KEY_OF_TOKEN)
-
-    window.localStorage.removeItem(KEY_OF_PERMISSION)
-    window.localStorage.removeItem(KEY_OF_ISAUTHENTICATED)
+    if (isClient) {
+      window.localStorage.removeItem(KEY_OF_USER)
+      window.localStorage.removeItem(KEY_OF_TOKEN)
+      window.localStorage.removeItem(KEY_OF_PERMISSION)
+      window.localStorage.removeItem(KEY_OF_ISAUTHENTICATED)
+    }
   },
-
   isAuthenticated: function() {
-    return window.localStorage.getItem(KEY_OF_ISAUTHENTICATED) === 'true'
+    return isClient && window.localStorage.getItem(KEY_OF_ISAUTHENTICATED) === 'true'
   },
-
   getToken: () => {
-    return window.localStorage.getItem(KEY_OF_TOKEN)
+    return isClient ? window.localStorage.getItem(KEY_OF_TOKEN) : null;
   },
-
   getUser: () => {
     let user = null
-    try {
-      let rawdata = window.localStorage.getItem(KEY_OF_USER)
-      user = JSON.parse(rawdata)
-    } catch (error) {
-      console.log(error)
+    if (isClient) {
+      try {
+        let rawdata = window.localStorage.getItem(KEY_OF_USER)
+        user = JSON.parse(rawdata)
+      } catch (error) {
+        console.log(error)
+      }
     }
     return user
   },
-
   hasPermission: (code) => {
     let permission = {}
-    try {
-      let rawdata = window.localStorage.getItem(KEY_OF_PERMISSION)
-      permission = JSON.parse(rawdata) || {}
-    } catch (error) {
-      console.log(error)
+    if (isClient) {
+      try {
+        let rawdata = window.localStorage.getItem(KEY_OF_PERMISSION)
+        permission = JSON.parse(rawdata) || {}
+      } catch (error) {
+        console.log(error)
+      }
     }
-
     return permission[code]
   },
-
   setAsLoggedOut: () => {
-    window.localStorage.setItem(KEY_OF_ISAUTHENTICATED, false)
+    if (isClient) {
+      window.localStorage.setItem(KEY_OF_ISAUTHENTICATED, 'false')
+    }
   },
-
-
   setSymbols: (symbols) => {
-    if (!Array.isArray(symbols)) return;
-    window.localStorage.setItem(KEY_OF_SYMBOLS, symbols)
+    if (Array.isArray(symbols) && isClient) {
+      window.localStorage.setItem(KEY_OF_SYMBOLS, symbols)
+    }
   },
   getSymbols: () => {
-    let rawStr = window.localStorage.getItem(KEY_OF_SYMBOLS) || ''
-    return rawStr.split(',').filter(item => item)
+    if (isClient) {
+      let rawStr = window.localStorage.getItem(KEY_OF_SYMBOLS) || ''
+      return rawStr.split(',').filter(item => item)
+    }
+    return []
   },
-
   setExchanges: (exchanges) => {
-    if (!Array.isArray(exchanges)) return;
-    window.localStorage.setItem(KEY_OF_EXCHANGES, exchanges)
+    if (Array.isArray(exchanges) && isClient) {
+      window.localStorage.setItem(KEY_OF_EXCHANGES, exchanges)
+    }
   },
   getExchanges: () => {
-    let rawStr = window.localStorage.getItem(KEY_OF_EXCHANGES) || ''
-    return rawStr.split(',').filter(item => item)
+    if (isClient) {
+      let rawStr = window.localStorage.getItem(KEY_OF_EXCHANGES) || ''
+      return rawStr.split(',').filter(item => item)
+    }
+    return []
   },
-
   setRefreshInterval: (refreshInterval) => {
-    window.localStorage.setItem(KEY_OF_REFRESHINTERVAL, refreshInterval)
+    if (isClient) {
+      window.localStorage.setItem(KEY_OF_REFRESHINTERVAL, refreshInterval)
+    }
   },
   getRefreshInterval: () => {
-    let interval = parseInt(window.localStorage.getItem(KEY_OF_REFRESHINTERVAL)) || 60
-    if (interval < 10) interval = 10
-    return interval
+    if (isClient) {
+      let interval = parseInt(window.localStorage.getItem(KEY_OF_REFRESHINTERVAL)) || 60
+      if (interval < 10) interval = 10
+      return interval
+    }
+    return 60
   }
 }

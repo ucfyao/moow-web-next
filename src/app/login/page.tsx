@@ -8,7 +8,6 @@ import auth from '../utils/auth'
 import {getInvalidFields} from '../utils/validator'
 import '../styles/globals.css';
 
-const { Header, Content } = Layout;
 interface InvalidFields {
   email?: { message: string }[];
   password?: { message: string }[];
