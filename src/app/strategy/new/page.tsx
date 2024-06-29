@@ -1,32 +1,78 @@
 'use client';
 
-import React from 'react';
-import styles from './New.module.css';
-import { useState } from 'react';   
+import React, { useState } from 'react';
+import styles from './New.module.css';  
+import { fetchExchangeSymbolList } from "../../utils/defines"; 
+import Link from 'next/link';
 
-const NewStrategy = () => {
-  const [formData, setFormData] = useState({
+interface SymbolItem {
+  symbol: string;
+  base: string;
+  quote: string;
+}
+
+interface FormData {
+  user_market_id: string;
+  exchange: string;
+  key: string;
+  secret: string;
+  symbol: string;
+  base: string;
+  base_limit: number;
+  quote: string;
+  type: string;
+  period: string;
+  period_value: number[];
+  desc: string;
+  stop_profit_percentage: number;
+  drawdown: number;
+}
+
+interface InvalidFields {
+  [key: string]: string;
+}
+
+interface NewStrategyProps {
+  planId?: string;
+}
+
+const NewStrategy: React.FC<NewStrategyProps> = ({ planId = "" }) => {
+  const symbolList: SymbolItem[] = fetchExchangeSymbolList("");
+
+  const [formData, setFormData] = useState<FormData>({
     user_market_id: "",
     exchange: "",
     key: "",
     secret: "",
     symbol: "",
     base: "",
-    base_limit: "",
+    base_limit: 0,
     quote: "",
     type: "1",
     period: "",
     period_value: [],
     desc: "",
-    stop_profit_percentage: "",
-    drawdown: ""
+    stop_profit_percentage: 0,
+    drawdown: 0
   });
-  const [invalidFields, setInvalidFields] = useState({});
+
+  const [invalidFields, setInvalidFields] = useState<InvalidFields>({});
   
-  const handleInputChange = (e) => {   
+  const handleSelectSymbol = (item: SymbolItem) => {
+    if (!item || typeof item !== "object") return;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      symbol: item.symbol,
+      base: item.base,
+      quote: item.quote
+    });
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {   
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: parseFloat(value) 
     });
   };  
   
@@ -57,10 +103,10 @@ const NewStrategy = () => {
                   <p className="desc">Access Key: 1</p>
                 </li>
                 <li className="more">
-                  <router-link to="/aip/addmarket">
+                  <Link href="/newmarket">
                     <i className="fa fa-plus"></i>
                     <span className="color-light-blue" style={{ cursor: "pointer" }}>action.new_exchange_apikey</span>
-                  </router-link>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -74,13 +120,29 @@ const NewStrategy = () => {
               label.symbol
             </label>
             <div className={styles.control}>
-              <ul className="choice is-clearfix">
-                <p>BTC/USDT</p>
+              <ul className="choice is-clearfix is-flex">
+                {symbolList.map((item) => (
+                  <li 
+                    key={item.symbol} 
+                    className={`symbol-item ${formData.symbol === item.symbol ? 'active' : ''} ${planId ? 'no-drop' : ''}  is-clickable mr-5`}
+                    onClick={() => !planId && handleSelectSymbol(item)}
+                  >
+                    <p>{item.symbol}</p>
+                  </li>
+                ))}
               </ul>
             </div>
-            <p className="help is-danger">invalidFields.symbol</p>
-            <p className="help is-link">prompt.plan_tips</p>
-            <p className="help" style={{ color: '#ff9900', fontWeight: 'bold' }}>*label.not_modifiable</p>
+            {invalidFields.symbol && <p className="help is-danger">{invalidFields.symbol}</p>}
+            {formData.symbol && !planId && (
+              <p className="help is-link">
+                {`prompt.plan_tips base: ${formData.base} quote: ${formData.quote}`}
+              </p>
+            )}
+            {planId && (
+              <p className="help" style={{ color: '#ff9900', fontWeight: 'bold' }}>
+                *label.not_modifiable
+              </p>
+            )}
           </div>
 
           <div className="field">
@@ -104,7 +166,7 @@ const NewStrategy = () => {
               label.single_purchase_amount
             </label>
             <div className={styles.control}>
-              <input className={styles.input} type="text" name="base_limit" value={formData.base_limit} onChange={handleInputChange} placeholder='input_single_purchase_amount'/>
+              <input className={styles.input} type="number" name="base_limit" value={formData.base_limit} onChange={handleInputChange} placeholder='input_single_purchase_amount'/>
             </div>
             {invalidFields.base_limit && (
               <p className="help is-danger">{invalidFields.base_limit}</p>
@@ -140,9 +202,9 @@ const NewStrategy = () => {
           <div className="field">
             <label className="label">label.stop_profit_rate</label>
             <div className={styles.control}>
-              <input className={styles.input} type="text" name="stop_profit_percentage" value={formData.stop_profit_percentage} onChange={handleInputChange} placeholder='stop_profit_percentage'/>
+              <input className={styles.input} type="number" name="stop_profit_percentage" value={formData.stop_profit_percentage} onChange={handleInputChange} placeholder='stop_profit_percentage'/>
             </div>
-            {invalidFields.drawdownstop_profit_percentage && (
+            {invalidFields.stop_profit_percentage && (
               <p className="help is-danger">{invalidFields.stop_profit_percentage}</p>
             )}
           </div>
@@ -150,7 +212,7 @@ const NewStrategy = () => {
           <div className="field">
             <label className="label">label.drawdown</label>
             <div className={styles.control}>
-              <input className={styles.input} type="text" name="drawdown" value={formData.drawdown} onChange={handleInputChange} placeholder='drawdown_percentage' />
+              <input className={styles.input} type="number" name="drawdown" value={formData.drawdown} onChange={handleInputChange} placeholder='drawdown_percentage' />
             </div>
             {invalidFields.drawdown && (
               <p className="help is-danger">{invalidFields.drawdown}</p>
@@ -162,7 +224,7 @@ const NewStrategy = () => {
               <button className="button is-link button-pad">
                 action.modify || action.submit
               </button>
-              <button class="button is-danger button-pad">
+              <button className="button is-danger button-pad">
                 action.delete
               </button>
             </div>
