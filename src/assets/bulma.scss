@@ -1,0 +1,126 @@
+@charset "utf-8";
+
+// Bulma styles start
+$radius: 0;
+$box-radius: 0;
+$box-shadow: 0;
+$section-padding: 1.5rem 1.5rem;
+$table-cell-border: none;
+
+// Form styles
+$label-color: #09263F;
+$label-weight: 400;
+.label {
+  font-size: 0.85rem !important;
+}
+
+@import "~bulma/bulma";
+// Utility classes
+.box .header {
+  min-height: 40px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.box .tabs-more {
+  position: absolute;
+  right: 50px;
+  padding-top: 10px;
+}
+
+.button {
+  border-radius: 4px;
+}
+
+.button+.button {
+  margin-left: 5px;
+}
+
+.button-pad {
+  padding-left: 50px;
+  padding-right: 50px;
+}
+
+// Custom styles
+.choice li {
+  padding: 10px;
+  background: #fafafa;
+  text-align: center;
+  float: left;
+  margin-right: 2%;
+  margin-bottom: 10px;
+  cursor: pointer;
+  border: 1px solid #fafafa;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.choice li.active {
+  border: 1px solid #3273dc;
+  background: #fff;
+}
+
+.choice li.active:after {
+  width: 0;
+  height: 0;
+  display: block;
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  border: 6px solid;
+  border-color: transparent #3273dc #3273dc transparent;
+}
+
+.choice li.more {
+  width: 15%;
+  min-width: 140px;
+  height: 80px;
+  padding-top: 25px;
+  margin-right: 0;
+  font-size: 14px;
+  color: #4F6475;
+  background: #fff;
+  border: 0;
+  cursor: default;
+}
+
+.choice li .desc {
+  font-size: 12px;
+  color: #4F6475;
+}
+
+.bd-rainbow {
+  -webkit-animation: rainbow 8s ease infinite;
+  animation: rainbow 8s ease infinite;
+  background-image: linear-gradient(124deg, #ff470f, #ff3860, #b86bff, #3273dc);
+  background-size: 800% 800%;
+}
+
+.col-red {
+  color: #ed4014;
+}
+
+.col-green {
+  color: #19be6b;
+}
+
+.highcharts-credits {
+  display: none !important;
+}
+
+.button.is-small {
+  border-radius: 4px;
+}
+
+img.captcha {
+  width: 120px;
+  height: 32px;
+}
+
+@media screen and (min-width: 1088px) {
+  html.has-navbar-fixed-top,
+  body.has-navbar-fixed-top {
+    padding-top: 4.25rem !important;
+  }
+}
