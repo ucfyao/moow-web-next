@@ -210,7 +210,7 @@ export default function RootLayout({
                   <Link href="/" className="ml-3 px-3 py-2 ">
                     News
                   </Link>
-                  <Link href="/" className="px-3 py-2 ">
+                  <Link href="/login" className="px-3 py-2 ">
                     <button className="inline-block bg-[#3273dc] py-1 rounded-3xl p-3 text-white">
                       Login/Register
                     </button>

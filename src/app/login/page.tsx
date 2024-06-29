@@ -1,14 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ChangeEvent } from 'react';
 import Image from 'next/image';
 import '../styles/login.css';
 import axios from 'axios';
-import auth from '../utils/auth'
-import {getInvalidFields} from '../utils/validator'
-import '../styles/globals.css';
+import auth from '../utils/auth';
+import { useRouter } from 'next/navigation';
+import {getInvalidFields} from '../utils/validator';
+import '../globals.css';
 
-const { Header, Content } = Layout;
 interface InvalidFields {
   email?: { message: string }[];
   password?: { message: string }[];
@@ -16,12 +16,24 @@ interface InvalidFields {
 }
 
 const Login = () => {
+  const router = useRouter();
   const [captchaSrc, setCaptchaSrc] = useState('');
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     captcha: '',
   });
+  const [invalidFields, setInvalidFields] = useState<InvalidFields>({});
+  const [isLoging, setIsLoging] = useState(false);
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
   const rules = () => ({
     email: [
       { required: true, message: ('validator.account_required') },
@@ -35,16 +47,14 @@ const Login = () => {
       { required: true, message: ('validator.captcha_required') },
     ],
   });
-  const [invalidFields, setInvalidFields] = useState<InvalidFields>({});
-  const [isLoging, setIsLoging] = useState(false);
-
 
   useEffect(() => {
     updateCaptcha();
   }, []);
 
-  const updateCaptcha = () => {
-    setCaptchaSrc('/api/pub/auth/svgCaptcha?' + Math.random());
+  const updateCaptcha = async () => {
+    const response = await axios.get('http://127.0.0.1:3000/api/v1/captcha');
+    setCaptchaSrc(response.data);
   };
 
   const handleLogin = async () => {
@@ -55,7 +65,8 @@ const Login = () => {
     }
     setIsLoging(true);
     try {
-      let response = await axios.post('/pub/auth/signin', formData);
+      let response = await axios.post('http://127.0.0.1:3000/api/v1/auth/login', formData);
+      console.log('respone',response)
       let userData = response.data || null;
       if (auth.login(userData)) {
         // 
@@ -93,8 +104,10 @@ const Login = () => {
                       <input 
                         className='input'
                         type = 'email' 
+                        name='email'
                         placeholder = 'placeholder.email' 
                         value = {formData.email} 
+                        onChange = {handleChange}
                       />
                       <span className = 'icon is-small is-left'>
                         <i className = 'fa fa-envelope'></i>
@@ -107,8 +120,10 @@ const Login = () => {
                       <input 
                         className='input'
                         type='password' 
+                        name='password'
                         placeholder = 'placeholder.password' 
                         value = {formData.password} 
+                        onChange = {handleChange}
                       />
                       <span className = 'icon is-small is-left'>
                         <i className = 'fa fa-lock'></i>
@@ -122,22 +137,16 @@ const Login = () => {
                         <input 
                           className='input'
                           type='text' 
+                          name='captcha'
                           placeholder='placeholder.captcha' 
                           value={formData.captcha} 
+                          onChange = {handleChange}
                         />
                       </p>
-                      <p className ='control'>
-                        <Image                 
-                          className='captcha' 
-                          src={captchaSrc} 
-                          alt='prompt.click_refresh_captcha' 
-                          title='prompt.click_refresh_captcha' 
-                          onClick={updateCaptcha}
-                          width={150}
-                          height={50}
-                        />       
-
-                      </p>
+                      <div className ='control' dangerouslySetInnerHTML={{ __html: captchaSrc }} 
+                        title={'prompt.click_refresh_captcha'} 
+                        onClick={updateCaptcha}
+                      />
                     </div>
                     {invalidFields.captcha && <p className='help is-danger'></p>}
                   </div>
