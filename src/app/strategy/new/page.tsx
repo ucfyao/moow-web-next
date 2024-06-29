@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './New.module.css';  
 import { fetchExchangeSymbolList } from "../../utils/defines"; 
 import Link from 'next/link';
@@ -9,6 +9,11 @@ interface SymbolItem {
   symbol: string;
   base: string;
   quote: string;
+}
+
+interface PlanType {
+  type: string; 
+  name: string;
 }
 
 interface FormData {
@@ -37,7 +42,11 @@ interface NewStrategyProps {
 }
 
 const NewStrategy: React.FC<NewStrategyProps> = ({ planId = "" }) => {
-  const symbolList: SymbolItem[] = fetchExchangeSymbolList("");
+  const [symbolList, setSymbolList] = useState<SymbolItem[]>([]);
+  const planTypeList: PlanType[] = [
+    { type: "1", name: "label.price_investment" }, 
+    // { type: "2", name: "label.value_investment" }, 
+  ];
 
   const [formData, setFormData] = useState<FormData>({
     user_market_id: "",
@@ -58,6 +67,10 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ planId = "" }) => {
 
   const [invalidFields, setInvalidFields] = useState<InvalidFields>({});
   
+  useEffect(() => { 
+    setSymbolList(fetchExchangeSymbolList(""));
+  }, []);
+
   const handleSelectSymbol = (item: SymbolItem) => {
     if (!item || typeof item !== "object") return;
     setFormData({
@@ -65,6 +78,14 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ planId = "" }) => {
       symbol: item.symbol,
       base: item.base,
       quote: item.quote
+    });
+  };
+
+  const handleSelectPlanType = (item: PlanType) => {
+    if (!item || typeof item !== "object") return;
+    setFormData({
+      ...formData,
+      type: item.type
     });
   };
 
@@ -124,7 +145,7 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ planId = "" }) => {
                 {symbolList.map((item) => (
                   <li 
                     key={item.symbol} 
-                    className={`symbol-item ${formData.symbol === item.symbol ? 'active' : ''} ${planId ? 'no-drop' : ''}  is-clickable mr-5`}
+                    className={`symbol-item ${formData.symbol === item.symbol ? 'active' : ''} ${planId ? 'no-drop' : ''}`}
                     onClick={() => !planId && handleSelectSymbol(item)}
                   >
                     <p>{item.symbol}</p>
@@ -152,12 +173,19 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ planId = "" }) => {
             </label>
             <div className={styles.control}>
               <ul className="choice is-clearfix">
-                <li className={styles['plantype-item']}>
-                  <p>item.name</p>
-                </li>
+
+                {planTypeList.map((item) => (
+                  <li 
+                    key={item.type}  
+                    className={`styles['plantype-item'] ${formData.type === item.type ? 'active' : ''}`} 
+                    onClick={() => handleSelectPlanType(item)}
+                  >
+                    <p>{item.name}</p>
+                  </li>
+                ))}
               </ul>
             </div>
-            <p className="help is-danger">invalidFields.type</p>
+            {invalidFields.type && <p className="help is-danger">{invalidFields.type}</p>}
           </div>
 
           <div className="field">
