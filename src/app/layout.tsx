@@ -7,12 +7,12 @@ import "./globals.scss";
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import mail from '../assets/icon-mail.png'
-import telegram from '../assets/telegram.png'
-import wechat from '../assets/wechat.png'
+import mail from '../assets/images/icon-mail.png'
+import telegram from '../assets/images/telegram.png'
+import wechat from '../assets/images/wechat.png'
 
 import { useEffect } from 'react'
-import logo1 from '../assets/logo1.png'
+import logo1 from '../assets/images/logo1.png'
 import { useState } from 'react'
 
 
