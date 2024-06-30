@@ -1,0 +1,7 @@
+.isNone {
+  display: none;
+}
+#line-container {
+  width: 100%;
+  min-height: 20.5rem;
+}

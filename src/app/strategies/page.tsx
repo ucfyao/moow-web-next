@@ -4,15 +4,16 @@
 // import DataTable from '../../components/table/dataTable';
 // import Util from '../utils/util';
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import Image from 'next/image';
 import { format } from 'date-fns';
 import no_record from '../../assets/images/no_record.png';
 import '../styles/strategies.css';
 
-const strayegyList: React.FC = () => {
-
+const StrayegyList: React.FC = () => {
     const [tableData, setTableData] = useState([]);
+    const router = useRouter();
 
     useEffect(() => {
         const queryStrategies = async () => {
@@ -55,7 +56,7 @@ const strayegyList: React.FC = () => {
     };
 
     const viewStrategy = (strategyId: string) => {
-        console.log('view');
+      router.push(`/strategies/${strategyId}`);
     };
         
     return (
@@ -125,7 +126,6 @@ const strayegyList: React.FC = () => {
             ) : (
                 <Image src={no_record} alt='No records found' />
             )}
-                
             </div>
         </div>
         </section>
@@ -133,4 +133,4 @@ const strayegyList: React.FC = () => {
     );
 };
 
-export default strayegyList;
+export default StrayegyList;
