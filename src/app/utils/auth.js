@@ -14,7 +14,7 @@ const KEY_OF_ISAUTHENTICATED = 'is-authenticated'
 
 export default {
   getLocale: () => {
-    return window.localStorage.getItem(KEY_OF_LOCALE) || 'zh';
+    return window.localStorage.getItem(KEY_OF_LOCALE) || 'en';
   },
   setLocale: (locale) => {
     window.localStorage.setItem(KEY_OF_LOCALE, locale);
