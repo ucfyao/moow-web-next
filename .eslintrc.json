@@ -1,3 +1,21 @@
 {
-  "extends": "next/core-web-vitals"
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "extends": ["eslint:recommended", "plugin:react/recommended", "prettier", "next/core-web-vitals"],
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 12,
+    "sourceType": "module"
+  },
+  "plugins": ["react", "prettier", "html"],
+  "rules": {
+    "react/react-in-jsx-scope": "off",
+    "no-unused-vars": "warn",
+    "no-console": "warn",
+    "prettier/prettier": "error"
+  }
 }
