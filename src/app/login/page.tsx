@@ -7,7 +7,7 @@ import axios from 'axios';
 import auth from '../utils/auth';
 import { useRouter } from 'next/navigation';
 import {getInvalidFields} from '../utils/validator';
-import '../globals.css';
+import '../globals.scss';
 
 interface InvalidFields {
   email?: { message: string }[];
@@ -24,7 +24,7 @@ const Login = () => {
     captcha: '',
   });
   const [invalidFields, setInvalidFields] = useState<InvalidFields>({});
-  const [isLoging, setIsLoging] = useState(false);
+  const [isLogging, setisLogging] = useState(false);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -63,7 +63,7 @@ const Login = () => {
       setInvalidFields(invalidFields);
       return;
     }
-    setIsLoging(true);
+    setisLogging(true);
     try {
       let response = await axios.post('http://127.0.0.1:3000/api/v1/auth/login', formData);
       console.log('respone',response)
@@ -77,10 +77,10 @@ const Login = () => {
       } else {
         alert('Login failed, server returned incorrect data');
       }
-      setIsLoging(false);
+      setisLogging(false);
     } catch (error) {
       alert(error || 'prompt.error_occurs');
-      setIsLoging(false);
+      setisLogging(false);
     }
   };
 
@@ -153,9 +153,9 @@ const Login = () => {
                   <div className='field' style={{ marginTop: '30px' }}>
                     <p className='control'>
                       <button 
-                        className={`button is-link is-fullwidth is-focused ${isLoging ? 'is-loading' : ''}`}
+                        className={`button is-link is-fullwidth is-focused ${isLogging ? 'is-loading' : ''}`}
                         onClick={handleLogin}
-                        disabled={isLoging}>
+                        disabled={isLogging}>
                         Sign In
                       </button>
                     </p>
