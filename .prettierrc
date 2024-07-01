@@ -1,18 +1,15 @@
 {
-    "rangeStart": 0,
-    "rangeEnd": "Infinity",
-    "tabWidth": 2,
-    "insertPragma": false,
-    "requirePragma": false,
-    "endOfLine": "lf",
-    "semi": true,
-    "jsxSingleQuote": false,
-    "jsxBracketSameLine": false,
-    "singleQuote": true,
-    "trailingComma": "es5",
-    "printWidth": 100,
-    "useTabs": false,
-    "arrowParens": "always",
-    "bracketSpacing": true,
-    "quoteProps": "consistent"
-  }
+  "tabWidth": 2,
+  "useTabs": false,
+  "insertPragma": false,
+  "requirePragma": false,
+  "endOfLine": "lf",
+  "semi": true,
+  "jsxSingleQuote": false,
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "printWidth": 100,
+  "arrowParens": "always",
+  "bracketSpacing": true,
+  "quoteProps": "consistent"
+}

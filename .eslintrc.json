@@ -1,14 +1,21 @@
 {
   "env": {
     "browser": true,
-    "es2021": true
+    "es2021": true,
+    "node": true
   },
-  "extends": ["eslint:recommended", "plugin:react/recommended", "prettier", "next/core-web-vitals"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "prettier",
+    "next",
+    "plugin:@typescript-eslint/recommended"
+  ],
   "parserOptions": {
     "ecmaFeatures": {
       "jsx": true
     },
-    "ecmaVersion": 12,
+    "ecmaVersion": 2020,
     "sourceType": "module"
   },
   "plugins": ["react", "prettier", "html"],
