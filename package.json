@@ -47,11 +47,6 @@
     "node": "20.10.0",
     "npm": "10.2.3"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
   "lint-staged": {
     "*.{js,jsx}": [
       "eslint --fix",
