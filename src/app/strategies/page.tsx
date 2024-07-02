@@ -1,18 +1,30 @@
 'use client';
 
-// TODO: complete datatable and util files.
-// import DataTable from '../../components/table/dataTable';
-// import Util from '../utils/util';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import Image from 'next/image';
 import { format } from 'date-fns';
 import no_record from '../../assets/images/no_record.png';
-import '../styles/strategies.css';
+import style from '../styles/strategies.module.css';
+import '../globals.scss';
+import Pager from '../../component/pager';
+
+interface Strategy {
+    _id: string;
+    createdAt: string;
+    exchange: string;
+    symbol: string;
+    quote_total: number;
+    price_native:string;
+    base_total: number;
+    profit: number;
+    profit_percentage: number;
+    status: string;
+}
 
 const StrayegyList: React.FC = () => {
-    const [tableData, setTableData] = useState([]);
+    const [tableData, setTableData] = useState<Strategy[]>([]);
     const router = useRouter();
 
     useEffect(() => {
@@ -42,8 +54,8 @@ const StrayegyList: React.FC = () => {
     };
 
     const switchStrategyStatus = (strategyId: string) => {
-        setTableData((prevData) =>
-            prevData.map((strategy) =>
+        setTableData((prevData: Strategy[]) =>
+            prevData.map((strategy: Strategy) =>
                 strategy._id === strategyId
                     ? { ...strategy, status: strategy.status === '1' ? '2' : '1' }
                     : strategy
@@ -58,50 +70,59 @@ const StrayegyList: React.FC = () => {
     const viewStrategy = (strategyId: string) => {
       router.push(`/strategies/${strategyId}`);
     };
-        
+
+    // Handle page changes
+    const itemsPerPage = 10;
+    const [currentPage, setCurrentPage] = useState(1);
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentData = tableData.slice(indexOfFirstItem, indexOfLastItem);
+    
+    const handlePageChange = (pageNumber: number) => {
+        setCurrentPage(pageNumber);
+    };
+
     return (
-    <div className='container'>
-        <section className='section'>
+    <div className='container' style={{marginTop:'40px',marginBottom:'60px',maxWidth: '1344px'}}>
+      <section className='section'>
         <div className='box'>
-            <a href='/strategy/new' className='tabs-more' > New Strategy </a>
-            <div className='tabs'>
-                <ul className='tabs'>
-                    <li className='tabs is-active'><a> Investment Plans </a></li>
-                </ul>
+            <a href='/strategy/new' className='tabs-more' style={{paddingRight:'30px'}}> Create New Plan </a>
+            <div className='tabs' style={{marginBottom: '1.5rem'}}>
+                <ul> <li className='is-active'><a> Investment Plans </a></li></ul>
             </div>
 
-            <div className='table-wrapper'>
+            <div className={style.table_wrapper}>
             {tableData && tableData.length > 0 ? (
                 <table className='table is-fullwidth is-striped' style={{ minWidth: '1050px', fontSize: '0.85rem' }}>
-                    <thead>
-                        <tr>
-                            <th>Create At</th>
-                            <th>Exchange</th>
-                            <th>Symbol</th>
-                            <th>Quote Total</th>
-                            <th>Price Native</th>
-                            <th>Price Average</th>
-                            <th>Profit</th>
-                            <th>Profit Percentage</th>
-                            <th>Status</th>
-                            <th>Operations</th>
+                    <thead className={style.thead}>
+                        <tr className={style.tr}>
+                            <th className={style.th} style={{width:'150px'}}>Create Time</th>
+                            <th className={style.th}>Exchange</th>
+                            <th className={style.th}>Symbol</th>
+                            <th className={style.th}>Quote Total</th>
+                            <th className={style.th}>Price</th>
+                            <th className={style.th}>Average Price</th>
+                            <th className={style.th}>Profit</th>
+                            <th className={style.th}>Profit Rate</th>
+                            <th className={style.th}>Status</th>
+                            <th className={style.th}>Operations</th>
                         </tr>
                     </thead>
                     
                         <tbody>
-                        {tableData.map((row, index) => (
+                        {currentData.map((row, index) => (
                             <tr key={index}>
-                                <td>{format(new Date(row.createdAt), 'yyyy/MM/dd HH:mm')}</td>
-                                <td>{row.exchange}</td>
-                                <td>{row.symbol}</td>
-                                <td>{row.quote_total}</td>
-                                <td>{row.price_native}</td>
-                                <td>{(row.base_total/row.quote_total).toString()}</td>
-                                <td className={row.profit >= 0 ? 'has-text-success' : 'has-text-danger'}>{row.profit}</td>
-                                <td className={row.profit_percentage >= 0 ? 'has-text-success' : 'has-text-danger'}>{row.profitPercentage}%</td>
-                                <td className={row.status === '1' ? 'has-text-success' : 'has-text-danger'}>{getStatusText(row.status)}</td>
+                                <td className={style.td}>{format(new Date(row.createdAt), 'yyyy/MM/dd HH:mm')}</td>
+                                <td className={style.td}>{row.exchange}</td>
+                                <td className={style.td}>{row.symbol}</td>
+                                <td className={style.td}>{row.quote_total}</td>
+                                <td className={style.td}>{row.price_native}</td>
+                                <td className={style.td}>{(row.base_total/row.quote_total).toString()}</td>
+                                <td className={`${style.td} ${row.profit >= 0 ? 'has-text-success' : 'has-text-danger'}`}>{row.profit}</td>
+                                <td className={`${style.td} row.profit_percentage >= 0 ? 'has-text-success' : 'has-text-danger'}`}>{row.profit_percentage}%</td>
+                                <td className={`${style.td} row.status === '1' ? 'has-text-success' : 'has-text-danger'}`}>{getStatusText(row.status)}</td>
 
-                                <td>
+                                <td className={style.td}>
                                     <div className='flex'>
                                         <a className='button is-small is-info is-outlined' 
                                             onClick={() => editStrategy(row._id)}>
@@ -124,11 +145,12 @@ const StrayegyList: React.FC = () => {
                         </tbody>
                 </table>
             ) : (
-                <Image src={no_record} alt='No records found' />
+                <Image className={style.no_record} src={no_record} alt='No records found' />
             )}
             </div>
+          <Pager tableData={tableData} onPageChange={handlePageChange} />
         </div>
-        </section>
+      </section>
     </div>
     );
 };
