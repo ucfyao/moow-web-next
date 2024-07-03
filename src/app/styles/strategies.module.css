@@ -1,0 +1,28 @@
+.table_wrapper {
+    overflow-x: auto;
+}
+
+.thead .th{
+    background-color: #fafafa;
+    color: #4F6475;
+    font-weight: 400;
+    vertical-align: middle;
+}
+
+.tr {
+    color: #4a4a4a; 
+}
+
+.td {
+    vertical-align: middle;
+}
+
+div.button + .button {
+    margin-left: 10px;
+}
+
+.no_record {
+    width: 61px;
+    margin: 60px auto;
+    display: block;
+}
