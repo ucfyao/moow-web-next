@@ -81,17 +81,17 @@ const Pagination: React.FC<PaginationProps> = ({
           </li>
         )}
         {currentPage === 5 && (
-          <li title={currentPage - 3} onClick={() => changePage(currentPage - 3)}>
+          <li title={(currentPage - 3).toString()} onClick={() => changePage(currentPage - 3)}>
             <button className="pagination-link">{currentPage - 3}</button>
           </li>
         )}
         {currentPage - 2 > 1 && (
-          <li title={currentPage - 2} onClick={() => changePage(currentPage - 2)}>
+          <li title={(currentPage - 2).toString()} onClick={() => changePage(currentPage - 2)}>
             <button className="pagination-link">{currentPage - 2}</button>
           </li>
         )}
         {currentPage - 1 > 1 && (
-          <li title={currentPage - 1} onClick={() => changePage(currentPage - 1)}>
+          <li title={(currentPage - 1).toString()} onClick={() => changePage(currentPage - 1)}>
             <button className="pagination-link">{currentPage - 1}</button>
           </li>
         )}
@@ -101,17 +101,17 @@ const Pagination: React.FC<PaginationProps> = ({
           </li>
         )}
         {currentPage + 1 < allPages && (
-          <li title={currentPage + 1} onClick={() => changePage(currentPage + 1)}>
+          <li title={(currentPage + 1).toString()} onClick={() => changePage(currentPage + 1)}>
             <button className="pagination-link">{currentPage + 1}</button>
           </li>
         )}
         {currentPage + 2 < allPages && (
-          <li title={currentPage + 2} onClick={() => changePage(currentPage + 2)}>
+          <li title={(currentPage + 2).toString()} onClick={() => changePage(currentPage + 2)}>
             <button className="pagination-link">{currentPage + 2}</button>
           </li>
         )}
         {allPages - currentPage === 4 && (
-          <li title={currentPage + 3} onClick={() => changePage(currentPage + 3)}>
+          <li title={(currentPage + 3).toString()} onClick={() => changePage(currentPage + 3)}>
             <button className="pagination-link">{currentPage + 3}</button>
           </li>
         )}

@@ -1,3 +1,4 @@
+/** @jsxImportSource @emotion/react */
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -6,7 +7,7 @@ import axios from 'axios';
 import Image from 'next/image';
 import { format } from 'date-fns';
 import no_record from '../../assets/images/no_record.png';
-import style from '../styles/strategies.module.css';
+import { css } from '@emotion/react';
 import Pagination from '../../component/pagination';
 import '../globals.scss';
 
@@ -86,75 +87,68 @@ const StrayegyList: React.FC = () => {
 
   return (
     <div
+      css={strategyListStyle}
       className="container"
-      style={{ marginTop: '40px', marginBottom: '60px', maxWidth: '1344px' }}
     >
       <section className="section">
         <div className="box">
-          <a href="/strategy/new" className="tabs-more" style={{ paddingRight: '30px' }}>
-            {' '}
-            Create New Plan{' '}
+          <a href="/strategy/new" className="tabs-more">
+            Create New Plan
           </a>
-          <div className="tabs" style={{ marginBottom: '1.5rem' }}>
+          <div className="tabs">
             <ul>
-              {' '}
               <li className="is-active">
                 <a> Investment Plans </a>
               </li>
             </ul>
           </div>
 
-          <div className={style.table_wrapper}>
+          <div className="table-wrapper">
             {tableData && tableData.length > 0 ? (
-              <table
-                className="table is-fullwidth is-striped"
-                style={{ minWidth: '1050px', fontSize: '0.85rem' }}
-              >
-                <thead className={style.thead}>
-                  <tr className={style.tr}>
-                    <th className={style.th} style={{ width: '150px' }}>
+              <table className="table is-fullwidth is-striped">
+                <thead>
+                  <tr>
+                    <th style={{ width: '150px' }}>
                       Create Time
                     </th>
-                    <th className={style.th}>Exchange</th>
-                    <th className={style.th}>Symbol</th>
-                    <th className={style.th}>Quote Total</th>
-                    <th className={style.th}>Price</th>
-                    <th className={style.th}>Average Price</th>
-                    <th className={style.th}>Profit</th>
-                    <th className={style.th}>Profit Rate</th>
-                    <th className={style.th}>Status</th>
-                    <th className={style.th}>Operations</th>
+                    <th>Exchange</th>
+                    <th>Symbol</th>
+                    <th>Quote Total</th>
+                    <th>Price</th>
+                    <th>Average Price</th>
+                    <th>Profit</th>
+                    <th>Profit Rate</th>
+                    <th style={{ width: '80px' }}>Status</th>
+                    <th style={{ width: '180px' }}>Operations</th>
                   </tr>
                 </thead>
 
                 <tbody>
                   {currentData.map((row, index) => (
                     <tr key={index}>
-                      <td className={style.td}>
-                        {format(new Date(row.createdAt), 'yyyy/MM/dd HH:mm')}
-                      </td>
-                      <td className={style.td}>{row.exchange}</td>
-                      <td className={style.td}>{row.symbol}</td>
-                      <td className={style.td}>{row.quote_total}</td>
-                      <td className={style.td}>{row.price_native}</td>
-                      <td className={style.td}>{(row.base_total / row.quote_total).toString()}</td>
+                      <td>{format(new Date(row.createdAt), 'yyyy/MM/dd HH:mm')}</td>
+                      <td>{row.exchange}</td>
+                      <td>{row.symbol}</td>
+                      <td>{row.quote_total}</td>
+                      <td>{row.price_native}</td>
+                      <td>{(row.base_total / row.quote_total).toString()}</td>
                       <td
-                        className={`${style.td} ${row.profit >= 0 ? 'has-text-success' : 'has-text-danger'}`}
+                        className={`${row.profit >= 0 ? 'has-text-success' : 'has-text-danger'}`}
                       >
                         {row.profit}
                       </td>
                       <td
-                        className={`${style.td} row.profit_percentage >= 0 ? 'has-text-success' : 'has-text-danger'}`}
+                        className={`${row.profit_percentage >= 0 ? 'has-text-success' : 'has-text-danger'}`}
                       >
                         {row.profit_percentage}%
                       </td>
                       <td
-                        className={`${style.td} row.status === '1' ? 'has-text-success' : 'has-text-danger'}`}
+                        className={`${row.status === '1' ? 'has-text-success' : 'has-text-danger'}`}
                       >
                         {getStatusText(row.status)}
                       </td>
 
-                      <td className={style.td}>
+                      <td>
                         <div className="flex">
                           <a
                             className="button is-small is-info is-outlined"
@@ -182,7 +176,7 @@ const StrayegyList: React.FC = () => {
                 </tbody>
               </table>
             ) : (
-              <Image className={style.no_record} src={no_record} alt="No records found" />
+              <Image className="no-record" src={no_record} alt="No records found" />
             )}
           </div>
           <Pagination
@@ -197,5 +191,53 @@ const StrayegyList: React.FC = () => {
     </div>
   );
 };
+const strategyListStyle = css`
+  .container {
+    margin-top: 40px;
+    margin-bottom: 60px;
+    max-width: 1344px
+  }
+
+  .tabs{
+    margin-bottom: 1.5rem
+  }
+
+  .tabs-more {
+    padding-right: 30px
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+  }
+
+  .table {
+    min-width: 1050px;
+    font-size: 0.85rem;
+  }
+
+  thead, th {
+    background-color: #fafafa;
+    color: #4f6475;
+    font-weight: 400;
+  }
+
+  tr {
+    color: #4a4a4a;
+  }
+
+  td {
+    vertical-align: middle;
+  }
+
+  div.button + .button {
+    margin-left: 10px;
+  }
+
+  .no-record {
+    width: 61px;
+    margin: 60px auto;
+    display: block;
+  }
+`;
 
 export default StrayegyList;
