@@ -15,6 +15,7 @@
     "axios": "^1.7.2",
     "bulma": "^1.0.1",
     "date-fns": "^3.6.0",
+    "highcharts": "^11.4.4",
     "js-cookie": "^3.0.5",
     "next": "^14.2.4",
     "next-i18next": "^15.3.0",
