@@ -3,60 +3,184 @@
 @tailwind utilities;
 @import '../assets/bulma.scss';
 
-
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+html, body {
+  height: 100%;
+  margin: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+.level {
+  padding: 0 5rem;
+}
+
+.site-name {
+  padding: 0 5px;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.navbar {
+  color: #fff;
+  z-index: 12;
+  background: rgba(0, 0, 0, 0.3);
+  /*border: none*/
+}
+
+.navbar .site-name {
+  color: #fff;
+}
+
+.avatar {
+  display: inline-block;
+  vertical-align: middle;
+  border-radius: 50%;
+  margin-right: 10px;
+  height: 36px;
+}
+
+.main-content {
+  background-color: #f7f7f7;
+  min-height: 600px;
+}
+
+.navbar-brand .navbar-item,
+.navbar-item img {
+  width: 8rem !important;
+  height: auto !important;
+  max-height: 3rem !important;
+}
+
+.footer {
+  background-color: #1b1e2e;
+  color: #fff;
+  font-size: 14px;
+  padding: 2rem 1.5rem 0rem;
+}
+
+.footer p {
+  margin-bottom: 10px;
+}
+
+.footer a {
+  color: #b5b5b5;
+}
+
+.share_list {
+  text-align: left;
+}
+
+.button + .button {
+  margin-left: 1rem;
+}
+
+.button.is-rounded {
+  height: 2rem;
+  padding: 0 1rem;
+  font-size: 0.9rem;
+}
+
+@keyframes fadeIn {
+  0% {
+    visibility: visible;
+    opacity: 0.3;
+  }
+  100% {
+    visibility: visible;
+    opacity: 1;
   }
 }
-
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
-    margin: 0;
-    padding: 0;
-  
+.share_list .item:hover .poptip-popper {
+  animation: fadeIn 0.3s linear forwards;
 }
 
+.footer .nav ul > li ul {
+  width: 100%;
+}
 
-.header, .footer {
-  height: 60px;
-  padding: 10px;
-  background-color: #ffffff;
+.footer .nav ul {
+  width: 1200px;
+  font-size: 14px;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.footer .nav ul a {
+  color: #83929f;
+  cursor: pointer;
+  line-height: 24px;
+}
+
+.footer .nav ul a:hover {
+  color: #83929f;
+  cursor: pointer;
+  line-height: 24px;
+}
+
+.share_list .item {
+  display: inline-block;
+  float: left;
+  width: 36px;
+  height: 36px;
   color: #000;
+  box-sizing: border-box;
+  padding-top: 4px;
+  margin-right: 20px;
+  margin-left: 0;
+  /* background-color: #4d5668; */
+  background-color: rgba(58, 68, 87, 0.9);
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
   text-align: center;
 }
 
-.content {
-  height: calc(100vh - 120px);
-  background: url('../assets/images/banner_bp1.jpg') no-repeat center center fixed; 
-  background-size: cover;
+.share_list .item:hover {
+  background-color: rgba(93, 110, 143, 0.9);
+}
+
+.share_list .item:last-child {
   margin: 0;
-  padding: 0;
 }
 
-
-
-
-.ant-menu-horizontal{
-  border-bottom:none!important
+.share_list .item .social-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 50%;
+  transform: translate(-50%, -50%);
 }
-.ant-btn-primary {
-  background-color: #1677ff!important;
+
+.copy-right {
+  border-top: 1px solid #4d5668;
+  padding: 1rem 4rem;
+  text-align: center;
 }
-/* .ant-menu-light.ant-menu-horizontal >.ant-menu-item-selected::after{
-  border-width: 0!important;
-} */
+
+@media screen and (min-width: 1088px) {
+  .home-navbar .navbar-start > .navbar-item,
+  .home-navbar .navbar-end > .navbar-item,
+  .home-navbar .navbar-link {
+    color: #fff;
+  }
+  .navbar.is-spaced {
+    padding: 0.5rem 2rem;
+  }
+}
+@media screen and (max-width: 768px) {
+  .navbar-item img {
+    width: 5rem;
+  }
+}
+.navbar-link::after {
+  margin-top: -0.375em;
+  right: 1.635em;
+  height: 0.425em;
+  width: 0.425em;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  border-right: 0;
+  border-top: 0;
+  border-color: #000;
+}
+.home-navbar .navbar-link::after {
+  border-color: #fff;
+}
