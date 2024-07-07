@@ -9,7 +9,7 @@ import { getInvalidFields } from '../utils/validator';
 import { useRouter } from 'next/navigation';
 
 interface UserMarketItem {
-  user_market_id: string;
+  _id: string;
   exchange: string;
   key: string;
   secret: string;
@@ -59,11 +59,11 @@ interface InvalidFields {
   drawdown?: string;
 }
 interface NewStrategyProps {
-  planId?: string;
+  strategyId?: string;
   marketId?: string;
 }
 
-const NewStrategy: React.FC<NewStrategyProps> = ({ planId = '', marketId = '' }) => {
+const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '' }) => {
   const [userMarketList, setUserMarketList] = useState<UserMarketItem[]>([]);
   const [symbolList, setSymbolList] = useState<SymbolItem[]>([]);
   const planTypeList: PlanType[] = [
@@ -220,14 +220,68 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ planId = '', marketId = '' })
   });
 
   const [invalidFields, setInvalidFields] = useState<InvalidFields>({});
+  const [isCreate, setIsCreate] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
+    getStrategy();
     queryUserMarketList();
     setSymbolList(fetchExchangeSymbolList(''));
-  }, []);
+
+    /* 
+    The following part (marketId) was commented out in the previous project.
+    The following part could be tested with mock url:
+    http://localhost:3001/newStrategy?marketId=5b63b788c4670f7a112aeb60
+    */
+    // const query = new URLSearchParams(window.location.search);
+    // const marketIdQuery = query.get('marketId');
+    // if (marketIdQuery) {
+    //   setFormData((prevFormData) => ({
+    //     ...prevFormData,
+    //     user_market_id: marketIdQuery,
+    //   }));
+    // }
+  }, [strategyId]);
+
+  const getStrategy = async () => {
+    if (!strategyId) {
+      return;
+    }
+
+    try {
+      // TODO  use baseURL instead of hardcode
+      const requestUrl = `http://127.0.0.1:3000/api/v1/strategies/${strategyId}`;
+      const response = await axios.get(requestUrl);
+      const data = response.data;
+      if (data) {
+        setFormData((prevFormData) => ({
+          ...prevFormData,
+          ...data,
+          stop_profit_percentage: data.stop_profit_percentage || undefined,
+          drawdown: data.drawdown || undefined,
+        }));
+        setIsCreate(false);
+        handleSelectPeriod({
+          periodType: data.period,
+          name: '',
+        });
+
+        if (data.period_value) {
+          data.period_value.forEach((value: number) => {
+            handleCheckboxChange({ value, label: '' });
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch plan', error);
+    }
+  };
+
+  const goBack = () => {
+    router.back();
+  };
 
   const desensitization = (val: string): string => {
     if (!val || val.length < 7) return val;
@@ -238,7 +292,7 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ planId = '', marketId = '' })
     if (!item || typeof item !== 'object') return;
     setFormData((prevFormData) => ({
       ...prevFormData,
-      user_market_id: item.user_market_id,
+      user_market_id: item._id,
       exchange: item.exchange,
       key: item.key,
       secret: item.secret,
@@ -252,7 +306,7 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ planId = '', marketId = '' })
 
   const queryUserMarketList = async () => {
     try {
-      // TODO: Replace the mock data with an actual API request when the API is ready.
+      // TODO Replace the mock data with an actual API request when the API is ready.
       // const response = await axios.get('http://127.0.0.1:3000/api/v1/keys');
 
       // mock data
@@ -306,15 +360,16 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ planId = '', marketId = '' })
 
       if (response.data && Array.isArray(response.data.list)) {
         const userMarketList = response.data.list.map((item) => ({
-          user_market_id: item._id,
+          _id: item._id,
           exchange: item.exchange,
           key: item.access_key,
           secret: item.secret_key,
+          user: item.uid,
         }));
         setUserMarketList(userMarketList);
 
         if (marketId) {
-          const userMarket = userMarketList.find((element) => element.user_market_id === marketId);
+          const userMarket = userMarketList.find((element) => element._id === marketId);
           if (userMarket) {
             handleSelectUserMarket(userMarket);
           }
@@ -385,21 +440,53 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ planId = '', marketId = '' })
     }
     setIsProcessing(true);
     try {
+      const requestMethod = strategyId ? 'patch' : 'post';
+      // TODO  use baseURL instead of hardcode
+      const requestUrl = strategyId
+        ? `http://127.0.0.1:3000/api/v1/strategies/${strategyId}`
+        : 'http://127.0.0.1:3000/api/v1/strategies';
       const requestData = formData;
-      // TODO: Accommodate for "Edit Strategy"
-      const requestUrl = 'http://127.0.0.1:3000/api/v1/strategies';
-      const response = await axios.post(requestUrl, requestData);
+      const response = await axios({
+        method: requestMethod,
+        url: requestUrl,
+        data: requestData,
+      });
       console.log(response);
       setIsProcessing(false);
       router.push('/strategies');
     } catch (error) {
-      console.error(error);
+      const errorMessage = (error as Error).message || 'prompt.error_occurs';
+      alert(errorMessage);
       setIsProcessing(false);
     }
   };
 
-  const handleDeleteInvestmentPlan = () => {
-    // TODO:
+  const handleDeleteInvestmentPlan = async () => {
+    if (isDelete) return;
+    setIsDelete(true);
+
+    const confirmed = window.confirm('prompt.confirm_switch_plan_status + action.delete');
+    if (!confirmed) {
+      setIsDelete(false);
+      return;
+    }
+
+    try {
+      // TODO  use baseURL instead of hardcode
+      const requestData = {
+        _id: formData.user_market_id,
+        status: '3',
+      };
+      const requestUrl = `http://127.0.0.1:3000/api/v1/strategies/${strategyId}`;
+      const response = await axios.patch(requestUrl, requestData);
+      console.log(response);
+      setIsDelete(false);
+      router.push('/strategies');
+    } catch (error) {
+      const errorMessage = (error as Error).message || 'prompt.error_occurs';
+      alert(errorMessage);
+      setIsDelete(false);
+    }
   };
 
   return (
@@ -407,12 +494,12 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ planId = '', marketId = '' })
       <section className={styles.section}>
         <div className={styles.box}>
           <div className="header">
-            <p>
-              <span>caption.new_plan</span>
-              <br />
-              <span>caption.edit_plan</span>
+            <p className="is-size-6 is-pulled-left" style={{ marginRight: '10px' }}>
+              {isCreate ? <span>{'caption.new_plan'}</span> : <span>{'caption.edit_plan'}</span>}
             </p>
-            <a>action.go_back</a>
+            <a onClick={goBack} className="is-pulled-right">
+              action.go_back
+            </a>
           </div>
 
           <div className="field">
@@ -425,8 +512,8 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ planId = '', marketId = '' })
                 {userMarketList.map((item) => (
                   <li
                     key={item.exchange}
-                    className={`styles[market-item] ${formData.user_market_id === item.user_market_id ? 'active' : ''} ${planId ? 'no-drop' : ''}`}
-                    onClick={() => !planId && handleSelectUserMarket(item)}
+                    className={`styles[market-item] ${formData.user_market_id === item._id ? 'active' : ''} ${strategyId ? 'no-drop' : ''}`}
+                    onClick={() => !strategyId && handleSelectUserMarket(item)}
                   >
                     <p className="tit">
                       <img
@@ -452,7 +539,7 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ planId = '', marketId = '' })
             {invalidFields.user_market_id && (
               <p className="help is-danger">{invalidFields.user_market_id}</p>
             )}
-            {planId && (
+            {strategyId && (
               <p className="help" style={{ color: '#ff9900', fontWeight: 'bold' }}>
                 *label.not_modifiable
               </p>
@@ -469,8 +556,8 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ planId = '', marketId = '' })
                 {symbolList.map((item) => (
                   <li
                     key={item.symbol}
-                    className={`symbol-item ${formData.symbol === item.symbol ? 'active' : ''} ${planId ? 'no-drop' : ''}`}
-                    onClick={() => !planId && handleSelectSymbol(item)}
+                    className={`symbol-item ${formData.symbol === item.symbol ? 'active' : ''} ${strategyId ? 'no-drop' : ''}`}
+                    onClick={() => !strategyId && handleSelectSymbol(item)}
                   >
                     <p>{item.symbol}</p>
                   </li>
@@ -478,12 +565,12 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ planId = '', marketId = '' })
               </ul>
             </div>
             {invalidFields.symbol && <p className="help is-danger">{invalidFields.symbol}</p>}
-            {formData.symbol && !planId && (
+            {formData.symbol && !strategyId && (
               <p className="help is-link">
                 {`prompt.plan_tips base: ${formData.base} quote: ${formData.quote}`}
               </p>
             )}
-            {planId && (
+            {strategyId && (
               <p className="help" style={{ color: '#ff9900', fontWeight: 'bold' }}>
                 *label.not_modifiable
               </p>
@@ -618,9 +705,9 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ planId = '', marketId = '' })
                 onClick={handleCreateInvestmentPlan}
                 disabled={isProcessing}
               >
-                {planId ? 'action.modify' : 'action.submit'}
+                {strategyId ? 'action.modify' : 'action.submit'}
               </button>
-              {planId && (
+              {strategyId && (
                 <button
                   className={`button is-danger button-pad ${isDelete ? 'is-loading' : ''}`}
                   onClick={handleDeleteInvestmentPlan}
