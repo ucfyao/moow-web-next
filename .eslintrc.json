@@ -5,8 +5,10 @@
     "es2021": true
   },
   "extends": [
-    "eslint:recommended",
-    "plugin:react/recommended",
+    "airbnb",
+    "airbnb/hooks",
+    "airbnb-typescript",
+    "plugin:@typescript-eslint/recommended",
     "plugin:jsx-a11y/recommended",
     "plugin:import/errors",
     "plugin:import/warnings",
@@ -14,7 +16,7 @@
     "plugin:promise/recommended",
     "plugin:node/recommended",
     "plugin:security/recommended",
-    "airbnb",
+    "next/core-web-vitals",
     "prettier"
   ],
   "plugins": [
@@ -60,6 +62,12 @@
   "settings": {
     "react": {
       "version": "detect"
+    },
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+      },
+      "typescript": {}
     }
   },
   "overrides": [
