@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "lint:js": "eslint --ext .js,.jsx,.ts,.tsx ./src",
+    "lint:prettier": "prettier -c --write \"src/**/*\""
   },
   "dependencies": {
     "@emotion/react": "^11.11.4",
@@ -15,6 +17,7 @@
     "axios": "^1.7.2",
     "bulma": "^1.0.1",
     "date-fns": "^3.6.0",
+    "eslint-config-airbnb-typescript": "^18.0.0",
     "highcharts": "^11.4.4",
     "js-cookie": "^3.0.5",
     "next": "^14.2.4",
@@ -60,13 +63,15 @@
     "npm": "10.2.3"
   },
   "lint-staged": {
-    "*.{js,jsx}": [
+    "*.{js,jsx,ts,tsx}": [
       "eslint --fix",
-      "prettier --write"
+      "prettier --write",
+      "git add"
     ],
     "*.{css,scss}": [
       "stylelint --fix",
-      "prettier --write"
+      "prettier --write",
+      "git add"
     ]
   },
   "config": {
