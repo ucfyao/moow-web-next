@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
-import { i18n } from './next-i18next.config.js';
-const nextConfig = {
+const { i18n } = require('./next-i18next.config.js');
+
+module.exports = {
   async rewrites() {
     if (process.env.NODE_ENV === 'development') {
       return [
@@ -15,5 +16,3 @@ const nextConfig = {
   },
   i18n,
 };
-  
-export default nextConfig;
