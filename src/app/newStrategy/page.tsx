@@ -1,7 +1,8 @@
+/** @jsxImportSource @emotion/react */
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import styles from './New.module.css';
+import { css } from '@emotion/react';
 import { fetchExchangeSymbolList } from '../utils/defines';
 import Link from 'next/link';
 import axios from 'axios';
@@ -490,9 +491,9 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
   };
 
   return (
-    <div className="container">
-      <section className={styles.section}>
-        <div className={styles.box}>
+    <div css={newStrategyStyle} className="container">
+      <section className="section">
+        <div className="box">
           <div className="header">
             <p className="is-size-6 is-pulled-left" style={{ marginRight: '10px' }}>
               {isCreate ? <span>{'caption.new_plan'}</span> : <span>{'caption.edit_plan'}</span>}
@@ -507,7 +508,7 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
               <span className="has-text-danger">*</span>
               label.exchange_apikey
             </label>
-            <div className={styles.control}>
+            <div className="control">
               <ul className="choice is-clearfix">
                 {userMarketList.map((item) => (
                   <li
@@ -551,7 +552,7 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
               <span className="has-text-danger">*</span>
               label.symbol
             </label>
-            <div className={styles.control}>
+            <div className="control">
               <ul className="choice is-clearfix is-flex">
                 {symbolList.map((item) => (
                   <li
@@ -582,7 +583,7 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
               <span className="has-text-danger">*</span>
               label.plan_type
             </label>
-            <div className={styles.control}>
+            <div className="control">
               <ul className="choice is-clearfix">
                 {planTypeList.map((item) => (
                   <li
@@ -603,9 +604,9 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
               <span className="has-text-danger">*</span>
               label.single_purchase_amount
             </label>
-            <div className={styles.control}>
+            <div className="control">
               <input
-                className={styles.input}
+                className="input"
                 type="number"
                 name="base_limit"
                 value={formData.base_limit !== undefined ? formData.base_limit : ''}
@@ -623,7 +624,7 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
               <span className="has-text-danger">*</span>
               label.plan_period
             </label>
-            <div className={styles.control}>
+            <div className="control">
               <ul className="choice is-clearfix">
                 {periodList.map((item) => (
                   <li
@@ -639,7 +640,7 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
           </div>
 
           <div className="field">
-            <div className={styles.control}>
+            <div className="control">
               {periodDataList.map((item) => (
                 <label className="checkbox" key={item.value}>
                   <input
@@ -664,9 +665,9 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
 
           <div className="field">
             <label className="label">label.stop_profit_rate</label>
-            <div className={styles.control}>
+            <div className="control">
               <input
-                className={styles.input}
+                className="input"
                 type="number"
                 name="stop_profit_percentage"
                 value={
@@ -685,9 +686,9 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
 
           <div className="field">
             <label className="label">label.drawdown</label>
-            <div className={styles.control}>
+            <div className="control">
               <input
-                className={styles.input}
+                className="input"
                 type="number"
                 name="drawdown"
                 value={formData.drawdown !== undefined ? formData.drawdown : ''}
@@ -699,7 +700,7 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
           </div>
 
           <div className="field is-grouped">
-            <div className={styles.control}>
+            <div className="control">
               <button
                 className={`button is-link button-pad ${isProcessing ? 'is-loading' : ''}`}
                 onClick={handleCreateInvestmentPlan}
@@ -723,5 +724,47 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
     </div>
   );
 };
+
+const newStrategyStyle = css`
+  .box {
+    margin: 0 auto;
+    padding: 30px 50px 50px;
+  }
+
+  .no-drop {
+    cursor: no-drop;
+  }
+
+  .control label {
+    margin-right: 10px;
+    width: 100px;
+  }
+
+  .input {
+    width: 600px;
+  }
+
+  .market-item {
+    width: 200px;
+  }
+
+  .plantype-item {
+    width: 150px;
+  }
+
+  .period-item {
+    width: 120px;
+  }
+
+  @media screen and (max-width: 768px) {
+    .section {
+      padding: 20px 0;
+    }
+
+    .box {
+      padding: 30px 10px;
+    }
+  }
+`;
 
 export default NewStrategy;
