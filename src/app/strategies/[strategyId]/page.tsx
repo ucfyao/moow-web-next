@@ -62,8 +62,7 @@ const strategyDetails: React.FC = () => {
   useEffect(() => {
     const queryDetails = async () => {
         try {
-            // TODO  use baseURL instead of hardcode
-            const detailsResponse = await axios.get(`http://127.0.0.1:3001/api/v1/strategies/${strategyId}`);
+            const detailsResponse = await axios.get(`/api/v1/strategies/${strategyId}`);
             const data = detailsResponse.data.data;
 
             // Set variables
@@ -95,8 +94,7 @@ const strategyDetails: React.FC = () => {
     };
     const queryOrders = async () => {
       try {
-          // TODO  use baseURL instead of hardcode
-          const ordersResponse = await axios.get(`http://127.0.0.1:3001/api/v1/orders?strategy_id=${strategyId}`);
+          const ordersResponse = await axios.get(`/api/v1/orders?strategy_id=${strategyId}`);
           const orderData = ordersResponse.data.data.list;
           setOrders(orderData);
           
