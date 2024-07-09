@@ -9,7 +9,10 @@ import { format } from 'date-fns';
 import no_record from '../../assets/images/no_record.png';
 import { css } from '@emotion/react';
 import Pagination from '../../component/pagination';
-import '../globals.scss';
+import '../../app/globals.scss';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { GetStaticProps } from 'next';
 
 interface Strategy {
   _id: string;
@@ -25,6 +28,7 @@ interface Strategy {
 }
 
 const StrayegyList: React.FC = () => {
+  const { t } = useTranslation('common');
   const [tableData, setTableData] = useState<Strategy[]>([]);
   const router = useRouter();
 
@@ -32,7 +36,7 @@ const StrayegyList: React.FC = () => {
     const queryStrategies = async () => {
       try {
         // todo: use baseURL instead of hardcode
-        const response = await axios.get('http://127.0.0.1:3001/api/v1/strategies');
+        const response = await axios.get('/api/v1/strategies');
         setTableData(response.data.data);
       } catch (error) {
         console.error(error);
@@ -44,11 +48,11 @@ const StrayegyList: React.FC = () => {
   const getStatusText = (status: string): string => {
     switch (status) {
       case '1':
-        return 'Normal';
+        return t('title.status_normal');
       case '2':
-        return 'Stopped';
+        return t('title.status_stopped');
       case '3':
-        return 'Deleted';
+        return t('title.status_deleted');
       default:
         return 'Unknown';
     }
@@ -93,12 +97,12 @@ const StrayegyList: React.FC = () => {
       <section className="section">
         <div className="box">
           <a href="/strategy/new" className="tabs-more">
-            Create New Plan
+            {t('action.new_plan')}
           </a>
           <div className="tabs">
             <ul>
               <li className="is-active">
-                <a> Investment Plans </a>
+                <a>{t('caption.investment_plans')}</a>
               </li>
             </ul>
           </div>
@@ -109,17 +113,17 @@ const StrayegyList: React.FC = () => {
                 <thead>
                   <tr>
                     <th style={{ width: '150px' }}>
-                      Create Time
+                      {t('title.create_time')}
                     </th>
-                    <th>Exchange</th>
-                    <th>Symbol</th>
-                    <th>Quote Total</th>
-                    <th>Price</th>
-                    <th>Average Price</th>
-                    <th>Profit</th>
-                    <th>Profit Rate</th>
-                    <th style={{ width: '80px' }}>Status</th>
-                    <th style={{ width: '180px' }}>Operations</th>
+                    <th>{t('title.exchange')}</th>
+                    <th>{t('title.symbol')}</th>
+                    <th>{t('title.quote_total')}</th>
+                    <th>{t('title.price_native')}</th>
+                    <th>{t('title.price_average')}</th>
+                    <th>{t('title.profit')}</th>
+                    <th>{t('title.profit_percentage')}</th>
+                    <th style={{ width: '80px' }}>{t('title.status')}</th>
+                    <th style={{ width: '180px' }}>{t('title.operations')}</th>
                   </tr>
                 </thead>
 
@@ -154,20 +158,20 @@ const StrayegyList: React.FC = () => {
                             className="button is-small is-info is-outlined"
                             onClick={() => editStrategy(row._id)}
                           >
-                            Edit
+                            {t('action.edit')}
                           </a>
                           <a
                             className={`button is-small 
                                             ${row.status === '1' ? 'is-danger' : 'is-info'} is-outlined`}
                             onClick={() => switchStrategyStatus(row._id)}
                           >
-                            {row.status === '1' ? 'Disable' : 'Enable'}
+                            {row.status === '1' ? t('action.disable') : t('action.enable')}
                           </a>
                           <a
                             className="button is-small is-primary is-outlined"
                             onClick={() => viewStrategy(row._id)}
                           >
-                            View
+                            {t('action.view')}
                           </a>
                         </div>
                       </td>
@@ -191,6 +195,7 @@ const StrayegyList: React.FC = () => {
     </div>
   );
 };
+
 const strategyListStyle = css`
   .container {
     margin-top: 40px;
@@ -239,5 +244,11 @@ const strategyListStyle = css`
     display: block;
   }
 `;
+
+export const getStaticProps: GetStaticProps = async ({ locale }) => ({
+  props: {
+    ...(await serverSideTranslations(locale!, ['common'])),
+  },
+});
 
 export default StrayegyList;

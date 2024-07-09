@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 interface PaginationProps {
   current: number;
   total: number;
-  pageSize: number;
+  pageSize?: number;
   showTotal: boolean;
   onPageChange: (newPage: number) => void;
 }
@@ -11,7 +11,7 @@ interface PaginationProps {
 const Pagination: React.FC<PaginationProps> = ({
   current,
   total,
-  pageSize,
+  pageSize=10,
   showTotal,
   onPageChange,
 }) => {
