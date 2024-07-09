@@ -1,13 +1,17 @@
 'use client';
 
+import type { NextPageWithLayout } from "./_app";
+import Layout from "../component/Layout";
 import React, { useState, useEffect, useRef, ChangeEvent } from 'react';
-import '../app/styles/signup.css';
+import '../pages/styles/signup.css';
 import axios from 'axios';
 import {getInvalidFields} from '../app/utils/validator';
 import { useRouter } from 'next/navigation'
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { GetStaticProps } from 'next';
+//import nextI18NextConfig from '../../next-i18next.config.js'
+import auth from '../app/utils/auth';
 
 interface InvalidFields {
   name?: { message: string }[];
@@ -18,8 +22,8 @@ interface InvalidFields {
   refCode?: { message: string }[];
 }
 
-const Signup = () => {
-  const { t } = useTranslation('common');
+const Signup: NextPageWithLayout = () => {
+  const { t, i18n } = useTranslation('common');
   const router = useRouter();
   const [captchaSrc, setCaptchaSrc] = useState('');
   const [invalidFields, setInvalidFields] = useState<InvalidFields>({});
@@ -34,6 +38,11 @@ const Signup = () => {
     captcha: '',
     refCode: '',
   });
+
+  useEffect(() => {
+    const initialLocale = auth.getLocale();
+    i18n.changeLanguage(initialLocale);
+  }, [i18n.language]);
 
   //handle text input
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -304,10 +313,22 @@ const Signup = () => {
   );
 };
 
-export const getStaticProps: GetStaticProps = async ({ locale }) => ({
-  props: {
-    ...(await serverSideTranslations(locale!, ['common'])),
-  },
-});
+export const getStaticProps: GetStaticProps = async ({ locale }) => {
+  console.log("Current locale in getStaticProps:", locale);
+  return {
+    props: {
+      //...(await serverSideTranslations(locale!, ['common'])),
+      ...(await serverSideTranslations(locale ?? 'en', ['common'])),
+    },
+  };
+};
 
 export default Signup;
+
+Signup.getLayout = function getLayout(page: React.ReactElement) {
+  return (
+    <Layout>
+      {page}
+    </Layout>
+  );
+};
