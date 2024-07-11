@@ -3,14 +3,14 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import slider from '@/assets/images/banner_bp1.jpg';
-import icon_ui2 from '@/assets/images/icon-ui.png';
-import Icon_down from '@/assets/images/icon-down.png';
-import Icon_tech1 from '@/assets/images/icon-tech-pf1.png';
-import Icon_tech2 from '@/assets/images/icon-tech-pf2.png';
-import Icon_tech3 from '@/assets/images/icon-tech-pf3.png';
-import Icon_tech4 from '@/assets/images/icon-tech-pf4.png';
-import Layout from '@/components/Layout';
+import slider from '@/src/assets/images/banner_bp1.jpg';
+import icon_ui2 from '@/src/assets/images/icon-ui.png';
+import Icon_down from '@/src/assets/images/icon-down.png';
+import Icon_tech1 from '@/src/assets/images/icon-tech-pf1.png';
+import Icon_tech2 from '@/src/assets/images/icon-tech-pf2.png';
+import Icon_tech3 from '@/src/assets/images/icon-tech-pf3.png';
+import Icon_tech4 from '@/src/assets/images/icon-tech-pf4.png';
+import Layout from '@/src/components/Layout';
 
 export default function Home() {
   return (

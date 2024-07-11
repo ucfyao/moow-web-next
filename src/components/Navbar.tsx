@@ -4,10 +4,10 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
-import auth from '@/utils/auth';
+import auth from '@/src/utils/auth';
 import { useTranslation } from 'next-i18next';
-import logo1 from '@/assets/images/logo1.png';
-import logo2 from '@/assets/images/logo2.png';
+import logo1 from '@/src/assets/images/logo1.png';
+import logo2 from '@/src/assets/images/logo2.png';
 
 export default function Navbar() {
   const { t, i18n } = useTranslation('common');

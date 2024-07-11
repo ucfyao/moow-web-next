@@ -2,10 +2,10 @@ import type { NextPage } from 'next';
 import type { AppProps } from 'next/app';
 import { appWithTranslation } from 'next-i18next';
 import { Provider } from 'react-redux';
-import store from '../store';
-import '@/styles/globals.scss';
+import store from '@/src/store';
+import '@/src/styles/global.scss';
+
 import Head from 'next/head';
-import '../i18n';
 
 export type NextPageWithLayout = NextPage & {
   getLayout?: (page: React.ReactElement) => React.ReactNode;
