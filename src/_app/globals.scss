@@ -3,7 +3,6 @@
 @tailwind utilities;
 @import '../assets/bulma.scss';
 
-
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
@@ -20,19 +19,14 @@
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
+  background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb)))
     rgb(var(--background-start-rgb));
-    margin: 0;
-    padding: 0;
-  
+  margin: 0;
+  padding: 0;
 }
 
-
-.header, .footer {
+.header,
+.footer {
   height: 60px;
   padding: 10px;
   background-color: #ffffff;
@@ -42,20 +36,17 @@ body {
 
 .content {
   height: calc(100vh - 120px);
-  background: url('../assets/images/banner_bp1.jpg') no-repeat center center fixed; 
+  background: url('../assets/images/banner_bp1.jpg') no-repeat center center fixed;
   background-size: cover;
   margin: 0;
   padding: 0;
 }
 
-
-
-
-.ant-menu-horizontal{
-  border-bottom:none!important
+.ant-menu-horizontal {
+  border-bottom: none !important;
 }
 .ant-btn-primary {
-  background-color: #1677ff!important;
+  background-color: #1677ff !important;
 }
 /* .ant-menu-light.ant-menu-horizontal >.ant-menu-item-selected::after{
   border-width: 0!important;

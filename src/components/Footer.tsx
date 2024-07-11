@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React from 'react';
 import Link from 'next/link';
@@ -6,7 +6,7 @@ import Image from 'next/image';
 import mail from '../assets/images/icon-mail.png';
 import telegram from '../assets/images/telegram.png';
 import wechat from '../assets/images/wechat.png';
-import Tip from './tip';
+import Tip from './Tip';
 
 export default function Footer() {
   return (
@@ -15,16 +15,24 @@ export default function Footer() {
         <nav className="level">
           <div className="level-left">
             <div className="level-item">
-              <Link href="/" target="_blank">About us</Link>
+              <Link href="/" target="_blank">
+                About us
+              </Link>
             </div>
             <div className="level-item">
-              <Link href="/" target="_blank">FAQ</Link>
+              <Link href="/" target="_blank">
+                FAQ
+              </Link>
             </div>
             <div className="level-item">
-              <Link href="/" target="_blank">Use Tutorial</Link>
+              <Link href="/" target="_blank">
+                Use Tutorial
+              </Link>
             </div>
             <div className="level-item">
-              <Link href="http://cn.mikecrm.com/ovI6Cub" target="_blank">Business Partner</Link>
+              <Link href="http://cn.mikecrm.com/ovI6Cub" target="_blank">
+                Business Partner
+              </Link>
             </div>
           </div>
           <div className="level-right">
@@ -52,7 +60,7 @@ export default function Footer() {
           </div>
         </nav>
         <div className="copy-right">
-          <p className="has-text-grey-light">© 2024  AntClony All right reserved</p>
+          <p className="has-text-grey-light">© 2024 AntClony All right reserved</p>
         </div>
       </div>
     </footer>

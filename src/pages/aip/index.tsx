@@ -8,8 +8,7 @@ import Image from 'next/image';
 import { format } from 'date-fns';
 import no_record from '../../assets/images/no_record.png';
 import { css } from '@emotion/react';
-import Pagination from '../../component/pagination';
-import '../../app/globals.scss';
+import Pagination from '../../components/Pagination';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { GetStaticProps } from 'next';
@@ -90,10 +89,7 @@ const StrayegyList: React.FC = () => {
   };
 
   return (
-    <div
-      css={strategyListStyle}
-      className="container"
-    >
+    <div css={strategyListStyle} className="container">
       <section className="section">
         <div className="box">
           <a href="/strategy/new" className="tabs-more">
@@ -112,9 +108,7 @@ const StrayegyList: React.FC = () => {
               <table className="table is-fullwidth is-striped">
                 <thead>
                   <tr>
-                    <th style={{ width: '150px' }}>
-                      {t('title.create_time')}
-                    </th>
+                    <th style={{ width: '150px' }}>{t('title.create_time')}</th>
                     <th>{t('title.exchange')}</th>
                     <th>{t('title.symbol')}</th>
                     <th>{t('title.quote_total')}</th>
@@ -136,9 +130,7 @@ const StrayegyList: React.FC = () => {
                       <td>{row.quote_total}</td>
                       <td>{row.price_native}</td>
                       <td>{(row.base_total / row.quote_total).toString()}</td>
-                      <td
-                        className={`${row.profit >= 0 ? 'has-text-success' : 'has-text-danger'}`}
-                      >
+                      <td className={`${row.profit >= 0 ? 'has-text-success' : 'has-text-danger'}`}>
                         {row.profit}
                       </td>
                       <td
@@ -161,7 +153,7 @@ const StrayegyList: React.FC = () => {
                             {t('action.edit')}
                           </a>
                           <a
-                            className={`button is-small 
+                            className={`button is-small
                                             ${row.status === '1' ? 'is-danger' : 'is-info'} is-outlined`}
                             onClick={() => switchStrategyStatus(row._id)}
                           >
@@ -200,15 +192,15 @@ const strategyListStyle = css`
   .container {
     margin-top: 40px;
     margin-bottom: 60px;
-    max-width: 1344px
+    max-width: 1344px;
   }
 
-  .tabs{
-    margin-bottom: 1.5rem
+  .tabs {
+    margin-bottom: 1.5rem;
   }
 
   .tabs-more {
-    padding-right: 30px
+    padding-right: 30px;
   }
 
   .table-wrapper {
@@ -220,7 +212,8 @@ const strategyListStyle = css`
     font-size: 0.85rem;
   }
 
-  thead, th {
+  thead,
+  th {
     background-color: #fafafa;
     color: #4f6475;
     font-weight: 400;
