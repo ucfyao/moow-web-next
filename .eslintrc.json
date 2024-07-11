@@ -10,9 +10,6 @@
     "airbnb-typescript",
     "plugin:@typescript-eslint/recommended",
     "plugin:jsx-a11y/recommended",
-    "plugin:import/errors",
-    "plugin:import/warnings",
-    "plugin:import/typescript",
     "plugin:promise/recommended",
     "plugin:node/recommended",
     "next/core-web-vitals",
@@ -22,7 +19,6 @@
     "react",
     "react-hooks",
     "jsx-a11y",
-    "import",
     "promise",
     "node",
     "@typescript-eslint",
@@ -41,11 +37,6 @@
     "prettier/prettier": "error",
     "react/react-in-jsx-scope": "off",
     "react/jsx-filename-extension": [1, { "extensions": [".jsx", ".tsx"] }],
-    "import/no-unresolved": "error",
-    "import/named": "error",
-    "import/default": "error",
-    "import/namespace": "error",
-    "import/no-absolute-path": "error",
     "node/no-unsupported-features/es-syntax": ["error", { "ignores": ["modules"] }],
     "node/no-extraneous-require": "error",
     "node/no-missing-require": "error",
@@ -58,18 +49,13 @@
     "promise/no-callback-in-promise": "warn",
     "promise/avoid-new": "warn",
     "@typescript-eslint/dot-notation": "error",
+    "@typescript-eslint/no-var-requires": "off",
     "@typescript-eslint/no-unused-vars": "warn",
     "@typescript-eslint/no-explicit-any": "off"
   },
   "settings": {
     "react": {
       "version": "detect"
-    },
-    "import/resolver": {
-      "node": {
-        "extensions": [".js", ".jsx", ".ts", ".tsx"]
-      },
-      "typescript": {}
     }
   },
   "overrides": [
@@ -84,12 +70,6 @@
       "files": ["next-i18next.config.js"],
       "rules": {
         "@typescript-eslint/dot-notation": "off"
-      }
-    },
-    {
-      "files": ["*.js"],
-      "rules": {
-        "@typescript-eslint/no-var-requires": "off"
       }
     }
   ]

@@ -4,12 +4,12 @@ import type { NextPageWithLayout } from './_app';
 import Layout from '../components/Layout';
 import React, { useState, useEffect, useRef, ChangeEvent } from 'react';
 import axios from 'axios';
-import { getInvalidFields } from '../utils/validator';
+import { getInvalidFields } from '../src/utils/validator';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { GetStaticProps } from 'next';
-import auth from '../utils/auth';
+import auth from '../src/utils/auth';
 import { css } from '@emotion/react';
 
 interface InvalidFields {
