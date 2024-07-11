@@ -21,9 +21,11 @@ export default function Navbar() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const initialLocale = auth.getLocale();
+      // const initialLocale = auth.getLocale();
+
+      const initialLocale = 'en';
       setLocale(initialLocale);
-      i18n.changeLanguage(initialLocale);
+
       setIsAuthenticated(auth.isAuthenticated());
       setIsHome(pathname === '/');
       const user = auth.getUser();

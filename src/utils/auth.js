@@ -1,6 +1,3 @@
-/**
- * Created by wainguo on 18/8/8.
- */
 import Cookie from 'js-cookie'
 const KEY_OF_LOCALE = 'locale'
 const KEY_OF_USER = 'user'
