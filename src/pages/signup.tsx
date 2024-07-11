@@ -1,17 +1,16 @@
 'use client';
 
-import type { NextPageWithLayout } from "./_app";
-import Layout from "../component/Layout";
+import type { NextPageWithLayout } from './_app';
+import Layout from '../components/Layout';
 import React, { useState, useEffect, useRef, ChangeEvent } from 'react';
-import '../pages/styles/signup.css';
 import axios from 'axios';
-import {getInvalidFields} from '../app/utils/validator';
-import { useRouter } from 'next/navigation'
+import { getInvalidFields } from '../utils/validator';
+import { useRouter } from 'next/navigation';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { GetStaticProps } from 'next';
-//import nextI18NextConfig from '../../next-i18next.config.js'
-import auth from '../app/utils/auth';
+import auth from '../utils/auth';
+import { css } from '@emotion/react';
 
 interface InvalidFields {
   name?: { message: string }[];
@@ -83,14 +82,9 @@ const Signup: NextPageWithLayout = () => {
       { required: true, message: t('validator.password_required') },
       { validator: validatePass },
     ],
-    confirmPassword: [
-      { validator: validatePassCheck }],
-    captcha: [
-      { required: true, message: t('validator.captcha_required') },
-    ],
-    refCode: [
-      { required: false, message: t('validator.ref_required') },
-    ],
+    confirmPassword: [{ validator: validatePassCheck }],
+    captcha: [{ required: true, message: t('validator.captcha_required') }],
+    refCode: [{ required: false, message: t('validator.ref_required') }],
   });
 
   // handle Captcha picture
@@ -131,141 +125,148 @@ const Signup: NextPageWithLayout = () => {
   };
 
   return (
-    <div>
-      <section className='section home'>
-        <div className='container login-wrap'>
-          <div className='columns'>
-            <div className='column has-text-white-bis is-hidden-mobile pt-200'>
-            </div>
-            <div className='column'>
-              <div className='card '>
-                <header className='card-header'>
-                  <p className='card-header-title is-centered'>
-                    {t('sign_up')}
-                  </p>
+    <div css={signupStyle}>
+      <section className="section home">
+        <div className="container login-wrap">
+          <div className="columns">
+            <div className="column has-text-white-bis is-hidden-mobile pt-200"></div>
+            <div className="column">
+              <div className="card ">
+                <header className="card-header">
+                  <p className="card-header-title is-centered">{t('sign_up')}</p>
                 </header>
-                <div className = 'card-content'>
-                  <div className = 'field'>
-                    <div className = 'control has-icons-left has-icons-right'>
-                      <input 
-                        className='input'
-                        type = 'text' 
-                        placeholder = {t('placeholder.name')} 
-                        name='name'
-                        value = {formData.name} 
+                <div className="card-content">
+                  <div className="field">
+                    <div className="control has-icons-left has-icons-right">
+                      <input
+                        className="input"
+                        type="text"
+                        placeholder={t('placeholder.name')}
+                        name="name"
+                        value={formData.name}
                         onChange={handleChange}
-                        autoComplete='name'
+                        autoComplete="name"
                       />
-                      <span className = 'icon is-small is-left'>
-                        <i className = 'fa fa-envelope'></i>
+                      <span className="icon is-small is-left">
+                        <i className="fa fa-envelope"></i>
                       </span>
                     </div>
-                    {invalidFields.name && <p className='help is-danger'></p>}
+                    {invalidFields.name && <p className="help is-danger"></p>}
                   </div>
-                  <div className = 'field'>
-                    <div className = 'control has-icons-left has-icons-right'>
-                      <input 
-                        className='input'
-                        type = 'email' 
-                        placeholder = {t('placeholder.email')} 
-                        name='email'
-                        value = {formData.email} 
+                  <div className="field">
+                    <div className="control has-icons-left has-icons-right">
+                      <input
+                        className="input"
+                        type="email"
+                        placeholder={t('placeholder.email')}
+                        name="email"
+                        value={formData.email}
                         onChange={handleChange}
-                        autoComplete='email'
+                        autoComplete="email"
                       />
-                      <span className = 'icon is-small is-left'>
-                        <i className = 'fa fa-envelope'></i>
+                      <span className="icon is-small is-left">
+                        <i className="fa fa-envelope"></i>
                       </span>
                     </div>
                     {invalidFields.email && <p className="help is-danger">{invalidFields.email}</p>}
                   </div>
-                  <div className = 'field'>
-                    <div className = 'control has-icons-left'>
-                      <input 
-                        className='input'
-                        type='password' 
-                        placeholder = {t('placeholder.password')} 
-                        name='password'
-                        value = {formData.password} 
+                  <div className="field">
+                    <div className="control has-icons-left">
+                      <input
+                        className="input"
+                        type="password"
+                        placeholder={t('placeholder.password')}
+                        name="password"
+                        value={formData.password}
                         onChange={handleChange}
-                        autoComplete='new-password'
+                        autoComplete="new-password"
                       />
-                      <span className = 'icon is-small is-left'>
-                        <i className = 'fa fa-lock'></i>
+                      <span className="icon is-small is-left">
+                        <i className="fa fa-lock"></i>
                       </span>
                     </div>
-                    {invalidFields.password && <p className='help is-danger'>{invalidFields.password}</p>}
+                    {invalidFields.password && (
+                      <p className="help is-danger">{invalidFields.password}</p>
+                    )}
                   </div>
-                  <div className = 'field'>
-                    <div className = 'control has-icons-left'>
-                      <input 
-                        className='input'
-                        type='password' 
-                        placeholder = {t('placeholder.repeat_password')}
-                        name='confirmPassword'
-                        value = {formData.confirmPassword} 
+                  <div className="field">
+                    <div className="control has-icons-left">
+                      <input
+                        className="input"
+                        type="password"
+                        placeholder={t('placeholder.repeat_password')}
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
                         onChange={handleChange}
-                        autoComplete='new-password'
+                        autoComplete="new-password"
                       />
-                      <span className = 'icon is-small is-left'>
-                        <i className = 'fa fa-lock'></i>
+                      <span className="icon is-small is-left">
+                        <i className="fa fa-lock"></i>
                       </span>
                     </div>
-                    {invalidFields.confirmPassword && <p className="help is-danger">{invalidFields.confirmPassword}</p>}
+                    {invalidFields.confirmPassword && (
+                      <p className="help is-danger">{invalidFields.confirmPassword}</p>
+                    )}
                   </div>
-                  <div className = 'field'>
-                    <div className = 'control has-icons-left'>
-                      <input 
-                        className='input'
-                        type='text' 
-                        placeholder = {t('placeholder.invitation_code')}
-                        name='refCode'
-                        value = {formData.refCode} 
+                  <div className="field">
+                    <div className="control has-icons-left">
+                      <input
+                        className="input"
+                        type="text"
+                        placeholder={t('placeholder.invitation_code')}
+                        name="refCode"
+                        value={formData.refCode}
                         onChange={handleChange}
-                        autoComplete='off'
+                        autoComplete="off"
                       />
-                      <span className = 'icon is-small is-left'>
-                        <i className = 'fa fa-lock'></i>
+                      <span className="icon is-small is-left">
+                        <i className="fa fa-lock"></i>
                       </span>
                     </div>
-                    {invalidFields.refCode && <p className="help is-danger">{invalidFields.refCode}</p>}
+                    {invalidFields.refCode && (
+                      <p className="help is-danger">{invalidFields.refCode}</p>
+                    )}
                   </div>
-                  <div className = 'field'>
-                    <div className = 'field is-grouped'>
-                      <p className = 'control is-expanded'>
-                        <input 
-                          className='input'
-                          type='text' 
-                          placeholder={t('placeholder.captcha')} 
-                          name='captcha'
-                          value={formData.captcha} 
+                  <div className="field">
+                    <div className="field is-grouped">
+                      <p className="control is-expanded">
+                        <input
+                          className="input"
+                          type="text"
+                          placeholder={t('placeholder.captcha')}
+                          name="captcha"
+                          value={formData.captcha}
                           onChange={handleChange}
-                          autoComplete='off'
+                          autoComplete="off"
                         />
-                      </p>    
-                      <div className ='control' dangerouslySetInnerHTML={{ __html: captchaSrc }} 
-                        title={t('prompt.click_refresh_captcha')} 
+                      </p>
+                      <div
+                        className="control"
+                        dangerouslySetInnerHTML={{ __html: captchaSrc }}
+                        title={t('prompt.click_refresh_captcha')}
                         onClick={updateCaptcha}
                       />
-
                     </div>
-                    {invalidFields.captcha && <p className="help is-danger">{invalidFields.captcha}</p>}
+                    {invalidFields.captcha && (
+                      <p className="help is-danger">{invalidFields.captcha}</p>
+                    )}
                   </div>
-                  <div className='field' style={{ marginTop: '30px' }}>
-                    <p className='control'>
-                      <button 
+                  <div className="field" style={{ marginTop: '30px' }}>
+                    <p className="control">
+                      <button
                         className={`button is-link is-fullwidth is-focused ${isSubmitting ? 'is-loading' : ''}`}
                         onClick={handleSignup}
-                        disabled={isSubmitting}>
+                        disabled={isSubmitting}
+                      >
                         Sign Up
                       </button>
                     </p>
                   </div>
                 </div>
-                <footer className='card-footer'>
-                  <p className='card-footer-item'>
-                    Have Registered? 
-                    <a href='/login'>Sign In</a>
+                <footer className="card-footer">
+                  <p className="card-footer-item">
+                    Have Registered?
+                    <a href="/login">Sign In</a>
                   </p>
                 </footer>
               </div>
@@ -273,38 +274,42 @@ const Signup: NextPageWithLayout = () => {
           </div>
         </div>
       </section>
-      <section className='section feature'>
-        <nav className='columns'>
-          <div className='column has-text-centered'>
+      <section className="section feature">
+        <nav className="columns">
+          <div className="column has-text-centered">
             <div>
-              <p className='title is-4'>
+              <p className="title is-4">
                 <strong>Multiple Strategies</strong>
               </p>
-              <p className='subtitle is-6'>Ordinary price investment, intelligent value investment, etc.</p>
+              <p className="subtitle is-6">
+                Ordinary price investment, intelligent value investment, etc.
+              </p>
             </div>
           </div>
-          <div className='column has-text-centered'>
+          <div className="column has-text-centered">
             <div>
-              <p className='title is-4'>
+              <p className="title is-4">
                 <strong>Strict Risk Control</strong>
               </p>
-              <p className='subtitle is-6'>Secure storage and strict operation flow</p>
+              <p className="subtitle is-6">Secure storage and strict operation flow</p>
             </div>
           </div>
-          <div className='column has-text-centered'>
+          <div className="column has-text-centered">
             <div>
-              <p className='title is-4'>
+              <p className="title is-4">
                 <strong>Transparent Transactions</strong>
               </p>
-              <p className='subtitle is-6'>One-click hosting, transparent API transactions</p>
+              <p className="subtitle is-6">One-click hosting, transparent API transactions</p>
             </div>
           </div>
-          <div className='column has-text-centered'>
+          <div className="column has-text-centered">
             <div>
-              <p className='title is-4'>
+              <p className="title is-4">
                 <strong>Open Data</strong>
               </p>
-              <p className='subtitle is-6'>Multidimensional and intuitive visualization of investment data</p>
+              <p className="subtitle is-6">
+                Multidimensional and intuitive visualization of investment data
+              </p>
             </div>
           </div>
         </nav>
@@ -314,7 +319,7 @@ const Signup: NextPageWithLayout = () => {
 };
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
-  console.log("Current locale in getStaticProps:", locale);
+  console.log('Current locale in getStaticProps:', locale);
   return {
     props: {
       //...(await serverSideTranslations(locale!, ['common'])),
@@ -326,9 +331,48 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => {
 export default Signup;
 
 Signup.getLayout = function getLayout(page: React.ReactElement) {
-  return (
-    <Layout>
-      {page}
-    </Layout>
-  );
+  return <Layout>{page}</Layout>;
 };
+
+const signupStyle = css`
+  .home {
+    background: url(../../assets/images/login_bg.jpg) center center no-repeat;
+    background-color: #2a3c5e;
+  }
+  .login-wrap {
+    height: 600px;
+    -webkit-background-size: auto 100%;
+    background-size: auto 100%;
+  }
+
+  .pt-200 {
+    padding-top: 200px;
+  }
+  .card {
+    margin: 60px auto 0;
+    width: 350px;
+  }
+
+  .card-footer {
+    background-color: #f7f7f7;
+    border-top: none;
+  }
+
+  .feature {
+    padding: 5rem;
+  }
+
+  .forget-password {
+    text-align: right;
+    font-size: 12px;
+  }
+
+  .card-footer-item {
+    font-size: 12px;
+  }
+  @media screen and (max-width: 768px) {
+    .card {
+      /*margin-top: 50px;*/
+    }
+  }
+`;

@@ -1,5 +1,5 @@
 import { createStore } from 'redux';
-import auth from '../app/utils/auth'; 
+import auth from '../_app/utils/auth';
 
 const initialState = {
   locales: ['en', 'zh'],
@@ -26,8 +26,14 @@ const reducer = (state = initialState, action) => {
 
 export const setLocale = (locale) => ({ type: 'SET_LOCALE', payload: locale });
 export const setUser = (user) => ({ type: 'SET_USER', payload: user });
-export const setIsAuthenticated = (isAuthenticated) => ({ type: 'SET_ISAUTHENTICATED', payload: isAuthenticated });
-export const setRefreshInterval = (refreshInterval) => ({ type: 'SET_REFRESHINTERVAL', payload: refreshInterval });
+export const setIsAuthenticated = (isAuthenticated) => ({
+  type: 'SET_ISAUTHENTICATED',
+  payload: isAuthenticated,
+});
+export const setRefreshInterval = (refreshInterval) => ({
+  type: 'SET_REFRESHINTERVAL',
+  payload: refreshInterval,
+});
 
 const store = createStore(reducer);
 

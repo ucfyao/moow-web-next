@@ -9,9 +9,7 @@ const Tip: React.FC<{ content: React.ReactNode }> = ({ content }) => {
         <div className="poptip-arrow"></div>
         <div className="poptip-inner">
           <div className="poptip-body">
-            <div className="poptip-body-content">
-              {content}
-            </div>
+            <div className="poptip-body-content">{content}</div>
           </div>
         </div>
       </div>
@@ -37,7 +35,7 @@ const tipStyle = css`
     display: block;
     width: 0;
     height: 0;
-    content: " ";
+    content: ' ';
     top: -6px;
     bottom: 1px;
     margin-left: -5px;
@@ -76,6 +74,6 @@ const tipStyle = css`
     box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
     white-space: nowrap;
   }
-  `;  
-  
+`;
+
 export default Tip;

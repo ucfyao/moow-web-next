@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
-import auth from '../app/utils/auth';
+import auth from '@/utils/auth';
 import { useTranslation } from 'next-i18next';
-import logo1 from '../assets/images/logo1.png';
-import logo2 from '../assets/images/logo2.png';
+import logo1 from '@/assets/images/logo1.png';
+import logo2 from '@/assets/images/logo2.png';
 
 export default function Navbar() {
   const { t, i18n } = useTranslation('common');
@@ -37,7 +37,7 @@ export default function Navbar() {
   };
 
   const switchLocale = async () => {
-    const newLocale = locale === "zh" ? "en" : "zh";
+    const newLocale = locale === 'zh' ? 'en' : 'zh';
     setLocale(newLocale);
     auth.setLocale(newLocale);
     await i18n.changeLanguage(newLocale);
@@ -54,19 +54,24 @@ export default function Navbar() {
   };
 
   return (
-    <nav className={`navbar is-transparent is-spaced is-fixed-top ${isHome ? 'home-navbar' : 'has-shadow'}`}>
+    <nav
+      className={`navbar is-transparent is-spaced is-fixed-top ${isHome ? 'home-navbar' : 'has-shadow'}`}
+    >
       <div className="container">
         <div className="navbar-brand logo">
           <Link href="/" legacyBehavior>
             <a className="navbar-item">
               {isHome ? (
-                <Image src={logo1} alt="币小宝: 大数据智能投顾平台" />
+                <Image src={logo1} alt="Moow: Big Data Intelligent Investment Platform" />
               ) : (
-                <Image src={logo2} alt="币小宝: 大数据智能投顾平台" />
+                <Image src={logo2} alt="Moow: Big Data Intelligent Investment Platform" />
               )}
             </a>
           </Link>
-          <div className={`navbar-burger burger ${burgerActive ? 'is-active' : ''}`} onClick={toggleNavbarMenu}>
+          <div
+            className={`navbar-burger burger ${burgerActive ? 'is-active' : ''}`}
+            onClick={toggleNavbarMenu}
+          >
             <span></span>
             <span></span>
             <span></span>
@@ -81,15 +86,23 @@ export default function Navbar() {
             <Link href="/" legacyBehavior>
               <a className="navbar-item">{t('link.coin_aip')}</a>
             </Link>
-            <a href="/" className="navbar-item" target="_self">{t('link.arbitrage')}</a>
+            <a href="/" className="navbar-item" target="_self">
+              {t('link.arbitrage')}
+            </a>
             <div className="navbar-item has-dropdown is-hoverable">
               <a href="/" className="navbar-link">
-              {t('link.coin')}
+                {t('link.coin')}
               </a>
               <div className="navbar-dropdown is-boxed">
-                <a href="/" className="navbar-item" target="_self">{t('link.coins')}</a>
-                <a href="/" className="navbar-item" target="_self">{t('link.exchanges')}</a>
-                <a href="/" className="navbar-item" target="_self">{t('link.news')}</a>
+                <a href="/" className="navbar-item" target="_self">
+                  {t('link.coins')}
+                </a>
+                <a href="/" className="navbar-item" target="_self">
+                  {t('link.exchanges')}
+                </a>
+                <a href="/" className="navbar-item" target="_self">
+                  {t('link.news')}
+                </a>
               </div>
             </div>
           </div>
@@ -121,7 +134,9 @@ export default function Navbar() {
                 <div className="field is-grouped">
                   <p className="control">
                     <Link href="/login" legacyBehavior>
-                      <a className="button is-link is-rounded">{t('sign_in')}/{t('sign_up')}</a>
+                      <a className="button is-link is-rounded">
+                        {t('sign_in')}/{t('sign_up')}
+                      </a>
                     </Link>
                   </p>
                 </div>
