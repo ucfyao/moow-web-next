@@ -70,7 +70,7 @@ const forgetPassword = () => {
             <div className="field">
               <label className="label"><span className="has-text-danger">*</span>{('label.retrieve_password')}</label>
               <div className="control has-icons-left">
-                <input 
+                <input
                   className="input" type="email" value={formData.email} placeholder="Email"
                 />
                 <span className="icon is-small is-left">
@@ -86,11 +86,11 @@ const forgetPassword = () => {
                     <input className="input" type="text" value={formData.captcha} placeholder="Captcha"/>
                   </p>
                   <div className="control">
-                    <Image 
-                      className="captcha" 
+                    <Image
+                      className="captcha"
                       src={captchaSrc}
                       alt={('prompt.click_refresh_captcha')}
-                      title={('prompt.click_refresh_captcha')} 
+                      title={('prompt.click_refresh_captcha')}
                       onClick={updateCaptcha}
                       width={150}
                       height={50}

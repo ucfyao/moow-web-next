@@ -20,7 +20,6 @@ export default function Header({ isFixed = true }: { isFixed?: boolean }) {
   };
 
   return (
-    <div>
       <nav
         className={
           isFixed
@@ -86,6 +85,5 @@ export default function Header({ isFixed = true }: { isFixed?: boolean }) {
           </div>
         </div>
       </nav>
-    </div>
   );
 }
