@@ -2,22 +2,6 @@
 import React from 'react';
 import { css } from '@emotion/react';
 
-const Tip: React.FC<{ content: React.ReactNode }> = ({ content }) => {
-  return (
-    <div css={tipStyle}>
-      <div className="poptip-popper">
-        <div className="poptip-content">
-          <div className="poptip-arrow"></div>
-          <div className="poptip-inner">
-            <div className="poptip-body">
-              <div className="poptip-body-content">{content}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    );
-};
 const tipStyle = css`
   .poptip-arrow {
     display: block;
@@ -77,5 +61,26 @@ const tipStyle = css`
     white-space: nowrap;
   }
 `;
+
+interface TipProps {
+  content: React.ReactNode;
+}
+
+const Tip: React.FC<TipProps> = function ({ content }) {
+  return (
+    <div css={tipStyle}>
+      <div className="poptip-popper">
+        <div className="poptip-content">
+          <div className="poptip-arrow" />
+          <div className="poptip-inner">
+            <div className="poptip-body">
+              <div className="poptip-body-content">{content}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default Tip;
