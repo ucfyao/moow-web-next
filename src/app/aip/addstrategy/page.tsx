@@ -3,10 +3,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { css } from '@emotion/react';
-import { fetchExchangeSymbolList } from '../utils/defines';
+import { fetchExchangeSymbolList } from '@/utils/defines';
 import Link from 'next/link';
 import axios from 'axios';
-import { getInvalidFields } from '../utils/validator';
+import { getInvalidFields } from '@/utils/validator';
 import { useRouter } from 'next/navigation';
 
 interface UserMarketItem {

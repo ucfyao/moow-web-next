@@ -5,12 +5,11 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import axios from 'axios';
 import { useParams } from 'next/navigation';
-import no_record from '../../../assets/images/no_record.png';
+import no_record from '@/assets/images/no_record.png';
 import { css } from '@emotion/react';
-import Pagination from '../../../components/Pagination';
-import '../../globals.scss';
-import util from '../../../utils/util';
-import Chart from '@/src/component/Chart';
+import Pagination from '@/components/Pagination';
+import util from '@/utils/util';
+import Chart from '@/components/Chart';
 
 interface DetailProps {
   _id: string;
