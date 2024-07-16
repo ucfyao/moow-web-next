@@ -1,4 +1,5 @@
 /** @jsxImportSource @emotion/react */
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -8,7 +9,52 @@ import Link from 'next/link';
 import axios from 'axios';
 import { getInvalidFields } from '@/utils/validator';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
+// Define CSS styles using Emotion
+const newStrategyStyle = css`
+  .box {
+    margin: 0 auto;
+    padding: 30px 50px 50px;
+  }
+
+  .no-drop {
+    cursor: no-drop;
+  }
+
+  .control label {
+    margin-right: 10px;
+    width: 100px;
+  }
+
+  .input {
+    width: 600px;
+  }
+
+  .market-item {
+    width: 200px;
+  }
+
+  .plantype-item {
+    width: 150px;
+  }
+
+  .period-item {
+    width: 120px;
+  }
+
+  @media screen and (max-width: 768px) {
+    .section {
+      padding: 20px 0;
+    }
+
+    .box {
+      padding: 30px 10px;
+    }
+  }
+`;
+
+// Define interfaces for various data types
 interface UserMarketItem {
   _id: string;
   exchange: string;
@@ -32,7 +78,6 @@ interface PeriodDataItem {
   value: number;
   label: string;
 }
-
 interface FormData {
   user_market_id: string;
   exchange: string;
@@ -59,12 +104,8 @@ interface InvalidFields {
   stop_profit_percentage?: string;
   drawdown?: string;
 }
-interface NewStrategyProps {
-  strategyId?: string;
-  marketId?: string;
-}
 
-const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '' }) => {
+function NewStrategy({ strategyId = '', marketId = '' }) {
   const [userMarketList, setUserMarketList] = useState<UserMarketItem[]>([]);
   const [symbolList, setSymbolList] = useState<SymbolItem[]>([]);
   const planTypeList: PlanType[] = [
@@ -128,6 +169,8 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
       ],
     },
   };
+
+  // Define initial form data state
   const [formData, setFormData] = useState<FormData>({
     user_market_id: '',
     exchange: '',
@@ -145,108 +188,38 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
     drawdown: undefined,
   });
 
-  const validateOptionalInteger = (rule: any, value: any, callback: any): void => {
-    if (value === '' || /^[1-9]+\d*$/.test(value)) {
-      callback();
-    } else {
-      callback(new Error('validator.must_positive_integer'));
-    }
-  };
-
-  const rules = () => ({
-    user_market_id: [
-      {
-        required: true,
-        message: 'validator.cant_empty',
-        trigger: 'change',
-      },
-    ],
-    symbol: [
-      {
-        required: true,
-        message: 'validator.cant_empty',
-        trigger: 'change',
-      },
-    ],
-    base_limit: [
-      {
-        type: 'integer',
-        required: true,
-        pattern: /^[1-9]+\d*$/,
-        message: 'validator.must_positive_integer',
-        trigger: 'change',
-        min: 1,
-        transform(value: string) {
-          return parseFloat(value);
-        },
-      },
-    ],
-    type: [
-      {
-        required: true,
-        message: 'validator.cant_empty',
-        trigger: 'blur',
-      },
-    ],
-    period: [
-      {
-        required: true,
-        message: 'validator.cant_empty',
-        trigger: 'blur',
-      },
-    ],
-    period_value: [
-      {
-        type: 'array',
-        required: true,
-        min: 1,
-        message: 'validator.cant_empty',
-        trigger: 'blur',
-      },
-    ],
-    stop_profit_percentage: [
-      {
-        type: 'integer',
-        validator: validateOptionalInteger,
-        trigger: 'change',
-      },
-    ],
-    drawdown: [
-      {
-        type: 'integer',
-        validator: validateOptionalInteger,
-        trigger: 'change',
-      },
-    ],
-  });
-
   const [invalidFields, setInvalidFields] = useState<InvalidFields>({});
-  const [isCreate, setIsCreate] = useState(true);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [isDelete, setIsDelete] = useState(false);
+  const [isCreate, setIsCreate] = useState(true); // Track if it's a new strategy
+  const [isProcessing, setIsProcessing] = useState(false); // Track if form submission is in progress
+  const [isDelete, setIsDelete] = useState(false); // Track if delete action is in progress
   const router = useRouter();
 
-  useEffect(() => {
-    getStrategy();
-    queryUserMarketList();
-    setSymbolList(fetchExchangeSymbolList(''));
+  function handleSelectPeriod(item: PeriodType) {
+    if (!item || typeof item !== 'object') return;
+    const newPeriodDataList = periodDictionary[item.periodType]?.children || [];
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      period: item.periodType,
+      period_value: [],
+    }));
+    setPeriodDataList(newPeriodDataList);
+  }
 
-    /* 
-    The following part (marketId) was commented out in the previous project.
-    The following part could be tested with mock url:
-    http://localhost:3001/newStrategy?marketId=5b63b788c4670f7a112aeb60
-    */
-    // const query = new URLSearchParams(window.location.search);
-    // const marketIdQuery = query.get('marketId');
-    // if (marketIdQuery) {
-    //   setFormData((prevFormData) => ({
-    //     ...prevFormData,
-    //     user_market_id: marketIdQuery,
-    //   }));
-    // }
-  }, [strategyId]);
+  function handleCheckboxChange(item: PeriodDataItem) {
+    if (!item || typeof item !== 'object') return;
+    setFormData((prevFormData) => {
+      const newPeriodValue = prevFormData.period_value.includes(item.value)
+        ? prevFormData.period_value.filter((val) => val !== item.value)
+        : [...prevFormData.period_value, item.value];
+      return {
+        ...prevFormData,
+        period_value: newPeriodValue,
+      };
+    });
+  }
 
-  const getStrategy = async () => {
+  // Fetch strategy details if editing an existing strategy
+  async function getStrategy() {
     if (!strategyId) {
       return;
     }
@@ -255,7 +228,7 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
       // TODO  use baseURL instead of hardcode
       const requestUrl = `http://127.0.0.1:3000/api/v1/strategies/${strategyId}`;
       const response = await axios.get(requestUrl);
-      const data = response.data;
+      const { data } = response;
       if (data) {
         setFormData((prevFormData) => ({
           ...prevFormData,
@@ -278,21 +251,13 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
     } catch (error) {
       console.error('Failed to fetch plan', error);
     }
-  };
+  }
 
-  const goBack = () => {
-    router.back();
-  };
-
-  const desensitization = (val: string): string => {
-    if (!val || val.length < 7) return val;
-    return val.slice(0, 4) + '****' + val.slice(-3);
-  };
-
-  const handleSelectUserMarket = (item: UserMarketItem) => {
+  function handleSelectUserMarket(item: UserMarketItem) {
     if (!item || typeof item !== 'object') return;
     setFormData((prevFormData) => ({
       ...prevFormData,
+      // eslint-disable-next-line
       user_market_id: item._id,
       exchange: item.exchange,
       key: item.key,
@@ -303,9 +268,10 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
     }));
     const newSymbolList = fetchExchangeSymbolList(item.exchange);
     setSymbolList(newSymbolList);
-  };
+  }
 
-  const queryUserMarketList = async () => {
+  // Fetch user market list
+  async function queryUserMarketList() {
     try {
       // TODO Replace the mock data with an actual API request when the API is ready.
       // const response = await axios.get('http://127.0.0.1:3000/api/v1/keys');
@@ -360,16 +326,18 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
       };
 
       if (response.data && Array.isArray(response.data.list)) {
-        const userMarketList = response.data.list.map((item) => ({
+        const newUserMarketList = response.data.list.map((item) => ({
+          // eslint-disable-next-line
           _id: item._id,
           exchange: item.exchange,
           key: item.access_key,
           secret: item.secret_key,
           user: item.uid,
         }));
-        setUserMarketList(userMarketList);
+        setUserMarketList(newUserMarketList);
 
         if (marketId) {
+          // eslint-disable-next-line
           const userMarket = userMarketList.find((element) => element._id === marketId);
           if (userMarket) {
             handleSelectUserMarket(userMarket);
@@ -379,9 +347,117 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
     } catch (error) {
       console.error('Failed to fetch user market list', error);
     }
-  };
+  }
 
-  const handleSelectSymbol = (item: SymbolItem) => {
+  useEffect(() => {
+    getStrategy();
+    queryUserMarketList();
+    setSymbolList(fetchExchangeSymbolList(''));
+
+    /* 
+    The following part (marketId) was commented out in the previous project.
+    The following part could be tested with mock url:
+    http://localhost:3001/newStrategy?marketId=5b63b788c4670f7a112aeb60
+    */
+    // const query = new URLSearchParams(window.location.search);
+    // const marketIdQuery = query.get('marketId');
+    // if (marketIdQuery) {
+    //   setFormData((prevFormData) => ({
+    //     ...prevFormData,
+    //     user_market_id: marketIdQuery,
+    //   }));
+    // }
+  }, [strategyId]);
+
+  function validateOptionalInteger(rule: any, value: any, callback: any): void {
+    if (value === '' || /^[1-9]+\d*$/.test(value)) {
+      callback();
+    } else {
+      callback(new Error('validator.must_positive_integer'));
+    }
+  }
+
+  // Define validation rules
+  function rules() {
+    return {
+      user_market_id: [
+        {
+          required: true,
+          message: 'validator.cant_empty',
+          trigger: 'change',
+        },
+      ],
+      symbol: [
+        {
+          required: true,
+          message: 'validator.cant_empty',
+          trigger: 'change',
+        },
+      ],
+      base_limit: [
+        {
+          type: 'integer',
+          required: true,
+          pattern: /^[1-9]+\d*$/,
+          message: 'validator.must_positive_integer',
+          trigger: 'change',
+          min: 1,
+          transform(value: string) {
+            return parseFloat(value);
+          },
+        },
+      ],
+      type: [
+        {
+          required: true,
+          message: 'validator.cant_empty',
+          trigger: 'blur',
+        },
+      ],
+      period: [
+        {
+          required: true,
+          message: 'validator.cant_empty',
+          trigger: 'blur',
+        },
+      ],
+      period_value: [
+        {
+          type: 'array',
+          required: true,
+          min: 1,
+          message: 'validator.cant_empty',
+          trigger: 'blur',
+        },
+      ],
+      stop_profit_percentage: [
+        {
+          type: 'integer',
+          validator: validateOptionalInteger,
+          trigger: 'change',
+        },
+      ],
+      drawdown: [
+        {
+          type: 'integer',
+          validator: validateOptionalInteger,
+          trigger: 'change',
+        },
+      ],
+    };
+  }
+
+  function goBack() {
+    router.back();
+  }
+
+  // Desensitize sensitive data
+  function desensitization(val: string): string {
+    if (!val || val.length < 7) return val;
+    return `${val.slice(0, 4)}****${val.slice(-3)}`;
+  }
+
+  function handleSelectSymbol(item: SymbolItem) {
     if (!item || typeof item !== 'object') return;
     setFormData((prevFormData) => ({
       ...prevFormData,
@@ -389,54 +465,31 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
       base: item.base,
       quote: item.quote,
     }));
-  };
+  }
 
-  const handleSelectPlanType = (item: PlanType) => {
+  function handleSelectPlanType(item: PlanType) {
     if (!item || typeof item !== 'object') return;
     setFormData((prevFormData) => ({
       ...prevFormData,
       type: item.type,
     }));
-  };
+  }
 
-  const handleSelectPeriod = (item: PeriodType) => {
-    if (!item || typeof item !== 'object') return;
-    const periodDataList = periodDictionary[item.periodType]?.children || [];
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      period: item.periodType,
-      period_value: [],
-    }));
-    setPeriodDataList(periodDataList);
-  };
-
-  const handleCheckboxChange = (item: PeriodDataItem) => {
-    if (!item || typeof item !== 'object') return;
-    setFormData((prevFormData) => {
-      const newPeriodValue = prevFormData.period_value.includes(item.value)
-        ? prevFormData.period_value.filter((val) => val !== item.value)
-        : [...prevFormData.period_value, item.value];
-      return {
-        ...prevFormData,
-        period_value: newPeriodValue,
-      };
-    });
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
     setFormData((prevFormData) => ({
       ...prevFormData,
       [name]: value === '' ? undefined : Number(value),
     }));
-  };
+  }
 
-  const handleCreateInvestmentPlan = async () => {
+  // Handle form submission to create or update an investment plan
+  async function handleCreateInvestmentPlan() {
     if (isProcessing) return;
 
-    const invalidFields = await getInvalidFields(formData, rules());
-    if (invalidFields) {
-      setInvalidFields(invalidFields);
+    const newInvalidFields = await getInvalidFields(formData, rules());
+    if (newInvalidFields) {
+      setInvalidFields(newInvalidFields);
       return;
     }
     setIsProcessing(true);
@@ -454,21 +507,22 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
       });
       console.log(response);
       setIsProcessing(false);
-      router.push('/strategies');
+      router.push('/aip');
     } catch (error) {
       const errorMessage = (error as Error).message || 'prompt.error_occurs';
       alert(errorMessage);
       setIsProcessing(false);
     }
-  };
+  }
 
-  const handleDeleteInvestmentPlan = async () => {
-    if (isDelete) return;
-    setIsDelete(true);
+  // Handle form submission to delete an investment plan (soft delete)
+  async function handleDeleteInvestmentPlan() {
+    if (isDelete) return; // Prevent multiple submissions by checking if deletion is already in progress
+    setIsDelete(true); // Set isDelete to true to indicate the deletion process has started
 
     const confirmed = window.confirm('prompt.confirm_switch_plan_status + action.delete');
     if (!confirmed) {
-      setIsDelete(false);
+      setIsDelete(false); // If user cancels the deletion, reset isDelete to false and exit the function
       return;
     }
 
@@ -481,14 +535,14 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
       const requestUrl = `http://127.0.0.1:3000/api/v1/strategies/${strategyId}`;
       const response = await axios.patch(requestUrl, requestData);
       console.log(response);
-      setIsDelete(false);
+      setIsDelete(false); // Reset isDelete to false to indicate the deletion process has completed
       router.push('/strategies');
     } catch (error) {
       const errorMessage = (error as Error).message || 'prompt.error_occurs';
       alert(errorMessage);
-      setIsDelete(false);
+      setIsDelete(false); // Reset isDelete to false to allow the user to attempt deletion again if needed
     }
-  };
+  }
 
   return (
     <div css={newStrategyStyle} className="container">
@@ -496,14 +550,25 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
         <div className="box">
           <div className="header">
             <p className="is-size-6 is-pulled-left" style={{ marginRight: '10px' }}>
-              {isCreate ? <span>{'caption.new_plan'}</span> : <span>{'caption.edit_plan'}</span>}
+              {isCreate ? <span>caption.new_plan</span> : <span>caption.edit_plan</span>}
             </p>
-            <a onClick={goBack} className="is-pulled-right">
+            <button
+              type="button"
+              onClick={goBack}
+              className="is-pulled-right is-link"
+              style={{
+                background: 'none',
+                border: 'none',
+                padding: '0',
+                cursor: 'pointer',
+              }}
+            >
               action.go_back
-            </a>
+            </button>
           </div>
 
           <div className="field">
+            {/* eslint-disable-next-line */}
             <label className="label">
               <span className="has-text-danger">*</span>
               label.exchange_apikey
@@ -513,23 +578,29 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
                 {userMarketList.map((item) => (
                   <li
                     key={item.exchange}
+                    // eslint-disable-next-line
                     className={`styles[market-item] ${formData.user_market_id === item._id ? 'active' : ''} ${strategyId ? 'no-drop' : ''}`}
-                    onClick={() => !strategyId && handleSelectUserMarket(item)}
                   >
-                    <p className="tit">
-                      <img
-                        style={{ width: '22px', marginRight: '5px' }}
-                        src={`/images/${item.exchange}.png`}
-                        alt={`${item.exchange} logo`}
-                      />
-                      {item.exchange}
-                    </p>
-                    <p className="desc">Access Key: {desensitization(item.key)}</p>
+                    <button
+                      type="button"
+                      onClick={() => !strategyId && handleSelectUserMarket(item)}
+                    >
+                      <p className="tit">
+                        <Image
+                          style={{ width: '22px', marginRight: '5px' }}
+                          src={`/images/${item.exchange}.png`}
+                          alt={`${item.exchange} logo`}
+                          width={22}
+                          height={22}
+                        />
+                        {item.exchange}
+                      </p>
+                      <p className="desc">Access Key: {desensitization(item.key)}</p>
+                    </button>
                   </li>
                 ))}
                 <li className="more">
-                  <Link href="/newmarket">
-                    <i className="fa fa-plus"></i>
+                  <Link href="/aip/addmarket">
                     <span className="color-light-blue" style={{ cursor: 'pointer' }}>
                       action.new_exchange_apikey
                     </span>
@@ -548,6 +619,7 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
           </div>
 
           <div className="field">
+            {/* eslint-disable-next-line */}
             <label className="label">
               <span className="has-text-danger">*</span>
               label.symbol
@@ -558,9 +630,10 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
                   <li
                     key={item.symbol}
                     className={`symbol-item ${formData.symbol === item.symbol ? 'active' : ''} ${strategyId ? 'no-drop' : ''}`}
-                    onClick={() => !strategyId && handleSelectSymbol(item)}
                   >
-                    <p>{item.symbol}</p>
+                    <button type="button" onClick={() => !strategyId && handleSelectSymbol(item)}>
+                      <p>{item.symbol}</p>
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -579,6 +652,7 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
           </div>
 
           <div className="field">
+            {/* eslint-disable-next-line */}
             <label className="label">
               <span className="has-text-danger">*</span>
               label.plan_type
@@ -589,9 +663,10 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
                   <li
                     key={item.type}
                     className={`styles['plantype-item'] ${formData.type === item.type ? 'active' : ''}`}
-                    onClick={() => handleSelectPlanType(item)}
                   >
-                    <p>{item.name}</p>
+                    <button type="button" onClick={() => handleSelectPlanType(item)}>
+                      <p>{item.name}</p>
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -600,12 +675,14 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
           </div>
 
           <div className="field">
-            <label className="label">
+            {/* eslint-disable-next-line */}
+            <label className="label" htmlFor="singleAmountInput">
               <span className="has-text-danger">*</span>
               label.single_purchase_amount
             </label>
             <div className="control">
               <input
+                id="singleAmountInput"
                 className="input"
                 type="number"
                 name="base_limit"
@@ -620,6 +697,7 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
           </div>
 
           <div className="field">
+            {/* eslint-disable-next-line */}
             <label className="label">
               <span className="has-text-danger">*</span>
               label.plan_period
@@ -630,9 +708,10 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
                   <li
                     key={item.periodType}
                     className={`styles['period-item'] ${formData.period === item.periodType ? 'active' : ''}`}
-                    onClick={() => handleSelectPeriod(item)}
                   >
-                    <p>{item.name}</p>
+                    <button type="button" onClick={() => handleSelectPeriod(item)}>
+                      <p>{item.name}</p>
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -642,8 +721,9 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
           <div className="field">
             <div className="control">
               {periodDataList.map((item) => (
-                <label className="checkbox" key={item.value}>
+                <label className="checkbox" key={item.value} htmlFor={`period_${item.value}`}>
                   <input
+                    id={`period_${item.value}`}
                     type="checkbox"
                     value={item.value}
                     checked={formData.period_value.includes(item.value)}
@@ -664,9 +744,13 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
           </div>
 
           <div className="field">
-            <label className="label">label.stop_profit_rate</label>
+            {/* eslint-disable-next-line */}
+            <label className="label" htmlFor="stopInput">
+              label.stop_profit_rate
+            </label>
             <div className="control">
               <input
+                id="stopInput"
                 className="input"
                 type="number"
                 name="stop_profit_percentage"
@@ -685,9 +769,13 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
           </div>
 
           <div className="field">
-            <label className="label">label.drawdown</label>
+            {/* eslint-disable-next-line */}
+            <label className="label" htmlFor="drawdownInput">
+              label.drawdown
+            </label>
             <div className="control">
               <input
+                id="drawdownInput"
                 className="input"
                 type="number"
                 name="drawdown"
@@ -702,6 +790,7 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
           <div className="field is-grouped">
             <div className="control">
               <button
+                type="button"
                 className={`button is-link button-pad ${isProcessing ? 'is-loading' : ''}`}
                 onClick={handleCreateInvestmentPlan}
                 disabled={isProcessing}
@@ -710,6 +799,7 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
               </button>
               {strategyId && (
                 <button
+                  type="button"
                   className={`button is-danger button-pad ${isDelete ? 'is-loading' : ''}`}
                   onClick={handleDeleteInvestmentPlan}
                   disabled={isDelete}
@@ -723,48 +813,6 @@ const NewStrategy: React.FC<NewStrategyProps> = ({ strategyId = '', marketId = '
       </section>
     </div>
   );
-};
-
-const newStrategyStyle = css`
-  .box {
-    margin: 0 auto;
-    padding: 30px 50px 50px;
-  }
-
-  .no-drop {
-    cursor: no-drop;
-  }
-
-  .control label {
-    margin-right: 10px;
-    width: 100px;
-  }
-
-  .input {
-    width: 600px;
-  }
-
-  .market-item {
-    width: 200px;
-  }
-
-  .plantype-item {
-    width: 150px;
-  }
-
-  .period-item {
-    width: 120px;
-  }
-
-  @media screen and (max-width: 768px) {
-    .section {
-      padding: 20px 0;
-    }
-
-    .box {
-      padding: 30px 10px;
-    }
-  }
-`;
+}
 
 export default NewStrategy;
