@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
 /** @jsxImportSource @emotion/react */
 
 'use client';
@@ -32,7 +31,7 @@ const styles = css`
     flex: 1 1 auto;
     max-width: 200px;
     padding: 16px;
-    background-color: hsl(0, 0%, 96.47058823529412%);
+    background-color: rgb(246, 246, 246);
     border-radius: 8px;
     text-align: center;
     cursor: pointer;
@@ -158,6 +157,7 @@ function Newmarket() {
             </button>
           </div>
           <div className="field">
+            {/* eslint-disable-next-line */}
             <label className="label" htmlFor="exchange-select">
               Select Exchange
             </label>
@@ -184,6 +184,7 @@ function Newmarket() {
           </div>
 
           <div className="field">
+            {/* eslint-disable-next-line */}
             <label className="label">Access Key</label>
             <div className="control">
               <input
@@ -198,6 +199,7 @@ function Newmarket() {
           </div>
 
           <div className="field">
+            {/* eslint-disable-next-line */}
             <label className="label">Secret Key</label>
             <div className="control">
               <input
@@ -212,6 +214,7 @@ function Newmarket() {
           </div>
 
           <div className="field">
+            {/* eslint-disable-next-line */}
             <label className="label">Remark</label>
             <div className="control">
               <input
