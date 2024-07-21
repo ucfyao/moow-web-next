@@ -8,13 +8,13 @@ interface PaginationProps {
   onPageChange: (newPage: number) => void;
 }
 
-const Pagination: React.FC<PaginationProps> = ({
-  current,
-  total,
-  pageSize=10,
-  showTotal,
+function Pagination({
+  current = 1,
+  total = 0,
+  pageSize = 10,
+  showTotal = false,
   onPageChange,
-}) => {
+}: PaginationProps) {
   const [currentPage, setCurrentPage] = useState(current);
   const [currentPageSize, setCurrentPageSize] = useState(pageSize);
 
@@ -35,45 +35,51 @@ const Pagination: React.FC<PaginationProps> = ({
     }
   }, [total, currentPage, currentPageSize]);
 
-  const changePage = (page: number) => {
+  function changePage(page: number) {
     if (currentPage !== page) {
       setCurrentPage(page);
       onPageChange(page);
     }
-  };
+  }
 
-  const prev = () => {
+  function prev() {
     if (currentPage > 1) {
       changePage(currentPage - 1);
     }
-  };
+  }
 
-  const next = () => {
+  function next() {
     if (currentPage < allPages) {
       changePage(currentPage + 1);
     }
-  };
+  }
 
   return (
-    <nav
-      className="pagination is-centered is-small"
-      role="navigation"
-      aria-label="pagination"
-      style={{ marginTop: '10px' }}
-    >
+    <nav className="pagination is-centered is-small" role="navigation" aria-label="pagination">
       <ul className="pagination-list">
         {!showTotal && (
           <span>
             Total {total} {total <= 1 ? 'item' : 'items'}
           </span>
         )}
-        <li title="Previous" onClick={prev}>
-          <button className="pagination-link pagination-previous" disabled={currentPage === 1}>
+        <li title="Previous">
+          <button
+            type="button"
+            className="pagination-link pagination-previous"
+            onClick={prev}
+            disabled={currentPage === 1}
+          >
             &lt;
           </button>
         </li>
-        <li title="1" onClick={() => changePage(1)}>
-          <button className={`pagination-link ${currentPage === 1 ? 'is-current' : ''}`}>1</button>
+        <li title="1">
+          <button
+            type="button"
+            className={`pagination-link ${currentPage === 1 ? 'is-current' : ''}`}
+            onClick={() => changePage(1)}
+          >
+            1
+          </button>
         </li>
         {currentPage > 5 && (
           <li>
@@ -81,38 +87,76 @@ const Pagination: React.FC<PaginationProps> = ({
           </li>
         )}
         {currentPage === 5 && (
-          <li title={(currentPage - 3).toString()} onClick={() => changePage(currentPage - 3)}>
-            <button className="pagination-link">{currentPage - 3}</button>
+          <li title={(currentPage - 3).toString()}>
+            <button
+              type="button"
+              className="pagination-link"
+              onClick={() => changePage(currentPage - 3)}
+            >
+              {currentPage - 3}
+            </button>
           </li>
         )}
         {currentPage - 2 > 1 && (
-          <li title={(currentPage - 2).toString()} onClick={() => changePage(currentPage - 2)}>
-            <button className="pagination-link">{currentPage - 2}</button>
+          <li title={(currentPage - 2).toString()}>
+            <button
+              type="button"
+              className="pagination-link"
+              onClick={() => changePage(currentPage - 2)}
+            >
+              {currentPage - 2}
+            </button>
           </li>
         )}
         {currentPage - 1 > 1 && (
-          <li title={(currentPage - 1).toString()} onClick={() => changePage(currentPage - 1)}>
-            <button className="pagination-link">{currentPage - 1}</button>
+          <li title={(currentPage - 1).toString()}>
+            <button
+              type="button"
+              className="pagination-link"
+              onClick={() => changePage(currentPage - 1)}
+            >
+              {currentPage - 1}
+            </button>
           </li>
         )}
         {currentPage !== 1 && currentPage !== allPages && (
           <li title={currentPage.toString()}>
-            <button className="pagination-link is-current">{currentPage}</button>
+            <button type="button" className="pagination-link is-current">
+              {currentPage}
+            </button>
           </li>
         )}
         {currentPage + 1 < allPages && (
-          <li title={(currentPage + 1).toString()} onClick={() => changePage(currentPage + 1)}>
-            <button className="pagination-link">{currentPage + 1}</button>
+          <li title={(currentPage + 1).toString()}>
+            <button
+              type="button"
+              className="pagination-link"
+              onClick={() => changePage(currentPage + 1)}
+            >
+              {currentPage + 1}
+            </button>
           </li>
         )}
         {currentPage + 2 < allPages && (
-          <li title={(currentPage + 2).toString()} onClick={() => changePage(currentPage + 2)}>
-            <button className="pagination-link">{currentPage + 2}</button>
+          <li title={(currentPage + 2).toString()}>
+            <button
+              type="button"
+              className="pagination-link"
+              onClick={() => changePage(currentPage + 2)}
+            >
+              {currentPage + 2}
+            </button>
           </li>
         )}
         {allPages - currentPage === 4 && (
-          <li title={(currentPage + 3).toString()} onClick={() => changePage(currentPage + 3)}>
-            <button className="pagination-link">{currentPage + 3}</button>
+          <li title={(currentPage + 3).toString()}>
+            <button
+              type="button"
+              className="pagination-link"
+              onClick={() => changePage(currentPage + 3)}
+            >
+              {currentPage + 3}
+            </button>
           </li>
         )}
         {allPages - currentPage >= 5 && (
@@ -121,20 +165,29 @@ const Pagination: React.FC<PaginationProps> = ({
           </li>
         )}
         {allPages > 1 && (
-          <li title={allPages.toString()} onClick={() => changePage(allPages)}>
-            <button className={`pagination-link ${currentPage === allPages ? 'is-current' : ''}`}>
+          <li title={allPages.toString()}>
+            <button
+              type="button"
+              className={`pagination-link ${currentPage === allPages ? 'is-current' : ''}`}
+              onClick={() => changePage(allPages)}
+            >
               {allPages}
             </button>
           </li>
         )}
-        <li title="Next" onClick={next}>
-          <button className="pagination-link pagination-next" disabled={currentPage === allPages}>
+        <li title="Next">
+          <button
+            type="button"
+            className="pagination-link pagination-next"
+            disabled={currentPage === allPages}
+            onClick={next}
+          >
             &gt;
           </button>
         </li>
       </ul>
     </nav>
   );
-};
+}
 
 export default Pagination;
