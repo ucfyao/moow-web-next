@@ -1,5 +1,5 @@
 import { createStore } from 'redux';
-import auth from '../app/utils/auth';
+import auth from '../utils/auth';
 
 const initialState = {
   locales: ['en', 'zh'],

@@ -23,15 +23,15 @@ export default {
     if (typeof loginData === 'object') {
       const user = loginData.user;
       const token = loginData.token;
-      const permissionList = loginData.permission && (loginData.permission.resource || []);
-      const permission = {};
-      permissionList.forEach(item => {
-        permission[item.resourceCode] = item
-      });
+      //const permissionList = loginData.permission && (loginData.permission.resource || []);
+      //const permission = {};
+      //permissionList.forEach(item => {
+      //  permission[item.resourceCode] = item
+      //});
       if (typeof window !== 'undefined') {
         window.localStorage.setItem(KEY_OF_USER, JSON.stringify(user));
         window.localStorage.setItem(KEY_OF_TOKEN, token);
-        window.localStorage.setItem(KEY_OF_PERMISSION, JSON.stringify(permission));
+        //window.localStorage.setItem(KEY_OF_PERMISSION, JSON.stringify(permission));
         window.localStorage.setItem(KEY_OF_ISAUTHENTICATED, 'true');
       }
       return true
