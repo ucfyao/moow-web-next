@@ -368,10 +368,6 @@ const signUpStyle = css`
     padding: 5rem;
   }
 
-  .forget-password {
-    text-align: right;
-    font-size: 12px;
-  }
 
   .card-footer-item {
     font-size: 12px;
