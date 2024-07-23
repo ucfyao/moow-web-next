@@ -1,4 +1,5 @@
 /** @jsxImportSource @emotion/react */
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -9,7 +10,67 @@ import no_record from '@/assets/images/no_record.png';
 import { css } from '@emotion/react';
 import Pagination from '@/components/Pagination';
 import util from '@/utils/util';
-import Chart from '@/components/Chart';
+import Highcharts from 'highcharts';
+
+const strategyDetailStyle = css`
+  .isNone {
+    display: none;
+  }
+
+  p {
+    font-size: 14px;
+  }
+
+  #line-container {
+    width: 100%;
+    min-height: 20.5rem;
+  }
+
+  .container {
+    margin-top: 40px;
+    margin-bottom: 60px;
+    max-width: 1344px;
+  }
+
+  .tabs {
+    margin-bottom: 1.5rem;
+  }
+
+  .tabs-more {
+    padding-right: 30px;
+  }
+
+  .table {
+    min-width: 800px;
+    font-size: 0.85rem;
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+  }
+
+  thead,
+  th {
+    background-color: #fafafa;
+    color: #4f6475;
+    font-weight: 400;
+  }
+
+  tr {
+    color: #4a4a4a;
+  }
+
+  td {
+    vertical-align: middle;
+    text-align: center;
+  }
+
+  .no-record {
+    width: 61px;
+    margin: 60px auto;
+    display: block;
+  }
+`;
 
 interface DetailProps {
   _id: string;
@@ -44,10 +105,185 @@ interface OrderProps {
   cost: number;
 }
 
-const strategyDetails: React.FC = () => {
+interface OrderListProps {
+  orders: OrderProps[];
+}
+
+interface ChartProps {
+  id: string;
+  categories: string[];
+  series1: number[];
+  series2: number[];
+  series3: number[];
+  max: number;
+  min: number;
+}
+
+function OrderList({ orders }: OrderListProps): React.JSX.Element {
+  // Handle page changes
+  const [currentPage, setCurrentPage] = useState(1);
+  const total = orders.length;
+  const pageSize = 20;
+  const indexOfLastItem = currentPage * pageSize;
+  const indexOfFirstItem = indexOfLastItem - pageSize;
+  const currentData = orders.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handleCurrentChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  return (
+    <div className="table-wrapper">
+      <table className="table is-fullwidth is-striped">
+        <thead>
+          <tr>
+            <th>Commission Time</th>
+            <th>Symbol</th>
+            <th>Commission Price</th>
+            <th>Commission Quantity</th>
+            <th>Commission Amount</th>
+            <th>Closed Quantity</th>
+            <th>Closed Ave Price</th>
+            <th>Closed Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          {currentData.map((row) => (
+            // eslint-disable-next-line
+            <tr key={row._id}>
+              <td>{util.formatDate(row.created_at)}</td>
+              <td>{row.symbol}</td>
+              <td>{row.price}</td>
+              <td>{row.amount}</td>
+              <td>{row.funds}</td>
+              <td>{util.formatNumber(row.record_amount, 8)}</td>
+              <td>
+                {row.avg_price === undefined
+                  ? util.formatNumber(row.cost / row.record_amount, 8)
+                  : util.formatNumber(row.avg_price, 8)}
+              </td>
+              <td>{row.cost}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <Pagination
+        current={currentPage}
+        total={total}
+        pageSize={pageSize}
+        showTotal={false}
+        onPageChange={handleCurrentChange}
+      />
+    </div>
+  );
+}
+
+function Chart({ id, categories, series1, series2, series3, max, min }: ChartProps) {
+  const colors = Highcharts.getOptions().colors || [];
+  useEffect(() => {
+    Highcharts.chart({
+      chart: {
+        type: 'spline',
+        renderTo: 'line-container',
+      },
+      title: {
+        text: 'Investment Returns Chart',
+      },
+      subtitle: {
+        text: 'Data source: xiaobao.io',
+      },
+      xAxis: {
+        categories,
+      },
+      yAxis: [
+        {
+          title: {
+            text: '',
+          },
+          labels: {
+            // eslint-disable-next-line no-template-curly-in-string
+            format: '${value}',
+          },
+          tickAmount: 8,
+        },
+        {
+          title: {
+            text: 'Profit Rate',
+          },
+          labels: {
+            format: '{value}%',
+          },
+          max,
+          min,
+          tickAmount: 8,
+          opposite: true,
+        },
+      ],
+      plotOptions: {
+        line: {
+          dataLabels: {
+            enabled: true,
+          },
+          enableMouseTracking: false,
+          lineWidth: 1,
+          marker: {
+            radius: 0,
+            states: {
+              hover: {
+                enabled: false,
+                lineWidth: 1,
+              },
+            },
+          },
+        },
+      },
+      series: [
+        {
+          type: 'line',
+          yAxis: 1,
+          name: 'Profit Rate',
+          data: series3,
+          color: colors[8] || '#000000',
+        },
+        {
+          type: 'line',
+          name: 'Total Quote',
+          data: series1,
+        },
+        {
+          type: 'line',
+          yAxis: 0,
+          name: 'Total Value',
+          data: series2,
+        },
+      ],
+    });
+  }, [id, categories, series1, series2, series3, max, min]);
+
+  return <div id={id} />;
+}
+
+function StrategyDetails() {
   const { strategyId } = useParams();
   const [orders, setOrders] = useState<OrderProps[]>([]);
-  const [details, setDetails] = useState<DetailProps | undefined>(undefined);
+  const [details, setDetails] = useState<DetailProps>({
+    _id: '',
+    created_at: '',
+    exchange: '',
+    symbol: '',
+    quote: 0,
+    quote_total: 0,
+    price_native: '',
+    price_total: '',
+    base: '',
+    base_limit: '',
+    base_total: 0,
+    profit: 0,
+    profit_percentage: 0,
+    stop_profit_percentage: 0,
+    price_usd: 0,
+    status: '',
+  });
   const [fontColor, setFontColor] = useState<string>('');
 
   // Props for chart
@@ -59,24 +295,23 @@ const strategyDetails: React.FC = () => {
   const [min, setMin] = useState(0);
 
   useEffect(() => {
-    const queryDetails = async () => {
+    async function queryDetails() {
       try {
         const detailsResponse = await axios.get(`/api/v1/strategies/${strategyId}`);
-        const data = detailsResponse.data.data;
+        const { data } = detailsResponse.data;
 
         // Set variables
-        if (data) {
-          const info = data.info;
-          // TODO  complete symbol exchange model in back-end
-          // const symbol_price = data.symbol_price;
-          info.price_usd = 10; // TODO  update later
-          info.created_at = util.formatDate(info.created_at, 'yy-MM-dd HH:mm');
+        if (data && data.info && data.symbolPrice) {
+          const { info } = data.info;
+          const { symbolPrice } = data.symbolPrice;
+          info.price_usd = symbolPrice && symbolPrice.price_usd ? symbolPrice.price_usd : 0;
+          info.created_at = util.formatDate(info.createdAt, 'yy-MM-dd HH:mm');
           info.base_total = util.formatNumber(info.base_total, 8);
           info.price_total = util.formatNumber(info.price_usd * info.quote_total, 8);
           info.quote_total = util.formatNumber(info.quote_total, 8);
           info.profit = util.formatNumber(info.price_total - info.base_total, 8);
           info.profit_percentage =
-            parseInt(info.base_total) === 0
+            parseInt(info.base_total, 8) === 0
               ? 0
               : util.formatNumber((info.profit / info.base_total) * 100, 2);
 
@@ -91,8 +326,9 @@ const strategyDetails: React.FC = () => {
       } catch (error) {
         console.error(error);
       }
-    };
-    const queryOrders = async () => {
+    }
+
+    async function queryOrders() {
       try {
         const ordersResponse = await axios.get(`/api/v1/orders?strategy_id=${strategyId}`);
         const orderData = ordersResponse.data.data.list;
@@ -104,13 +340,13 @@ const strategyDetails: React.FC = () => {
         const newProfitRate: number[] = [];
         const newCategories: string[] = [];
 
-        orderData.forEach((v) => {
+        orderData.forEach((v: OrderProps) => {
           newBaseTotal.push(+util.formatNumber(v.base_total, 2));
           newValueTotal.push(+util.formatNumber(v.value_total, 2));
           newProfitRate.push(
             +util.formatNumber((v.value_total - v.base_total) / v.value_total, 4) * 100
           );
-          let date = util.formatDate(v.created_at, 'yy.MM.dd');
+          const date = util.formatDate(v.created_at, 'yy.MM.dd');
           newCategories.push(date);
         });
 
@@ -125,7 +361,7 @@ const strategyDetails: React.FC = () => {
         setMax(maxVal + b / 2);
         setMin(minVal - b / 2);
 
-        // test
+        // mock data for testing
         setCategories([
           'Jan',
           'Feb',
@@ -146,83 +382,26 @@ const strategyDetails: React.FC = () => {
         setMax(10);
         setMin(0);
       } catch (error) {
-        const message = error.message ? error.message : 'Unkown Error';
+        const message = error instanceof Error ? error.message : 'Unkown Error';
         alert(message);
       }
-    };
+    }
     queryDetails();
     queryOrders();
   }, []);
-
-  const OrderList: React.FC<{ orders: any[] }> = () => {
-    // Handle page changes
-    const [currentPage, setCurrentPage] = useState(1);
-    const total = orders.length;
-    const pageSize = 20;
-    const indexOfLastItem = currentPage * pageSize;
-    const indexOfFirstItem = indexOfLastItem - pageSize;
-    const currentData = orders.slice(indexOfFirstItem, indexOfLastItem);
-
-    const handleCurrentChange = (newPage: number) => {
-      setCurrentPage(newPage);
-    };
-
-    return (
-      <div className="table-wrapper">
-        <table className="table is-fullwidth is-striped">
-          <thead>
-            <tr>
-              <th>Commission Time</th>
-              <th>Symbol</th>
-              <th>Commission Price</th>
-              <th>Commission Quantity</th>
-              <th>Commission Amount</th>
-              <th>Closed Quantity</th>
-              <th>Closed Ave Price</th>
-              <th>Closed Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentData.map((row, index) => (
-              <tr key={index}>
-                <td>{util.formatDate(row.created_at)}</td>
-                <td>{row.symbol}</td>
-                <td>{row.price}</td>
-                <td>{row.amount}</td>
-                <td>{row.funds}</td>
-                <td>{util.formatNumber(row.record_amount, 8)}</td>
-                <td>
-                  {row.avg_price === undefined
-                    ? util.formatNumber(row.cost / row.record_amount, 8)
-                    : util.formatNumber(row.avg_price, 8)}
-                </td>
-                <td>{row.cost}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <Pagination
-          current={currentPage}
-          total={total}
-          pageSize={pageSize}
-          showTotal={false}
-          onPageChange={handleCurrentChange}
-        />
-      </div>
-    );
-  };
 
   // TODO  translate dynamically by i18n
   return (
     <div className="container" css={strategyDetailStyle}>
       <section className="section">
         <div className="box">
-          <a className="tabs-more is-pulled-right" href="/strategies">
+          <a className="tabs-more is-pulled-right" href="/aip">
             Go Back
           </a>
           <div className="tabs">
             <ul>
               <li className="is-active">
+                {/* eslint-disable-next-line */}
                 <a>Investment Details</a>
               </li>
             </ul>
@@ -300,6 +479,7 @@ const strategyDetails: React.FC = () => {
           <div className="tabs">
             <ul>
               <li className="is-active">
+                {/* eslint-disable-next-line */}
                 <a>Order History</a>
               </li>
             </ul>
@@ -314,66 +494,6 @@ const strategyDetails: React.FC = () => {
       </section>
     </div>
   );
-};
+}
 
-const strategyDetailStyle = css`
-  .isNone {
-    display: none;
-  }
-
-  p {
-    font-size: 14px;
-  }
-
-  #line-container {
-    width: 100%;
-    min-height: 20.5rem;
-  }
-
-  .container {
-    margin-top: 40px;
-    margin-bottom: 60px;
-    max-width: 1344px;
-  }
-
-  .tabs {
-    margin-bottom: 1.5rem;
-  }
-
-  .tabs-more {
-    padding-right: 30px;
-  }
-
-  .table {
-    min-width: 800px;
-    font-size: 0.85rem;
-  }
-
-  .table-wrapper {
-    overflow-x: auto;
-  }
-
-  thead,
-  th {
-    background-color: #fafafa;
-    color: #4f6475;
-    font-weight: 400;
-  }
-
-  tr {
-    color: #4a4a4a;
-  }
-
-  td {
-    vertical-align: middle;
-    text-align: center;
-  }
-
-  .no-record {
-    width: 61px;
-    margin: 60px auto;
-    display: block;
-  }
-`;
-
-export default strategyDetails;
+export default StrategyDetails;
