@@ -2,9 +2,10 @@
 
 'use client';
 
-import React, { useState, useEffect, ChangeEvent } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/router';
+import { getInvalidFields } from '@/utils/validator';
 import { css } from '@emotion/react';
 
 const styles = css`
@@ -67,10 +68,19 @@ const styles = css`
     width: 22px;
     margin-right: 5px;
   }
+
+  .error {
+    color: red;
+    font-size: 12px;
+    margin-top: -12px;
+    margin-bottom: 12px;
+  }
 `;
 
 interface ExchangeItem {
   exchange: string;
+  name: string;
+  url: string;
 }
 
 interface FormData {
@@ -90,7 +100,7 @@ interface InvalidFields {
 function Newmarket() {
   const router = useRouter();
 
-  const [exchangeList, setExchangeList] = useState([
+  const [exchangeList, setExchangeList] = useState<ExchangeItem[]>([
     { exchange: 'binance', name: 'Binance', url: 'https://www.binance.com' },
     { exchange: 'huobi', name: 'HuoBi', url: 'https://www.huobi.com' },
     { exchange: 'okex', name: 'OKEx', url: 'https://www.okex.com' },
@@ -102,33 +112,69 @@ function Newmarket() {
     secret: '',
     desc: '',
   });
+  const [invalidFields, setInvalidFields] = useState<InvalidFields>({});
   const [isProcessing, setIsProcessing] = useState(false);
   const [isClient, setIsClient] = useState(false);
 
   // Use get method to search all the marketlist
-  const queryMarketList = async () => {
+  async function queryMarketList() {
     try {
-      const response = await axios.get('/'); // "/api/keys"
-      // Check the response data and update the status
+      const response = await axios.post('/', {});
       if (response.data && Array.isArray(response.data.list)) {
-        setExchangeList(response.data.list);
+        setExchangeList(
+          response.data.list.map((item: any) => ({
+            exchange: item.exchange,
+            name: item.name,
+            url: item.url,
+          }))
+        );
       }
     } catch (error) {
       console.error('Failed to fetch market list', error);
     }
-  };
+  }
 
-  const handleSelectExchange = (exchange: string) => {
-    setFormData({ ...formData, exchange });
-  };
+  function handleSelectExchange(exchange: string) {
+    setFormData((prevFormData) => ({ ...prevFormData, exchange }));
+  }
 
-  const handleInputChange = () => {
-    // Need to be completed.
-  };
+  // Process changes to the input box and update the corresponding data state.
+  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const { name, value } = e.target;
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }));
+  }
 
-  const handleAddMarket = async () => {
-    // Need to be completed.
-  };
+  async function handleAddMarket() {
+    if (isProcessing) return;
+
+    try {
+      const newInvalidFields = await getInvalidFields(formData, rules());
+      if (newInvalidFields) {
+        setInvalidFields(newInvalidFields);
+        return;
+      }
+
+      setIsProcessing(true);
+      const response = await axios.post('/', formData);
+      setIsProcessing(false);
+      // alert('Market added successfully');
+      if (response.data && response.data.id) {
+        router.push({
+          pathname: '/',
+          query: { marketId: response.data.id },
+        });
+      } else {
+        router.push({ pathname: '/' });
+      }
+    } catch (error) {
+      console.error('Failed to add market', error);
+      // alert('An error occurred while adding the market');
+      setIsProcessing(false);
+    }
+  }
 
   useEffect(() => {
     setIsClient(true);
@@ -145,7 +191,11 @@ function Newmarket() {
   }
 
   return (
-    <div className="container mx-auto" style={{ marginTop: '70px', maxWidth: '1200px' }}>
+    <div
+      css={styles}
+      className="container mx-auto"
+      style={{ marginTop: '70px', maxWidth: '1200px' }}
+    >
       <section className="section">
         <div className="box">
           <div className="header">
@@ -181,6 +231,7 @@ function Newmarket() {
                 ))}
               </ul>
             </div>
+            {invalidFields.exchange && <p className="error">{invalidFields.exchange}</p>}
           </div>
 
           <div className="field">
@@ -196,6 +247,7 @@ function Newmarket() {
                 placeholder="ACCESS KEY"
               />
             </div>
+            {invalidFields.key && <p className="error">{invalidFields.key}</p>}
           </div>
 
           <div className="field">
@@ -211,6 +263,7 @@ function Newmarket() {
                 placeholder="SECRET KEY"
               />
             </div>
+            {invalidFields.secret && <p className="error">{invalidFields.secret}</p>}
           </div>
 
           <div className="field">
@@ -226,6 +279,7 @@ function Newmarket() {
                 placeholder="REMARK"
               />
             </div>
+            {invalidFields.desc && <p className="error">{invalidFields.desc}</p>}
           </div>
 
           <div className="field is-grouped">
@@ -247,3 +301,7 @@ function Newmarket() {
 }
 
 export default Newmarket;
+function rules(): any {
+  throw new Error('Function not implemented.');
+}
+
