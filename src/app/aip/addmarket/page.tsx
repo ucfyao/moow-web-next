@@ -301,7 +301,3 @@ function Newmarket() {
 }
 
 export default Newmarket;
-function rules(): any {
-  throw new Error('Function not implemented.');
-}
-
