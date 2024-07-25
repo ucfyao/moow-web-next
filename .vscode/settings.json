@@ -6,5 +6,8 @@
   "editor.insertSpaces": true,
   "prettier.requireConfig": true,
   "prettier.tabWidth": 2,
-  "prettier.useTabs": false
+  "prettier.useTabs": false,
+  "cSpell.words": [
+    "marketlist"
+  ]
 }
