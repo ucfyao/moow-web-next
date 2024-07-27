@@ -326,14 +326,22 @@ function NewStrategy({ strategyId = '', marketId = '' }) {
       };
 
       if (response.data && Array.isArray(response.data.list)) {
-        const newUserMarketList = response.data.list.map((item) => ({
-          // eslint-disable-next-line
-          _id: item._id,
-          exchange: item.exchange,
-          key: item.access_key,
-          secret: item.secret_key,
-          user: item.uid,
-        }));
+        const newUserMarketList = response.data.list.map(
+          (item: {
+            _id: string;
+            exchange: string;
+            access_key: string;
+            secret_key: string;
+            uid: string;
+          }) => ({
+            // eslint-disable-next-line
+            _id: item._id,
+            exchange: item.exchange,
+            key: item.access_key,
+            secret: item.secret_key,
+            user: item.uid,
+          })
+        );
         setUserMarketList(newUserMarketList);
 
         if (marketId) {
