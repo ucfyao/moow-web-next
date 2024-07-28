@@ -66,7 +66,7 @@ const strategyListStyle = css`
 
 interface Strategy {
   _id: string;
-  createdAt: string;
+  created_at: string;
   exchange: string;
   symbol: string;
   quote_total: number;
@@ -87,7 +87,7 @@ function StrayegyList() {
       try {
         // TODO use baseURL instead of hardcode
         const response = await axios.get('/api/v1/strategies');
-        setTableData(response.data.data);
+        setTableData(response.data.data.list);
       } catch (error) {
         console.error(error);
       }
@@ -148,14 +148,14 @@ function StrayegyList() {
 
   // Handle page changes
   const [currentPage, setCurrentPage] = useState(1);
-  const total = tableData.length;
+  const total = tableData ? tableData.length : 0;
   const pageSize = 10;
 
   const indexOfLastItem = currentPage * pageSize;
   const indexOfFirstItem = indexOfLastItem - pageSize;
   const currentData = tableData.slice(indexOfFirstItem, indexOfLastItem);
 
-  const handleCurrentChange = (newPage: number) => {
+  const handleCurrentChange = (newPage: number): void => {
     setCurrentPage(newPage);
   };
 
@@ -197,7 +197,7 @@ function StrayegyList() {
                   {currentData.map((row) => (
                     // eslint-disable-next-line
                     <tr key={row._id}>
-                      <td>{format(new Date(row.createdAt), 'yyyy/MM/dd HH:mm')}</td>
+                      <td>{format(new Date(row.created_at), 'yyyy/MM/dd HH:mm')}</td>
                       <td>{row.exchange}</td>
                       <td>{row.symbol}</td>
                       <td>{row.quote_total}</td>
