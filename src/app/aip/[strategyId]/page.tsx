@@ -77,17 +77,17 @@ interface DetailProps {
   created_at: string;
   exchange: string;
   symbol: string;
-  quote: number;
+  quote: string;
   quote_total: number;
   price_native: string;
-  price_total: string;
+  price_total: number;
   base: string;
-  base_limit: string;
+  base_limit: number;
   base_total: number;
   profit: number;
   profit_percentage: number;
   stop_profit_percentage: number;
-  price_usd: number;
+  price_usd: string;
   status: string;
 }
 
@@ -271,17 +271,17 @@ function StrategyDetails() {
     created_at: '',
     exchange: '',
     symbol: '',
-    quote: 0,
+    quote: '',
     quote_total: 0,
     price_native: '',
-    price_total: '',
+    price_total: 0,
     base: '',
-    base_limit: '',
+    base_limit: 0,
     base_total: 0,
     profit: 0,
     profit_percentage: 0,
     stop_profit_percentage: 0,
-    price_usd: 0,
+    price_usd: '',
     status: '',
   });
   const [fontColor, setFontColor] = useState<string>('');
@@ -302,10 +302,9 @@ function StrategyDetails() {
 
         // Set variables
         if (data && data.info && data.symbolPrice) {
-          const { info } = data.info;
-          const { symbolPrice } = data.symbolPrice;
-          info.price_usd = symbolPrice && symbolPrice.price_usd ? symbolPrice.price_usd : 0;
-          info.created_at = util.formatDate(info.createdAt, 'yy-MM-dd HH:mm');
+          const { info, symbolPrice } = data;
+          info.price_usd = symbolPrice && symbolPrice.price_usd ? symbolPrice.price_usd : '';
+          info.created_at = util.formatDate(info.created_at, 'yyyy-MM-dd HH:mm');
           info.base_total = util.formatNumber(info.base_total, 8);
           info.price_total = util.formatNumber(info.price_usd * info.quote_total, 8);
           info.quote_total = util.formatNumber(info.quote_total, 8);
@@ -360,27 +359,6 @@ function StrategyDetails() {
         const b = maxVal - minVal * 1.4 - (maxVal - minVal);
         setMax(maxVal + b / 2);
         setMin(minVal - b / 2);
-
-        // mock data for testing
-        setCategories([
-          'Jan',
-          'Feb',
-          'Mar',
-          'Apr',
-          'May',
-          'Jun',
-          'Jul',
-          'Aug',
-          'Sep',
-          'Oct',
-          'Nov',
-          'Dec',
-        ]);
-        setBaseTotal([1, 3, 2, 4, 5, 6, 8, 7, 9, 6, 5, 4]);
-        setValueTotal([2, 4, 3, 5, 6, 7, 9, 8, 10, 7, 6, 5]);
-        setProfitRate([1, 2, 1, 3, 4, 5, 7, 6, 8, 5, 4, 3]);
-        setMax(10);
-        setMin(0);
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Unkown Error';
         alert(message);
