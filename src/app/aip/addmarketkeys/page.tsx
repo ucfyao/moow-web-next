@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { getInvalidFields } from '@/utils/validator';
 import { css } from '@emotion/react';
 
@@ -31,7 +31,7 @@ const styles = css`
     width: 168px;
     flex: 1 1 auto;
     max-width: 200px;
-    padding: 16px;
+    padding: 0;
     background-color: rgb(246, 246, 246);
     border-radius: 8px;
     text-align: center;
@@ -40,6 +40,17 @@ const styles = css`
       transform 0.3s,
       box-shadow 0.3s;
     margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  .exchangeButton {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: center;
   }
 
   .active {
@@ -75,6 +86,20 @@ const styles = css`
     margin-top: -12px;
     margin-bottom: 12px;
   }
+
+  .button-back {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 4px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  .button-back:hover {
+    background-color: #0056b3;
+  }
 `;
 
 interface ExchangeItem {
@@ -85,15 +110,15 @@ interface ExchangeItem {
 
 interface FormData {
   exchange: string;
-  key: string;
-  secret: string;
+  access_key: string;
+  secret_key: string;
   desc: string;
 }
 
 interface InvalidFields {
   exchange?: string;
-  key?: string;
-  secret?: string;
+  access_key?: string;
+  secret_key?: string;
   desc?: string;
 }
 
@@ -108,18 +133,56 @@ function Newmarket() {
 
   const [formData, setFormData] = useState<FormData>({
     exchange: '',
-    key: '',
-    secret: '',
+    access_key: '',
+    secret_key: '',
     desc: '',
   });
   const [invalidFields, setInvalidFields] = useState<InvalidFields>({});
   const [isProcessing, setIsProcessing] = useState(false);
   const [isClient, setIsClient] = useState(false);
 
+  // Defining form validation rules
+  const rules = () => {
+    return {
+      exchange: [
+        {
+          required: true,
+          message: "Exchange can't be empty",
+        }
+      ],
+      key: [
+        {
+          required: true,
+          message: "Access Key can't be empty",
+        },
+        {
+          max: 65,
+          message: 'Input is too long',
+        }
+      ],
+      secret: [
+        {
+          required: true,
+          message: "Secret Key can't be empty",
+        },
+        {
+          max: 65,
+          message: 'Input is too long',
+        }
+      ],
+      desc: [
+        {
+          required: true,
+          message: "Remark can't be empty",
+        }
+      ]
+    };
+  };
+
   // Use get method to search all the marketlist
   async function queryMarketList() {
     try {
-      const response = await axios.post('/', {});
+      const response = await axios.get('http://127.0.0.1:3000/api/v1/markets', {});
       if (response.data && Array.isArray(response.data.list)) {
         setExchangeList(
           response.data.list.map((item: any) => ({
@@ -152,26 +215,37 @@ function Newmarket() {
 
     try {
       const newInvalidFields = await getInvalidFields(formData, rules());
+      console.log('Invalid fields:', newInvalidFields);
       if (newInvalidFields) {
         setInvalidFields(newInvalidFields);
         return;
       }
 
       setIsProcessing(true);
-      const response = await axios.post('/', formData);
+      console.log('Sending request with formData:', formData);
+      const response = await axios.post('http://127.0.0.1:3000/api/v1/keys', {
+        access_key: formData.access_key,
+        exchange: formData.exchange,
+        secret_key: formData.secret_key,
+        desc: formData.desc,
+      });
       setIsProcessing(false);
-      // alert('Market added successfully');
+
+      console.log('Response from API:', response);
+      alert('Market added successfully');
       if (response.data && response.data.id) {
+        console.log('Market added, redirecting to /addstrategy');
         router.push({
-          pathname: '/',
+          pathname: '/addstrategy',
           query: { marketId: response.data.id },
         });
       } else {
-        router.push({ pathname: '/' });
+        console.log('No market ID, redirecting to /markets');
+        router.push({ pathname: '/markets' });my
       }
     } catch (error) {
       console.error('Failed to add market', error);
-      // alert('An error occurred while adding the market');
+      alert('An error occurred while adding the market');
       setIsProcessing(false);
     }
   }
@@ -202,7 +276,7 @@ function Newmarket() {
             <p className="is-size-6 is-pulled-left" style={{ marginRight: '10px' }}>
               New Exchange API Key
             </p>
-            <button type="button" onClick={goBack} className="is-pulled-right">
+            <button type="button" onClick={goBack} className="is-pulled-right button-back">
               Go Back
             </button>
           </div>
@@ -220,13 +294,15 @@ function Newmarket() {
                   >
                     <button
                       type="button"
-                      className="tit"
+                      className="exchangeButton"
                       onClick={() => handleSelectExchange(item.exchange)}
                     >
-                      <img className="img" src={`/images/${item.exchange}.png`} alt={item.name} />
-                      {item.name}
+                      <div className="tit">
+                        <img className="img" src={`/images/${item.exchange}.png`} alt={item.name} />
+                        {item.name}
+                      </div>
+                      <p className="desc">{item.url}</p>
                     </button>
-                    <p className="desc">{item.url}</p>
                   </li>
                 ))}
               </ul>
@@ -241,13 +317,13 @@ function Newmarket() {
               <input
                 className="input"
                 type="text"
-                name="key"
-                value={formData.key}
+                name="access_key"
+                value={formData.access_key}
                 onChange={handleInputChange}
                 placeholder="ACCESS KEY"
               />
             </div>
-            {invalidFields.key && <p className="error">{invalidFields.key}</p>}
+            {invalidFields.access_key && <p className="error">{invalidFields.access_key}</p>}
           </div>
 
           <div className="field">
@@ -257,13 +333,13 @@ function Newmarket() {
               <input
                 className="input"
                 type="text"
-                name="secret"
-                value={formData.secret}
+                name="secret_key"
+                value={formData.secret_key}
                 onChange={handleInputChange}
                 placeholder="SECRET KEY"
               />
             </div>
-            {invalidFields.secret && <p className="error">{invalidFields.secret}</p>}
+            {invalidFields.secret_key && <p className="error">{invalidFields.secret_key}</p>}
           </div>
 
           <div className="field">
