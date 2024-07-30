@@ -10,6 +10,7 @@ import axios from 'axios';
 import { getInvalidFields } from '@/utils/validator';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { useTranslation } from 'react-i18next';
 
 // Define CSS styles using Emotion
 const newStrategyStyle = css`
@@ -106,16 +107,17 @@ interface InvalidFields {
 }
 
 function NewStrategy({ strategyId = '', marketId = '' }) {
+  const { t } = useTranslation('');
   const [userMarketList, setUserMarketList] = useState<UserMarketItem[]>([]);
   const [symbolList, setSymbolList] = useState<SymbolItem[]>([]);
   const planTypeList: PlanType[] = [
-    { type: '1', name: 'label.price_investment' },
-    // { type: "2", name: "label.value_investment" },
+    { type: '1', name: t('label.price_investment') },
+    // { type: '2', name: t('label.value_investment') },
   ];
   const periodList: PeriodType[] = [
-    { periodType: '1', name: 'label.daily' },
-    { periodType: '2', name: 'label.weekly' },
-    { periodType: '3', name: 'label.monthly' },
+    { periodType: '1', name: t('label.daily') },
+    { periodType: '2', name: t('label.weekly') },
+    { periodType: '3', name: t('label.monthly') },
   ];
   const [periodDataList, setPeriodDataList] = useState<PeriodDataItem[]>([]);
   const periodDictionary: { [key: string]: { label: string; children: PeriodDataItem[] } } = {
@@ -378,10 +380,12 @@ function NewStrategy({ strategyId = '', marketId = '' }) {
   }, [strategyId]);
 
   function validateOptionalInteger(rule: any, value: any, callback: any): void {
-    if (value === '' || /^[1-9]+\d*$/.test(value)) {
+    if (value === undefined || value === '') {
+      callback();
+    } else if (/^[1-9]+\d*$/.test(value)) {
       callback();
     } else {
-      callback(new Error('validator.must_positive_integer'));
+      callback(new Error(t('validator.must_positive_integer')));
     }
   }
 
@@ -391,14 +395,14 @@ function NewStrategy({ strategyId = '', marketId = '' }) {
       user_market_id: [
         {
           required: true,
-          message: 'validator.cant_empty',
+          message: t('validator.cant_empty'),
           trigger: 'change',
         },
       ],
       symbol: [
         {
           required: true,
-          message: 'validator.cant_empty',
+          message: t('validator.cant_empty'),
           trigger: 'change',
         },
       ],
@@ -407,7 +411,7 @@ function NewStrategy({ strategyId = '', marketId = '' }) {
           type: 'integer',
           required: true,
           pattern: /^[1-9]+\d*$/,
-          message: 'validator.must_positive_integer',
+          message: t('validator.must_positive_integer'),
           trigger: 'change',
           min: 1,
           transform(value: string) {
@@ -418,14 +422,14 @@ function NewStrategy({ strategyId = '', marketId = '' }) {
       type: [
         {
           required: true,
-          message: 'validator.cant_empty',
+          message: t('validator.cant_empty'),
           trigger: 'blur',
         },
       ],
       period: [
         {
           required: true,
-          message: 'validator.cant_empty',
+          message: t('validator.cant_empty'),
           trigger: 'blur',
         },
       ],
@@ -434,7 +438,7 @@ function NewStrategy({ strategyId = '', marketId = '' }) {
           type: 'array',
           required: true,
           min: 1,
-          message: 'validator.cant_empty',
+          message: t('validator.cant_empty'),
           trigger: 'blur',
         },
       ],
@@ -517,7 +521,7 @@ function NewStrategy({ strategyId = '', marketId = '' }) {
       setIsProcessing(false);
       router.push('/aip');
     } catch (error) {
-      const errorMessage = (error as Error).message || 'prompt.error_occurs';
+      const errorMessage = (error as Error).message || t('prompt.error_occurs');
       alert(errorMessage);
       setIsProcessing(false);
     }
@@ -528,7 +532,9 @@ function NewStrategy({ strategyId = '', marketId = '' }) {
     if (isDelete) return; // Prevent multiple submissions by checking if deletion is already in progress
     setIsDelete(true); // Set isDelete to true to indicate the deletion process has started
 
-    const confirmed = window.confirm('prompt.confirm_switch_plan_status + action.delete');
+    const confirmed = window.confirm(
+      `${t('prompt.confirm_switch_plan_status')} ${t('action.delete')}`
+    );
     if (!confirmed) {
       setIsDelete(false); // If user cancels the deletion, reset isDelete to false and exit the function
       return;
@@ -546,7 +552,7 @@ function NewStrategy({ strategyId = '', marketId = '' }) {
       setIsDelete(false); // Reset isDelete to false to indicate the deletion process has completed
       router.push('/strategies');
     } catch (error) {
-      const errorMessage = (error as Error).message || 'prompt.error_occurs';
+      const errorMessage = (error as Error).message || t('prompt.error_occurs');
       alert(errorMessage);
       setIsDelete(false); // Reset isDelete to false to allow the user to attempt deletion again if needed
     }
@@ -558,7 +564,11 @@ function NewStrategy({ strategyId = '', marketId = '' }) {
         <div className="box">
           <div className="header">
             <p className="is-size-6 is-pulled-left" style={{ marginRight: '10px' }}>
-              {isCreate ? <span>caption.new_plan</span> : <span>caption.edit_plan</span>}
+              {isCreate ? (
+                <span>{t('caption.new_plan')}</span>
+              ) : (
+                <span>{t('caption.edit_plan')}</span>
+              )}
             </p>
             <button
               type="button"
@@ -571,7 +581,7 @@ function NewStrategy({ strategyId = '', marketId = '' }) {
                 cursor: 'pointer',
               }}
             >
-              action.go_back
+              {t('action.go_back')}
             </button>
           </div>
 
@@ -579,7 +589,8 @@ function NewStrategy({ strategyId = '', marketId = '' }) {
             {/* eslint-disable-next-line */}
             <label className="label">
               <span className="has-text-danger">*</span>
-              label.exchange_apikey
+              {t('label.select')}
+              {t('label.exchange_apikey')}
             </label>
             <div className="control">
               <ul className="choice is-clearfix">
@@ -608,9 +619,11 @@ function NewStrategy({ strategyId = '', marketId = '' }) {
                   </li>
                 ))}
                 <li className="more">
-                  <Link href="/aip/addmarket">
+                  <Link href="/aip/addmarketkeys">
+                    {/* eslint-disable-next-line */}
+                    <i className="fa fa-plus"></i>
                     <span className="color-light-blue" style={{ cursor: 'pointer' }}>
-                      action.new_exchange_apikey
+                      {t('action.new_exchange_apikey')}
                     </span>
                   </Link>
                 </li>
@@ -621,7 +634,7 @@ function NewStrategy({ strategyId = '', marketId = '' }) {
             )}
             {strategyId && (
               <p className="help" style={{ color: '#ff9900', fontWeight: 'bold' }}>
-                *label.not_modifiable
+                *{t('label.not_modifiable')}
               </p>
             )}
           </div>
@@ -630,7 +643,8 @@ function NewStrategy({ strategyId = '', marketId = '' }) {
             {/* eslint-disable-next-line */}
             <label className="label">
               <span className="has-text-danger">*</span>
-              label.symbol
+              {t('label.select')}
+              {t('label.symbol')}
             </label>
             <div className="control">
               <ul className="choice is-clearfix is-flex">
@@ -649,12 +663,13 @@ function NewStrategy({ strategyId = '', marketId = '' }) {
             {invalidFields.symbol && <p className="help is-danger">{invalidFields.symbol}</p>}
             {formData.symbol && !strategyId && (
               <p className="help is-link">
-                {`prompt.plan_tips base: ${formData.base} quote: ${formData.quote}`}
+                {t('prompt.plan_tips')}
+                {` base: ${formData.base} quote: ${formData.quote}`}
               </p>
             )}
             {strategyId && (
               <p className="help" style={{ color: '#ff9900', fontWeight: 'bold' }}>
-                *label.not_modifiable
+                *{t('label.not_modifiable')}
               </p>
             )}
           </div>
@@ -663,7 +678,8 @@ function NewStrategy({ strategyId = '', marketId = '' }) {
             {/* eslint-disable-next-line */}
             <label className="label">
               <span className="has-text-danger">*</span>
-              label.plan_type
+              {t('label.select')}
+              {t('label.plan_type')}
             </label>
             <div className="control">
               <ul className="choice is-clearfix">
@@ -686,7 +702,8 @@ function NewStrategy({ strategyId = '', marketId = '' }) {
             {/* eslint-disable-next-line */}
             <label className="label" htmlFor="singleAmountInput">
               <span className="has-text-danger">*</span>
-              label.single_purchase_amount
+              {t('label.input')}
+              {t('label.single_purchase_amount')}
             </label>
             <div className="control">
               <input
@@ -696,7 +713,7 @@ function NewStrategy({ strategyId = '', marketId = '' }) {
                 name="base_limit"
                 value={formData.base_limit !== undefined ? formData.base_limit : ''}
                 onChange={handleInputChange}
-                placeholder="input_single_purchase_amount"
+                placeholder={t('placeholder.input_single_purchase_amount')}
               />
             </div>
             {invalidFields.base_limit && (
@@ -708,7 +725,8 @@ function NewStrategy({ strategyId = '', marketId = '' }) {
             {/* eslint-disable-next-line */}
             <label className="label">
               <span className="has-text-danger">*</span>
-              label.plan_period
+              {t('label.select')}
+              {t('label.plan_period')}
             </label>
             <div className="control">
               <ul className="choice is-clearfix">
@@ -754,7 +772,8 @@ function NewStrategy({ strategyId = '', marketId = '' }) {
           <div className="field">
             {/* eslint-disable-next-line */}
             <label className="label" htmlFor="stopInput">
-              label.stop_profit_rate
+              {t('label.input')}
+              {t('label.stop_profit_rate')}
             </label>
             <div className="control">
               <input
@@ -768,7 +787,7 @@ function NewStrategy({ strategyId = '', marketId = '' }) {
                     : ''
                 }
                 onChange={handleInputChange}
-                placeholder="stop_profit_percentage"
+                placeholder={t('placeholder.stop_profit_percentage')}
               />
             </div>
             {invalidFields.stop_profit_percentage && (
@@ -779,7 +798,8 @@ function NewStrategy({ strategyId = '', marketId = '' }) {
           <div className="field">
             {/* eslint-disable-next-line */}
             <label className="label" htmlFor="drawdownInput">
-              label.drawdown
+              {t('label.input')}
+              {t('label.drawdown')}
             </label>
             <div className="control">
               <input
@@ -789,7 +809,7 @@ function NewStrategy({ strategyId = '', marketId = '' }) {
                 name="drawdown"
                 value={formData.drawdown !== undefined ? formData.drawdown : ''}
                 onChange={handleInputChange}
-                placeholder="drawdown_percentage"
+                placeholder={t('placeholder.drawdown_percentage')}
               />
             </div>
             {invalidFields.drawdown && <p className="help is-danger">{invalidFields.drawdown}</p>}
@@ -803,7 +823,7 @@ function NewStrategy({ strategyId = '', marketId = '' }) {
                 onClick={handleCreateInvestmentPlan}
                 disabled={isProcessing}
               >
-                {strategyId ? 'action.modify' : 'action.submit'}
+                {strategyId ? t('action.modify') : t('action.submit')}
               </button>
               {strategyId && (
                 <button
@@ -812,7 +832,7 @@ function NewStrategy({ strategyId = '', marketId = '' }) {
                   onClick={handleDeleteInvestmentPlan}
                   disabled={isDelete}
                 >
-                  action.delete
+                  {t('action.delete')}
                 </button>
               )}
             </div>

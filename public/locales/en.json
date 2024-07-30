@@ -175,5 +175,12 @@
     "secret_cant_empty": "Access Secret cannot be empty",
     "desc_cant_empty": "Remark cannot be empty",
     "input_too_long": "Input too long"
+  },
+  "pager": {
+    "prev": "Previous",
+    "next": "Next page",
+    "total": "Total",
+    "item": "item",
+    "items": "items"
   }
 }

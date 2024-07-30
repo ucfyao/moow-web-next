@@ -175,5 +175,12 @@
     "secret_cant_empty": "Access Secret 不能为空",
     "desc_cant_empty": "备注不能为空",
     "input_too_long": "输入字符数超过了长度限制"
+  },
+  "pager": {
+    "prev": "上一页",
+    "next": "下一页",
+    "total": "共",
+    "item": "条",
+    "items": "条"
   }
 }

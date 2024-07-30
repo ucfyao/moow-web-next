@@ -11,6 +11,7 @@ import { css } from '@emotion/react';
 import Pagination from '@/components/Pagination';
 import util from '@/utils/util';
 import Highcharts from 'highcharts';
+import { useTranslation } from 'next-i18next';
 
 const strategyDetailStyle = css`
   .isNone {
@@ -120,6 +121,7 @@ interface ChartProps {
 }
 
 function OrderList({ orders }: OrderListProps): React.JSX.Element {
+  const { t } = useTranslation('');
   // Handle page changes
   const [currentPage, setCurrentPage] = useState(1);
   const total = orders.length;
@@ -137,14 +139,14 @@ function OrderList({ orders }: OrderListProps): React.JSX.Element {
       <table className="table is-fullwidth is-striped">
         <thead>
           <tr>
-            <th>Commission Time</th>
-            <th>Symbol</th>
-            <th>Commission Price</th>
-            <th>Commission Quantity</th>
-            <th>Commission Amount</th>
-            <th>Closed Quantity</th>
-            <th>Closed Ave Price</th>
-            <th>Closed Amount</th>
+            <th>{t('title.commission_time')}</th>
+            <th>{t('title.symbol')}</th>
+            <th>{t('title.commission_price')}</th>
+            <th>{t('title.commission_quantity')}</th>
+            <th>{t('title.commission_amount')}</th>
+            <th>{t('title.closed_quantity')}</th>
+            <th>{t('title.closed_avg_price')}</th>
+            <th>{t('title.closed_amount')}</th>
           </tr>
         </thead>
         <tbody>
@@ -264,6 +266,7 @@ function Chart({ id, categories, series1, series2, series3, max, min }: ChartPro
 }
 
 function StrategyDetails() {
+  const { t } = useTranslation('');
   const { strategyId } = useParams();
   const [orders, setOrders] = useState<OrderProps[]>([]);
   const [details, setDetails] = useState<DetailProps>({
@@ -374,13 +377,13 @@ function StrategyDetails() {
       <section className="section">
         <div className="box">
           <a className="tabs-more is-pulled-right" href="/aip">
-            Go Back
+            {t('action.go_back')}
           </a>
           <div className="tabs">
             <ul>
               <li className="is-active">
                 {/* eslint-disable-next-line */}
-                <a>Investment Details</a>
+                <a>{t('caption.investment_details')}</a>
               </li>
             </ul>
           </div>
@@ -389,19 +392,19 @@ function StrategyDetails() {
               <div className="columns">
                 <div className="column">
                   <p>
-                    Single Purchase Amount:{' '}
+                    {t('label.single_purchase_amount')}:{' '}
                     <span>
                       {details.base_limit} {details.base}
                     </span>
                   </p>
                   <p>
-                    Total Purchased:{' '}
+                    {t('label.total_purchased')}:{' '}
                     <span>
                       {details.base_total} {details.base}
                     </span>
                   </p>
                   <p className={fontColor}>
-                    Current Value:{' '}
+                    {t('label.current_value')}:{' '}
                     <span>
                       {details.price_total} {details.base}
                     </span>
@@ -409,16 +412,16 @@ function StrategyDetails() {
                 </div>
                 <div className="column">
                   <p>
-                    Creation Time: <span>{details.created_at}</span>
+                    {t('label.creation_time')}: <span>{details.created_at}</span>
                   </p>
                   <p>
-                    Quantity Bought:{' '}
+                    {t('label.quantity_bought')}:{' '}
                     <span>
                       {details.quote_total} {details.quote}
                     </span>
                   </p>
                   <p className={fontColor}>
-                    Profit:{' '}
+                    {t('label.profit')}:{' '}
                     <span>
                       {details.profit} {details.base}
                     </span>
@@ -426,16 +429,17 @@ function StrategyDetails() {
                 </div>
                 <div className="column">
                   <p>
-                    Stop Profit Rate: <span>{details.stop_profit_percentage || 0} %</span>
+                    {t('label.stop_profit_rate')}:{' '}
+                    <span>{details.stop_profit_percentage || 0} %</span>
                   </p>
                   <p>
-                    Current Price:{' '}
+                    {t('label.current_price')}:{' '}
                     <span>
                       {details.price_usd} {details.base}
                     </span>
                   </p>
                   <p className={fontColor}>
-                    Profit Rate: <span>{details.profit_percentage} %</span>
+                    {t('label.profit_rate')}: <span>{details.profit_percentage} %</span>
                   </p>
                 </div>
               </div>
@@ -458,7 +462,7 @@ function StrategyDetails() {
             <ul>
               <li className="is-active">
                 {/* eslint-disable-next-line */}
-                <a>Order History</a>
+                <a>{t('caption.investment_orders')}</a>
               </li>
             </ul>
           </div>
