@@ -11,8 +11,8 @@ import no_record from '@/assets/images/no_record.png';
 import { css } from '@emotion/react';
 import Pagination from '@/components/Pagination';
 import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { GetStaticProps } from 'next';
+// import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+// import { GetStaticProps } from 'next';
 
 const strategyListStyle = css`
   .container {
@@ -78,7 +78,7 @@ interface Strategy {
 }
 
 function StrayegyList() {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('');
   const [tableData, setTableData] = useState<Strategy[]>([]);
   const router = useRouter();
 

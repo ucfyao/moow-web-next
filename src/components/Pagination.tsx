@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'next-i18next';
 
 interface PaginationProps {
   current: number;
@@ -15,6 +16,7 @@ function Pagination({
   showTotal = false,
   onPageChange,
 }: PaginationProps) {
+  const { t } = useTranslation('');
   const [currentPage, setCurrentPage] = useState(current);
   const [currentPageSize, setCurrentPageSize] = useState(pageSize);
 
@@ -59,10 +61,10 @@ function Pagination({
       <ul className="pagination-list">
         {!showTotal && (
           <span>
-            Total {total} {total <= 1 ? 'item' : 'items'}
+            {t('pager.total')} {total} {total <= 1 ? t('pager.item') : t('pager.items')}
           </span>
         )}
-        <li title="Previous">
+        <li title={t('pager.prev')}>
           <button
             type="button"
             className="pagination-link pagination-previous"
@@ -175,7 +177,7 @@ function Pagination({
             </button>
           </li>
         )}
-        <li title="Next">
+        <li title={t('pager.next')}>
           <button
             type="button"
             className="pagination-link pagination-next"
