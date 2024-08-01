@@ -74,7 +74,7 @@ interface Strategy {
   base_total: number;
   profit: number;
   profit_percentage: number;
-  status: string;
+  status: number;
 }
 
 function StrayegyList() {
@@ -95,13 +95,13 @@ function StrayegyList() {
     queryStrategies();
   }, []);
 
-  function getStatusText(status: string): string {
+  function getStatusText(status: number): string {
     switch (status) {
-      case '1':
+      case 1:
         return t('title.status_normal');
-      case '2':
+      case 2:
         return t('title.status_stopped');
-      case '3':
+      case 3:
         return t('title.status_deleted');
       default:
         return 'Unknown';
@@ -115,14 +115,12 @@ function StrayegyList() {
 
     const currentStatus = currentStrategy.status;
     const text = getStatusText(currentStatus);
-    const newStatus = currentStatus === '1' ? '2' : '1';
+    const newStatus = currentStatus === 1 ? 2 : 1;
 
     if (window.confirm(t('prompt.confirm_switch_plan_status', { text }))) {
-      // TODO use baseURL instead of hardcode
       axios
-        .patch(`http://127.0.0.1:3000/api/v1/strategies/${strategyId}`, { status: newStatus })
+        .patch(`/api/v1/strategies/${strategyId}`, { status: newStatus })
         .then((response) => {
-          alert(t('prompt.operation_succeed'));
           setTableData((prevData) =>
             prevData.map((item) =>
               // eslint-disable-next-line
@@ -212,7 +210,7 @@ function StrayegyList() {
                         {row.profit_percentage}%
                       </td>
                       <td
-                        className={`${row.status === '1' ? 'has-text-success' : 'has-text-danger'}`}
+                        className={`${row.status === 1 ? 'has-text-success' : 'has-text-danger'}`}
                       >
                         {getStatusText(row.status)}
                       </td>
@@ -230,11 +228,11 @@ function StrayegyList() {
                           <button
                             type="button"
                             className={`button is-small
-                                            ${row.status === '1' ? 'is-danger' : 'is-info'} is-outlined`}
+                                            ${row.status === 1 ? 'is-danger' : 'is-info'} is-outlined`}
                             // eslint-disable-next-line
                             onClick={() => switchStrategyStatus(row._id)}
                           >
-                            {row.status === '1' ? t('action.disable') : t('action.enable')}
+                            {row.status === 1 ? t('action.disable') : t('action.enable')}
                           </button>
                           <button
                             type="button"
