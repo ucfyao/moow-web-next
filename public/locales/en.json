@@ -5,7 +5,7 @@
   "back_to_home": "Back Home",
   "sign_in": "Login",
   "sign_up": "Register",
-  "have_not_registered": "Dont have an account？",
+  "have_not_registered": "Don't have an account?",
   "have_registered": "Already have an account?",
   "sign_up_now": "Register Now",
   "sign_in_now": "Login Now",
@@ -65,7 +65,7 @@
     "new_exchange_apikey": "Add new API key",
     "new_plan": "Create New Plan",
     "resend_activate_email": "Resend Activate Email",
-    "wait_timer_resend": "Wait {timer}s to resend",
+    "wait_timer_resend": "Wait {{timer}}s to resend",
     "add_plan_success": "Add Success,Create A Plan"
   },
   "link": {
@@ -134,22 +134,22 @@
     "operation_succeed": "Operation succeed",
     "operation_failed": "Operation failed",
     "email_has_sent": "Email sent out",
-    "confirm_delete_market": "Delete {exchange} exchange API key?",
-    "confirm_switch_plan_status": "Confirm {text} this invest plan？",
-    "plan_tips": "Tips：You selected symbol means plan to use {base} buy {quote}",
+    "confirm_delete_market": "Delete {{exchange}} exchange API key?",
+    "confirm_switch_plan_status": "Confirm {{text}} this invest plan?",
+    "plan_tips": "Tips: You selected symbol means plan to use {{base}} buy {{quote}}",
     "click_refresh_captcha": "Click Refresh Captcha",
-    "have_not_login": "You are not logged in or your login has expired. Sign in now？"
+    "have_not_login": "You are not logged in or your login has expired. Sign in now?"
   },
   "placeholder": {
-    "input_single_purchase_amount": "Single purchase amount. eg: BTC/USDT，charge unit is USDT.",
-    "stop_profit_percentage": "Stop Profit Percentage eg: 30，charge unit is %.",
-    "drawdown_percentage": "Drawdown Percentage eg: 2，charge unit is%",
+    "input_single_purchase_amount": "Single purchase amount. eg: BTC/USDT, charge unit is USDT.",
+    "stop_profit_percentage": "Stop Profit Percentage eg: 30, charge unit is %.",
+    "drawdown_percentage": "Drawdown Percentage eg: 2, charge unit is%",
     "name": "Name",
     "email": "Email",
     "password": "Password",
     "repeat_password": "Confirm Password",
     "captcha": "Captcha",
-    "invitation_code": "Invitation Code（optional）"
+    "invitation_code": "Invitation Code(optional)"
   },
   "change_24h": "Change 24 Hours",
   "change_week": "Change 7 Days",

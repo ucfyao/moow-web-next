@@ -65,7 +65,7 @@
     "new_exchange_apikey": "新增API授权",
     "new_plan": "新建定投计划",
     "resend_activate_email": "重新发送激活邮件",
-    "wait_timer_resend": "{timer}s 后可重新发送",
+    "wait_timer_resend": "{{timer}}s 后可重新发送",
     "add_plan_success": "添加成功，去创建一个定投吧！"
   },
   "link": {
@@ -134,9 +134,9 @@
     "operation_succeed": "操作成功了",
     "operation_failed": "操作失败了",
     "email_has_sent": "邮件已发送，请注意查收",
-    "confirm_delete_market": "确定删除{exchange}交易所授权吗?",
-    "confirm_switch_plan_status": "确定{text}该定投吗？",
-    "plan_tips": "友情提示：您选择的交易对表示用 {base} 定投 {quote}",
+    "confirm_delete_market": "确定删除{{exchange}}交易所授权吗?",
+    "confirm_switch_plan_status": "确定{{text}}该定投吗？",
+    "plan_tips": "友情提示：您选择的交易对表示用 {{base}} 定投 {{quote}}",
     "click_refresh_captcha": "点击刷新验证码",
     "have_not_login": "您尚未登录或登录已过期，立即登录？"
   },
