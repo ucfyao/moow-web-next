@@ -2,6 +2,12 @@
 
 /** @jsxImportSource @emotion/react */
 import { Global, css } from '@emotion/react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Pagination, Autoplay } from 'swiper/modules';
+
+// Import Swiper styles
+import 'swiper/css';
+import 'swiper/css/pagination';
 
 const globalStyles = css`
   .clearfix {
@@ -830,10 +836,41 @@ const globalStyles = css`
 `;
 
 export default function Home() {
+  const swiperParams = {
+    modules: [Pagination, Autoplay],
+    pagination: {
+      el: '.swiper-pagination',
+      dynamicBullets: true,
+      clickable: true,
+    },
+    autoplay: {
+      delay: 3000,
+      disableOnInteraction: false,
+    },
+    loop: true,
+  };
+
   return (
     <>
       {/* <Global styles={globalStyles} /> */}
       <div css="globalStyles" className="home">
+        <section className="swiper-box">
+            <Swiper {...swiperParams}>
+              <SwiperSlide>
+                <div className="banner banner1">
+                   {/* <h5 className="tangzhuan">tangzhuan</h5> */}
+                   {/* <p className="info">info</p> */}
+                </div>
+              </SwiperSlide>
+              <SwiperSlide>
+                <div className="banner banner2"></div>
+              </SwiperSlide>
+              <SwiperSlide>
+                <div className="banner banner3"></div>
+              </SwiperSlide>
+              <div className="swiper-pagination"></div>
+            </Swiper>
+          </section>
         <div className="display-bg">
           <div className="display-data">
             <div className="card">
