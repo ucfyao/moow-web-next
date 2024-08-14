@@ -148,7 +148,7 @@ function Newmarket() {
         {
           required: true,
           message: "Exchange can't be empty",
-        }
+        },
       ],
       key: [
         {
@@ -231,17 +231,20 @@ function Newmarket() {
       });
       setIsProcessing(false);
 
-      console.log('Response from API:', response);
+      console.log('Response from API:', response.data);
       alert('Market added successfully');
-      if (response.data && response.data.id) {
+      // if (response.data && response.data.id) {
+      if (response.data && response.data.data.exchangeKey && response.data.data.exchangeKey._id) {
         console.log('Market added, redirecting to /addstrategy');
-        router.push({
-          pathname: '/addstrategy',
-          query: { marketId: response.data.id },
-        });
+        router.back();
+        // router.push({
+        //   pathname: '/aip/addstrategy',//改成返回上一页，不要用绝对路径
+        //   query: { marketId: response.data.data.exchangeKey._id },
+        //   // query: { marketId: response.data.id },
+        // });
       } else {
         console.log('No market ID, redirecting to /markets');
-        router.push({ pathname: '/markets' });my
+        router.push({ pathname: '/aip/markets' });
       }
     } catch (error) {
       console.error('Failed to add market', error);
