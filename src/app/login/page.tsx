@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 'use client';
 
-import React, { useState, useEffect, ChangeEvent } from 'react';
+import React, { useState, useEffect, ChangeEvent, Suspense } from 'react';
 import { css } from '@emotion/react';
 import axios from 'axios';
 import auth from '../../utils/auth';
@@ -13,9 +13,9 @@ import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 
 interface InvalidFields {
-  email?: { message: string }[];
-  password?: { message: string }[];
-  captcha?: { message: string }[];
+  email?: string;
+  password?: string;
+  captcha?: string;
 }
 
 const Login = () => {
@@ -287,4 +287,10 @@ const loginStyle = css`
   }
 `;
 
-export default Login;
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <Login />
+    </Suspense>
+  );
+}

@@ -8,15 +8,15 @@ export interface UserInfo {
 
 interface UserState {
   userInfo: UserInfo | null;
-  setUserInfo: (userInfo: UserInfo) => void;
+  setUserInfo: (userInfo: UserInfo | null) => void;
 }
 
-const useUserStore = create<UserState, any>(
+const useUserStore = create<UserState>()(
   persist(
     (set, get) => ({
       userInfo: null,
       
-      setUserInfo(userInfo: UserInfo) {
+      setUserInfo(userInfo: UserInfo | null) {
         set({ userInfo });
       },
      

@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { css } from '@emotion/react';
 import { useRouter, useParams } from 'next/navigation';
 import Alert from '@mui/material/Alert';

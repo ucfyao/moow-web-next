@@ -66,13 +66,13 @@ export default function Header({ isFixed = true }: { isFixed?: boolean }) {
     >
       <div className="container">
         <div className="navbar-brand logo">
-          <a className="navbar-item" href="/">
+          <Link className="navbar-item" href="/">
             {isHome ? (
               <Image src={logo1} alt="Moow: Big data robo-advisory platform" />
             ) : (
               <Image src={logo2} alt="Moow: Big data robo-advisory platform" />
             )}
-          </a>
+          </Link>
           <div className={`navbar-burger burger ${burgerActive ? 'is-active' : ''}`} onClick={toggleNavbarMenu}>
             <span></span>
             <span></span>

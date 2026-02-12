@@ -66,7 +66,7 @@ interface TipProps {
   content: React.ReactNode;
 }
 
-const Tip: React.FC<TipProps> = function ({ content }) {
+function Tip({ content }: TipProps) {
   return (
     <div css={tipStyle}>
       <div className="poptip-popper">

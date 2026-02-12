@@ -1,6 +1,6 @@
+/** @jsxImportSource @emotion/react */
 'use client';
 
-/** @jsxImportSource @emotion/react */
 import { Global, css } from '@emotion/react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Autoplay } from 'swiper/modules';
@@ -853,7 +853,7 @@ export default function Home() {
   return (
     <>
       {/* <Global styles={globalStyles} /> */}
-      <div css="globalStyles" className="home">
+      <div className="home">
         <section className="swiper-box">
             <Swiper {...swiperParams}>
               <SwiperSlide>
