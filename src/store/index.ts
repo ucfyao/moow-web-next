@@ -1,4 +1,4 @@
-import { legacy_createStore as createStore } from 'redux';
+import { createStore } from 'redux';
 import auth from '../utils/auth';
 
 const initialState = {
@@ -9,12 +9,7 @@ const initialState = {
   isAuthenticated: auth.isAuthenticated(),
 };
 
-interface Action {
-  type: string;
-  payload?: any;
-}
-
-const reducer = (state = initialState, action: Action) => {
+const reducer = (state = initialState, action) => {
   switch (action.type) {
     case 'SET_LOCALE':
       return { ...state, locale: action.payload };
@@ -29,13 +24,13 @@ const reducer = (state = initialState, action: Action) => {
   }
 };
 
-export const setLocale = (locale: string) => ({ type: 'SET_LOCALE', payload: locale });
-export const setUser = (user: any) => ({ type: 'SET_USER', payload: user });
-export const setIsAuthenticated = (isAuthenticated: boolean) => ({
+export const setLocale = (locale) => ({ type: 'SET_LOCALE', payload: locale });
+export const setUser = (user) => ({ type: 'SET_USER', payload: user });
+export const setIsAuthenticated = (isAuthenticated) => ({
   type: 'SET_ISAUTHENTICATED',
   payload: isAuthenticated,
 });
-export const setRefreshInterval = (refreshInterval: number) => ({
+export const setRefreshInterval = (refreshInterval) => ({
   type: 'SET_REFRESHINTERVAL',
   payload: refreshInterval,
 });

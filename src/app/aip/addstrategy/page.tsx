@@ -2,13 +2,13 @@
 
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect } from 'react';
 import { css } from '@emotion/react';
 import { fetchExchangeSymbolList } from '@/utils/defines';
 import Link from 'next/link';
 import axios from 'axios';
 import { getInvalidFields } from '@/utils/validator';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useTranslation } from 'react-i18next';
 
@@ -106,10 +106,7 @@ interface InvalidFields {
   drawdown?: string;
 }
 
-function NewStrategy() {
-  const searchParams = useSearchParams();
-  const strategyId = searchParams.get('strategyId') || '';
-  const marketId = searchParams.get('marketId') || '';
+function NewStrategy({ strategyId = '', marketId = '' }) {
   const { t } = useTranslation('');
   const [userMarketList, setUserMarketList] = useState<UserMarketItem[]>([]);
   const [symbolList, setSymbolList] = useState<SymbolItem[]>([]);
@@ -846,10 +843,4 @@ function NewStrategy() {
   );
 }
 
-export default function NewStrategyPage() {
-  return (
-    <Suspense>
-      <NewStrategy />
-    </Suspense>
-  );
-}
+export default NewStrategy;

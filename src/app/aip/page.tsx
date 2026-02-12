@@ -10,8 +10,7 @@ import { format } from 'date-fns';
 import no_record from '@/assets/images/no_record.png';
 import { css } from '@emotion/react';
 import Pagination from '@/components/Pagination';
-import Link from 'next/link';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'next-i18next';
 // import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 // import { GetStaticProps } from 'next';
 
@@ -162,9 +161,9 @@ function StrayegyList() {
     <div css={strategyListStyle} className="container">
       <section className="section">
         <div className="box">
-          <Link href="/aip/addstrategy" className="tabs-more">
+          <a href="/aip/addstrategy" className="tabs-more">
             {t('action.new_plan')}
-          </Link>
+          </a>
           <div className="tabs">
             <ul>
               <li className="is-active">

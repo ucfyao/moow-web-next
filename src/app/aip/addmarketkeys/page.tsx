@@ -235,10 +235,13 @@ function Newmarket() {
       alert('Market added successfully');
       if (response.data && response.data.id) {
         console.log('Market added, redirecting to /addstrategy');
-        router.push(`/aip/addstrategy?marketId=${response.data.id}`);
+        router.push({
+          pathname: '/addstrategy',
+          query: { marketId: response.data.id },
+        });
       } else {
         console.log('No market ID, redirecting to /markets');
-        router.push('/aip/markets');
+        router.push({ pathname: '/markets' });my
       }
     } catch (error) {
       console.error('Failed to add market', error);
