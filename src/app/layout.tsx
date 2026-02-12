@@ -1,3 +1,4 @@
+import React from 'react';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import '@/assets/bulma.scss';
@@ -31,7 +32,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <noscript>
           <strong>
-            We're sorry but this doesn't work properly without JavaScript enabled. Please enable it to
+            We&apos;re sorry but this doesn&apos;t work properly without JavaScript enabled. Please enable it to
             continue.
           </strong>
         </noscript>

@@ -11,7 +11,8 @@ import { css } from '@emotion/react';
 import Pagination from '@/components/Pagination';
 import util from '@/utils/util';
 import Highcharts from 'highcharts';
-import { useTranslation } from 'next-i18next';
+import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 
 const strategyDetailStyle = css`
   .isNone {
@@ -376,9 +377,9 @@ function StrategyDetails() {
     <div className="container" css={strategyDetailStyle}>
       <section className="section">
         <div className="box">
-          <a className="tabs-more is-pulled-right" href="/aip">
+          <Link className="tabs-more is-pulled-right" href="/aip">
             {t('action.go_back')}
-          </a>
+          </Link>
           <div className="tabs">
             <ul>
               <li className="is-active">
