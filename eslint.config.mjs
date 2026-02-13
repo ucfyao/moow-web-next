@@ -60,6 +60,6 @@ export default [
   },
   prettierConfig,
   {
-    ignores: ['.next/**', 'node_modules/**', 'out/**'],
+    ignores: ['.next/**', 'node_modules/**', 'out/**', 'src/__tests__/**', 'e2e/**'],
   },
 ];
