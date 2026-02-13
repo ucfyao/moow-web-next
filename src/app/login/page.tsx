@@ -61,8 +61,14 @@ const Login = () => {
 
   // handle Captcha picture
   const updateCaptcha = async () => {
-    const response = await axios.get('/api/v1/captcha');
-    setCaptchaSrc(response.data);
+    try {
+      const response = await axios.get('/api/v1/captcha');
+      if (typeof response.data === 'string' && response.data.startsWith('<svg')) {
+        setCaptchaSrc(response.data);
+      }
+    } catch {
+      // API not available, ignore
+    }
   };
 
   useEffect(() => {
@@ -245,44 +251,65 @@ const Login = () => {
   );
 };
 const loginStyle = css`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+
   .home {
     background: url(../../assets/images/login_bg.jpg) center center no-repeat;
     background-color: #2a3c5e;
+    background-size: cover;
+    padding-top: 0;
+    padding-bottom: 0;
+    flex: 1;
   }
+
   .login-wrap {
-  height: 600px;
-  -webkit-background-size: auto 100%;
-  background-size: auto 100%;
   }
 
   .pt-200 {
-  padding-top: 200px;
+    padding-top: 200px;
   }
+
   .card {
-  margin: 60px auto 0;
-  width: 350px;
+    margin: 60px auto 0;
+    width: 350px;
   }
 
   .card-footer {
-  background-color: #F7F7F7;
-  border-top: none;
+    background-color: #f7f7f7;
+    border-top: none;
   }
 
   .feature {
-  padding: 5rem;
+    padding: 1rem 3rem;
   }
 
-  .forget-password{
-  text-align: right;
-  font-size: 12px;
+  .forget-password {
+    text-align: right;
+    font-size: 12px;
   }
 
-  .card-footer-item{
-  font-size: 12px;
+  .card-footer-item {
+    font-size: 12px;
   }
+
+  @media screen and (max-height: 900px) {
+    .pt-200 {
+      padding-top: 80px;
+    }
+    .card {
+      margin-top: 20px;
+    }
+  }
+
   @media screen and (max-width: 768px) {
     .card {
-      /*margin-top: 50px;*/
+      margin-top: 30px;
+      width: 90%;
+    }
+    .feature {
+      padding: 1rem 1rem;
     }
   }
 `;
