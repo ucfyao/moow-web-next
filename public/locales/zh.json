@@ -1,6 +1,19 @@
 {
   "site_name": "币小宝",
   "copy_right": "©2018 Xiaobao.io 版权所有",
+  "page": {
+    "new_exchange_api_key": "新增交易所API密钥"
+  },
+  "form": {
+    "select_exchange": "选择交易所",
+    "access_key": "访问密钥",
+    "secret_key": "密钥",
+    "remark": "备注"
+  },
+  "button": {
+    "go_back": "返回",
+    "confirm": "确定"
+  },
   "page_not_found": "页面不存在",
   "back_to_home": "返回首页",
   "sign_in": "登录",
@@ -149,7 +162,35 @@
     "password": "密码",
     "repeat_password": "确认密码",
     "captcha": "验证码",
-    "invitation_code": "邀请码（选填）"
+    "invitation_code": "邀请码（选填）",
+    "access_key": "请输入访问密钥",
+    "secret_key": "请输入密钥",
+    "remark": "请输入备注"
+  },
+  "exchange": {
+    "validation": {
+      "required": "请选择交易所"
+    }
+  },
+  "access_key": {
+    "validation": {
+      "required": "访问密钥不能为空"
+    }
+  },
+  "secret_key": {
+    "validation": {
+      "required": "密钥不能为空"
+    }
+  },
+  "remark": {
+    "validation": {
+      "required": "备注不能为空"
+    }
+  },
+  "input": {
+    "validation": {
+      "too_long": "输入内容过长"
+    }
   },
   "change_24h": "24小时涨幅",
   "change_week": "一周涨幅",

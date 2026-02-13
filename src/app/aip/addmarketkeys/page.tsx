@@ -3,10 +3,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { css } from '@emotion/react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { getInvalidFields } from '@/utils/validator';
-import { css } from '@emotion/react';
+import { useTranslation } from 'react-i18next';
+
 
 const styles = css`
   .box {
@@ -123,6 +125,8 @@ interface InvalidFields {
 }
 
 function Newmarket() {
+  const { t } = useTranslation('');
+
   const router = useRouter();
 
   const [exchangeList, setExchangeList] = useState<ExchangeItem[]>([
@@ -147,33 +151,33 @@ function Newmarket() {
       exchange: [
         {
           required: true,
-          message: "Exchange can't be empty",
+          message: t('exchange.validation.required'),
         }
       ],
       key: [
         {
           required: true,
-          message: "Access Key can't be empty",
+          message: t('access_key.validation.required'),
         },
         {
           max: 65,
-          message: 'Input is too long',
+          message: t('input.validation.too_long'),
         }
       ],
       secret: [
         {
           required: true,
-          message: "Secret Key can't be empty",
+          message: t('secret_key.validation.required'),
         },
         {
           max: 65,
-          message: 'Input is too long',
+          message: t('input.validation.too_long'),
         }
       ],
       desc: [
         {
           required: true,
-          message: "Remark can't be empty",
+          message: t('remark.validation.required'),
         }
       ]
     };
@@ -271,16 +275,16 @@ function Newmarket() {
         <div className="box">
           <div className="header">
             <p className="is-size-6 is-pulled-left" style={{ marginRight: '10px' }}>
-              New Exchange API Key
+              {t('page.new_exchange_api_key')}
             </p>
             <button type="button" onClick={goBack} className="is-pulled-right button-back">
-              Go Back
+              {t('button.go_back')}
             </button>
           </div>
           <div className="field">
             {/* eslint-disable-next-line */}
             <label className="label" htmlFor="exchange-select">
-              Select Exchange
+              {t('form.select_exchange')}
             </label>
             <div className="control">
               <ul className="choice">
@@ -309,7 +313,7 @@ function Newmarket() {
 
           <div className="field">
             {/* eslint-disable-next-line */}
-            <label className="label">Access Key</label>
+            <label className="label">{t('form.access_key')}</label>
             <div className="control">
               <input
                 className="input"
@@ -325,7 +329,7 @@ function Newmarket() {
 
           <div className="field">
             {/* eslint-disable-next-line */}
-            <label className="label">Secret Key</label>
+            <label className="label">{t('form.secret_key')}</label>
             <div className="control">
               <input
                 className="input"
@@ -341,7 +345,7 @@ function Newmarket() {
 
           <div className="field">
             {/* eslint-disable-next-line */}
-            <label className="label">Remark</label>
+            <label className="label">{t('form.remark')}</label>
             <div className="control">
               <input
                 className="input"
@@ -363,7 +367,7 @@ function Newmarket() {
                 onClick={handleAddMarket}
                 disabled={isProcessing}
               >
-                Confirm
+                {t('button.confirm')}
               </button>
             </div>
           </div>

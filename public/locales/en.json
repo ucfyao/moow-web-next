@@ -68,6 +68,19 @@
     "wait_timer_resend": "Wait {{timer}}s to resend",
     "add_plan_success": "Add Success,Create A Plan"
   },
+  "page": {
+    "new_exchange_api_key": "New Exchange API Key"
+  },
+  "form": {
+    "select_exchange": "Select Exchange",
+    "access_key": "Access Key",
+    "secret_key": "Secret Key",
+    "remark": "Remark"
+  },
+  "button": {
+    "go_back": "Go Back",
+    "confirm": "Confirm"
+  },
   "link": {
     "home": "Home",
     "coin_aip": "Investment Plan",
@@ -149,7 +162,35 @@
     "password": "Password",
     "repeat_password": "Confirm Password",
     "captcha": "Captcha",
-    "invitation_code": "Invitation Code(optional)"
+    "invitation_code": "Invitation Code(optional)",
+    "access_key": "ACCESS KEY",
+    "secret_key": "SECRET KEY",
+    "remark": "REMARK"
+  },
+  "exchange": {
+    "validation": {
+      "required": "Exchange can't be empty"
+    }
+  },
+  "access_key": {
+    "validation": {
+      "required": "Access Key can't be empty"
+    }
+  },
+  "secret_key": {
+    "validation": {
+      "required": "Secret Key can't be empty"
+    }
+  },
+  "remark": {
+    "validation": {
+      "required": "Remark can't be empty"
+    }
+  },
+  "input": {
+    "validation": {
+      "too_long": "Input is too long"
+    }
   },
   "change_24h": "Change 24 Hours",
   "change_week": "Change 7 Days",
