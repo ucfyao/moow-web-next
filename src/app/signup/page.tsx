@@ -5,19 +5,19 @@ import React, { useState, useEffect, useRef, ChangeEvent } from 'react';
 import axios from 'axios';
 import { getInvalidFields } from '../../utils/validator';
 import { useRouter } from 'next/navigation';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import auth from '../../utils/auth';
 import { css } from '@emotion/react';
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 
 interface InvalidFields {
-  name?: { message: string }[];
-  email?: { message: string }[];
-  password?: { message: string }[];
-  confirmPassword?: { message: string }[];
-  captcha?: { message: string }[];
-  refCode?: { message: string }[];
+  name?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+  captcha?: string;
+  refCode?: string;
 }
 
 const SignUp = () => {

@@ -8,7 +8,7 @@ const baseSymbolList = [
   { symbol: "ETC/USDT", base: "USDT", quote: "ETC" }
 ];
 
-export const fetchExchangeSymbolList = (exchange) => {
+export const fetchExchangeSymbolList = (exchange: string) => {
   if(!exchange) {
     return baseSymbolList;
   }

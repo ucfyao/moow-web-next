@@ -1,16 +1,18 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import '../styles/resetPassword.css';
 import axios from 'axios';
 import { getInvalidFields } from '@/utils/validator';
 
 interface InvalidFields {
-  password?: { message: string }[];
-  passwordCheck?: { message: string }[];
+  password?: string;
+  passwordCheck?: string;
 }
-const resetPassword = () => {
+const ResetPassword = () => {
+  const searchParams = useSearchParams();
   const [captchaSrc, setCaptchaSrc] = useState('');
   const [formData, setFormData] = useState({
     password: '',
@@ -58,7 +60,7 @@ const resetPassword = () => {
   };
 
   const handleResetPassword = async () => {
-    const { token } = router.query;
+    const token = searchParams.get('token');
     const invalidFields = await getInvalidFields(formData, rules());
     if (invalidFields) {
       setInvalidFields(invalidFields);
@@ -145,4 +147,10 @@ const resetPassword = () => {
   );
 };
 
-export default resetPassword;
+export default function ResetPasswordPage() {
+  return (
+    <Suspense>
+      <ResetPassword />
+    </Suspense>
+  );
+}

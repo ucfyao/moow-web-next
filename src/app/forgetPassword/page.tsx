@@ -10,7 +10,7 @@ interface InvalidFields {
   email?: { message: string }[];
   captcha?: { message: string }[];
 }
-const forgetPassword = () => {
+const ForgetPassword = () => {
   const [captchaSrc, setCaptchaSrc] = useState('');
   const [formData, setFormData] = useState({
     email: '',
@@ -129,4 +129,4 @@ const forgetPassword = () => {
   );
 };
 
-export default forgetPassword;
+export default ForgetPassword;

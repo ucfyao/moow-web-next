@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import { css } from '@emotion/react';
@@ -92,4 +92,10 @@ const activateStyle = css`
   }
 `;
 
-export default Activate;
+export default function ActivatePage() {
+  return (
+    <Suspense>
+      <Activate />
+    </Suspense>
+  );
+}
