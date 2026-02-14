@@ -149,6 +149,8 @@
     "email_has_sent": "Email sent out",
     "confirm_delete_market": "Delete {{exchange}} exchange API key?",
     "confirm_switch_plan_status": "Confirm {{text}} this invest plan?",
+    "confirm_delete_strategy": "Are you sure you want to delete this invest plan?",
+    "loading": "Loading...",
     "plan_tips": "Tips: You selected symbol means plan to use {{base}} buy {{quote}}",
     "click_refresh_captcha": "Click Refresh Captcha",
     "have_not_login": "You are not logged in or your login has expired. Sign in now?"

@@ -51,14 +51,12 @@ service.interceptors.request.use(
     const uri = config.url || "";
 
     if (config.headers && config.method) {
-     
-      // const token = user?.player?.token ?? "";
-      const headerConfig: any = {
-        // Authorization: `${token}`,
-        // LANG: languageMap[language] ?? "en-US",
-        // TZ: momenttz.tz.guess(),
-      };
-
+      const token =
+        typeof window !== 'undefined' ? window.localStorage.getItem('token') : null;
+      const headerConfig: any = {};
+      if (token) {
+        headerConfig.Authorization = token;
+      }
       Object.assign(config.headers, headerConfig);
     }
 
