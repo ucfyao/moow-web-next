@@ -79,7 +79,9 @@
     "new_plan": "新建定投计划",
     "resend_activate_email": "重新发送激活邮件",
     "wait_timer_resend": "{{timer}}s 后可重新发送",
-    "add_plan_success": "添加成功，去创建一个定投吧！"
+    "add_plan_success": "添加成功，去创建一个定投吧！",
+    "send_code": "发送验证码",
+    "wait_timer_send": "{{timer}}秒后重新发送"
   },
   "link": {
     "home": "首页",
@@ -91,6 +93,7 @@
     "my_assets": "我的资产",
     "my_invite": "邀请赚币",
     "exchange_apikeys": "交易所API授权",
+    "my_profile": "个人信息",
     "exchanges": "交易所",
     "coins": "币种",
     "coin": "行情"
@@ -105,6 +108,7 @@
     "xiaobao_aip": "小宝定投",
     "market_api_keys": "交易所API授权",
     "new_exchange_apikey": "新增交易所API授权",
+    "change_password": "修改密码",
     "investment_plans": "定投计划",
     "investment_orders": "订单列表",
     "investment_details": "订单详情",
@@ -140,6 +144,9 @@
     "confirm_operation": "操作确认"
   },
   "prompt": {
+    "confirm_logout": "确定要退出登录吗？",
+    "code_sent": "验证码已发送到您的邮箱",
+    "password_changed": "密码修改成功，请重新登录。",
     "error_occurs": "矮油，出错啦!",
     "account_not_active": "您的账号尚未激活，请您到邮箱查收邮件，点击邮件中的链接完成激活操作。如果没有收到邮件或激活链接已失效，请点击重新发送激活邮件。",
     "reset_mail_sent": "我们已经给您的邮箱发送了一封重置密码的邮件，请到您的邮箱查收，根据提示完成密码重置。如果长时间没有收到邮件，请重新尝试找回",
@@ -164,6 +171,7 @@
     "activation_failed_desc": "激活失败，请重新尝试。"
   },
   "placeholder": {
+    "search_exchange": "按交易所名称搜索...",
     "input_single_purchase_amount": "单次购买金额。如：定投交易对为BTC/USDT，单位为USDT。",
     "stop_profit_percentage": "设定出售利润率。如：30，单位为%",
     "drawdown_percentage": "波峰回撤百分比，如：2，单位为%",
@@ -218,6 +226,8 @@
     "confirm_password_required": "请输入密码确认!",
     "invalid_email": "邮箱格式不正确",
     "invalid_password": "密码应为6-32位",
+    "invalid_nickname": "昵称需2-30个字符（字母、数字、中文）",
+    "code_required": "请输入验证码",
     "invalid_confirm_password": "两次密码输入不同",
     "cant_empty": "不能为空",
     "exchange_cant_empty": "交易所必选",
@@ -404,6 +414,17 @@
     "transparent_desc": "一键托管，API透明交易",
     "open_data": "数据开放",
     "open_data_desc": "多维度直观的投资数据可视化"
+  },
+  "profile": {
+    "page_title": "个人信息设置",
+    "nickname": "昵称",
+    "email": "邮箱",
+    "save": "保存修改",
+    "save_success": "个人信息已更新",
+    "logout": "退出登录",
+    "change_password": "修改密码",
+    "current_email": "当前邮箱",
+    "verification_code": "验证码"
   },
   "activation": {
     "go_homepage": "返回首页",

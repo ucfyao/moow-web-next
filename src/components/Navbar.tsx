@@ -31,14 +31,13 @@ export default function Header({ isFixed = true }: { isFixed?: boolean }) {
   };
 
   const handleLogout = async () => {
+    if (!window.confirm(t('prompt.confirm_logout'))) return;
     try {
-      const response = await HTTP.post('/api/v1/auth/logout');
+      await HTTP.post('/api/v1/auth/logout');
       auth.logout();
       setUserInfo(null);
       router.push('/');
-      //console.log('Logout successful', response);
     } catch (error: any) {
-      //console.error('Logout failed', error);
       auth.logout();
       setUserInfo(null);
       router.push('/');
@@ -107,6 +106,8 @@ export default function Header({ isFixed = true }: { isFixed?: boolean }) {
                   <Link href="/invite" className="navbar-item">{t('link.my_invite')}</Link>
                   <hr className="navbar-divider" />
                   <Link href="/aip/markets" className="navbar-item">{t('link.exchange_apikeys')}</Link>
+                  <hr className="navbar-divider" />
+                  <Link href="/ucenter/profile" className="navbar-item">{t('link.my_profile')}</Link>
                   <hr className="navbar-divider" />
                   <a className="navbar-item" onClick={handleLogout}>{t('sign_out')}</a>
                 </div>

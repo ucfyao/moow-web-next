@@ -135,4 +135,40 @@ describe('MarketsPage', () => {
     fireEvent.click(screen.getByText('action.delete'));
     expect(mockDelete).not.toHaveBeenCalled();
   });
+
+  it('passes pagination params to API', async () => {
+    mockGet.mockResolvedValue({ data: { list: [], total: 0 } });
+    render(<MarketsPage />);
+    await waitFor(() => {
+      expect(mockGet).toHaveBeenCalledWith('/v1/keys', {
+        params: { pageNumber: 1, pageSize: 20, search: '' },
+      });
+    });
+  });
+
+  it('renders search input', async () => {
+    mockGet.mockResolvedValue({ data: { list: [], total: 0 } });
+    render(<MarketsPage />);
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText('placeholder.search_exchange')).toBeInTheDocument();
+    });
+  });
+
+  it('renders pagination when there are results', async () => {
+    const list = Array.from({ length: 5 }, (_, i) => ({
+      _id: String(i),
+      exchange: `exchange-${i}`,
+      access_key: `key-${i}`,
+      secret_show: `***${i}`,
+      desc: '',
+      created_at: '2024-01-15T10:30:00Z',
+    }));
+    mockGet.mockResolvedValue({ data: { list, total: 25 } });
+    render(<MarketsPage />);
+    await waitFor(() => {
+      expect(screen.getByText('exchange-0')).toBeInTheDocument();
+    });
+    // Pagination should show total count
+    expect(screen.getByText(/25/)).toBeInTheDocument();
+  });
 });

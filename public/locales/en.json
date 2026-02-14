@@ -66,7 +66,9 @@
     "new_plan": "Create New Plan",
     "resend_activate_email": "Resend Activate Email",
     "wait_timer_resend": "Wait {{timer}}s to resend",
-    "add_plan_success": "Add Success,Create A Plan"
+    "add_plan_success": "Add Success,Create A Plan",
+    "send_code": "Send Verification Code",
+    "wait_timer_send": "Resend in {{timer}}s"
   },
   "page": {
     "new_exchange_api_key": "New Exchange API Key"
@@ -91,6 +93,7 @@
     "my_assets": "My Assets",
     "my_invite": "My Invite",
     "exchange_apikeys": "Exchange API Keys",
+    "my_profile": "My Profile",
     "exchanges": "exchanges",
     "coins": "Coins",
     "coin": "Coins"
@@ -104,6 +107,7 @@
     "reset_password": "Reset Password",
     "xiaobao_aip": "Auto Investment Plan",
     "market_api_keys": "Exchange API Keys",
+    "change_password": "Change Password",
     "investment_plans": "Investment Plans",
     "investment_orders": "Investment Orders",
     "investment_details": "Investment Details",
@@ -140,6 +144,9 @@
     "confirm_operation": "Confirm Operation"
   },
   "prompt": {
+    "confirm_logout": "Are you sure you want to log out?",
+    "code_sent": "Verification code sent to your email",
+    "password_changed": "Password changed successfully. Please login again.",
     "error_occurs": "Oops, Error occurs!",
     "account_not_active": "Your account has not been activated. Please check your email and click the link in the email to complete the activation. If you have not received the email or the activation link has expired, you can resend activation email.",
     "reset_mail_sent": "We have sent a password reset email to your email address. Please check your email and follow the prompts to reset your password. <br>If you have not received the email for a long time, please try again.",
@@ -164,6 +171,7 @@
     "activation_failed_desc": "Activation failed, please try again."
   },
   "placeholder": {
+    "search_exchange": "Search by exchange name...",
     "input_single_purchase_amount": "Single purchase amount. eg: BTC/USDT, charge unit is USDT.",
     "stop_profit_percentage": "Stop Profit Percentage eg: 30, charge unit is %.",
     "drawdown_percentage": "Drawdown Percentage eg: 2, charge unit is%",
@@ -218,6 +226,8 @@
     "confirm_password_required": "The confirm passwords is required",
     "invalid_email": "Email address is invalid",
     "invalid_password": "Password should be 6-32 characters",
+    "invalid_nickname": "Nickname must be 2-30 characters (letters, numbers, Chinese)",
+    "code_required": "Verification code is required",
     "invalid_confirm_password": "Entered passwords differ",
     "cant_empty": "Cannot be empty",
     "exchange_cant_empty": "The exchange cannot be empty",
@@ -404,6 +414,17 @@
     "transparent_desc": "One-click hosting, transparent API transactions",
     "open_data": "Open Data",
     "open_data_desc": "Multidimensional and intuitive visualization of investment data"
+  },
+  "profile": {
+    "page_title": "Profile Settings",
+    "nickname": "Nickname",
+    "email": "Email",
+    "save": "Save Changes",
+    "save_success": "Profile updated successfully",
+    "logout": "Logout",
+    "change_password": "Change Password",
+    "current_email": "Current Email",
+    "verification_code": "Verification Code"
   },
   "activation": {
     "go_homepage": "Go back Homepage",

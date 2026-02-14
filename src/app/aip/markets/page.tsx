@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, ChangeEvent, FormEvent } from 'react';
 import { css } from '@emotion/react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
@@ -9,6 +9,7 @@ import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 import HTTP from '@/lib/http';
 import util from '@/utils/util';
+import Pagination from '@/components/Pagination';
 
 interface ExchangeKey {
   _id: string;
@@ -19,32 +20,43 @@ interface ExchangeKey {
   created_at: string;
 }
 
+const PAGE_SIZE = 20;
+
 export default function MarketsPage() {
   const { t } = useTranslation('');
   const [keys, setKeys] = useState<ExchangeKey[]>([]);
   const [loading, setLoading] = useState(true);
-  const [alertMessage, setAlertMessage] = useState<{
-    type: 'success' | 'error';
+  const [currentPage, setCurrentPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
     message: string;
-  } | null>(null);
-  const [open, setOpen] = useState(false);
+    severity: 'success' | 'error';
+  }>({ open: false, message: '', severity: 'success' });
 
-  const fetchKeys = useCallback(async () => {
-    try {
-      const res = await HTTP.get('/v1/keys');
-      setKeys(res.data?.list || []);
-    } catch (error: any) {
-      const msg = error?.message || t('prompt.error_occurs');
-      setAlertMessage({ type: 'error', message: msg });
-      setOpen(true);
-    } finally {
-      setLoading(false);
-    }
-  }, [t]);
+  const fetchKeys = useCallback(
+    async (page: number, search: string) => {
+      setLoading(true);
+      try {
+        const res = await HTTP.get('/v1/keys', {
+          params: { pageNumber: page, pageSize: PAGE_SIZE, search },
+        });
+        setKeys(res.data?.list || []);
+        setTotal(res.data?.total || 0);
+      } catch (error: any) {
+        const msg = error?.message || t('prompt.error_occurs');
+        setSnackbar({ open: true, message: msg, severity: 'error' });
+      } finally {
+        setLoading(false);
+      }
+    },
+    [t],
+  );
 
   useEffect(() => {
-    fetchKeys();
-  }, [fetchKeys]);
+    fetchKeys(currentPage, searchTerm);
+  }, [currentPage, fetchKeys, searchTerm]);
 
   const handleDelete = async (key: ExchangeKey) => {
     const confirmed = window.confirm(
@@ -54,33 +66,47 @@ export default function MarketsPage() {
 
     try {
       await HTTP.delete(`/v1/keys/${key._id}`);
-      setAlertMessage({ type: 'success', message: t('prompt.operation_succeed') });
-      setOpen(true);
-      fetchKeys();
+      setSnackbar({ open: true, message: t('prompt.operation_succeed'), severity: 'success' });
+      if (keys.length === 1 && currentPage > 1) {
+        setCurrentPage(currentPage - 1);
+      } else {
+        fetchKeys(currentPage, searchTerm);
+      }
     } catch (error: any) {
       const msg = error?.message || t('prompt.operation_failed');
-      setAlertMessage({ type: 'error', message: msg });
-      setOpen(true);
+      setSnackbar({ open: true, message: msg, severity: 'error' });
     }
   };
 
-  const handleClose = () => {
-    setOpen(false);
-  };
+  function handlePageChange(newPage: number) {
+    setCurrentPage(newPage);
+  }
+
+  function handleSearchChange(e: ChangeEvent<HTMLInputElement>) {
+    setSearchTerm(e.target.value);
+  }
+
+  function handleSearchSubmit(e: FormEvent) {
+    e.preventDefault();
+    setCurrentPage(1);
+    fetchKeys(1, searchTerm);
+  }
 
   return (
     <div css={pageStyle} className="container">
       <Snackbar
-        open={open}
-        autoHideDuration={6000}
-        onClose={handleClose}
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        {alertMessage ? (
-          <Alert onClose={handleClose} severity={alertMessage.type}>
-            {alertMessage.message}
-          </Alert>
-        ) : undefined}
+        <Alert
+          onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
+          severity={snackbar.severity}
+          variant="filled"
+        >
+          {snackbar.message}
+        </Alert>
       </Snackbar>
       <section className="section">
         <div className="box">
@@ -96,6 +122,24 @@ export default function MarketsPage() {
               {t('action.new_exchange_apikey')}
             </Link>
           </div>
+          <form className="search-bar" onSubmit={handleSearchSubmit}>
+            <div className="field has-addons">
+              <div className="control is-expanded">
+                <input
+                  className="input is-small"
+                  type="text"
+                  placeholder={t('placeholder.search_exchange')}
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                />
+              </div>
+              <div className="control">
+                <button type="submit" className="button is-link is-small">
+                  {t('action.confirm')}
+                </button>
+              </div>
+            </div>
+          </form>
           {loading ? (
             <p className="has-text-centered py-4">{t('prompt.loading')}</p>
           ) : keys.length === 0 ? (
@@ -138,6 +182,15 @@ export default function MarketsPage() {
               </table>
             </div>
           )}
+          {!loading && total > 0 && (
+            <Pagination
+              current={currentPage}
+              total={total}
+              pageSize={PAGE_SIZE}
+              showTotal={false}
+              onPageChange={handlePageChange}
+            />
+          )}
         </div>
       </section>
     </div>
@@ -154,6 +207,10 @@ const pageStyle = css`
 
   .box-header .tabs {
     margin-bottom: 0;
+  }
+
+  .search-bar {
+    margin-bottom: 1rem;
   }
 
   .py-4 {
