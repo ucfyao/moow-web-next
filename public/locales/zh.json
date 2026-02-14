@@ -277,6 +277,18 @@
     "total_invested": "总投入",
     "total_value": "总价值"
   },
+  "strategy": {
+    "manual_buy": "手动买入",
+    "manual_sell": "手动卖出",
+    "confirm_manual_buy": "确定手动执行一次买入操作吗？",
+    "confirm_manual_sell": "确定手动执行一次卖出操作吗？",
+    "buy_success": "买入操作已提交",
+    "sell_success": "卖出操作已提交",
+    "status": "策略状态",
+    "status_running": "运行中",
+    "status_stopped": "已停止",
+    "executing": "执行中..."
+  },
   "chart": {
     "investment_returns": "定投收益图",
     "data_source": "数据来源：xiaobao.io",

@@ -4,7 +4,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import no_record from '@/assets/images/no_record.png';
 import { css } from '@emotion/react';
 import Pagination from '@/components/Pagination';
@@ -116,6 +116,40 @@ const strategyDetailStyle = css`
     color: #ff3860;
     font-weight: 600;
   }
+
+  .action-bar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .action-bar .strategy-status {
+    margin-left: auto;
+    font-size: 14px;
+    color: #666;
+  }
+
+  .action-bar .strategy-status .status-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .action-bar .strategy-status .status-running {
+    background: #e6f9ee;
+    color: #23d160;
+  }
+
+  .action-bar .strategy-status .status-stopped {
+    background: #fde8ec;
+    color: #ff3860;
+  }
 `;
 
 interface StrategyDetail {
@@ -134,7 +168,7 @@ interface StrategyDetail {
   profit_percentage: number;
   stop_profit_percentage: number;
   price_usd: string;
-  status: string;
+  status: number;
 }
 
 interface Order {
@@ -268,11 +302,13 @@ function computeOrderStats(orders: Order[]): OrderStats {
 
 export default function StrategyDetails() {
   const { t } = useTranslation('');
+  const router = useRouter();
   const { strategyId } = useParams();
   const [orders, setOrders] = useState<Order[]>([]);
   const [details, setDetails] = useState<StrategyDetail | null>(null);
   const [fontColor, setFontColor] = useState('');
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
   const [orderStats, setOrderStats] = useState<OrderStats>({
     totalOrders: 0,
     buyOrders: 0,
@@ -310,6 +346,40 @@ export default function StrategyDetails() {
     },
     [t],
   );
+
+  const showSuccess = useCallback((message: string) => {
+    setSnackbar({ open: true, message, severity: 'success' });
+  }, []);
+
+  async function handleManualBuy() {
+    if (!window.confirm(t('strategy.confirm_manual_buy'))) return;
+    setActionLoading(true);
+    try {
+      await HTTP.post(`/v1/strategies/${strategyId}/execute-buy`);
+      showSuccess(t('strategy.buy_success'));
+    } catch (error: any) {
+      showError(error);
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function handleManualSell() {
+    if (!window.confirm(t('strategy.confirm_manual_sell'))) return;
+    setActionLoading(true);
+    try {
+      await HTTP.post(`/v1/strategies/${strategyId}/execute-sell`);
+      showSuccess(t('strategy.sell_success'));
+    } catch (error: any) {
+      showError(error);
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  function handleEdit() {
+    router.push(`/aip/addstrategy?strategyId=${strategyId}`);
+  }
 
   useEffect(() => {
     async function fetchData() {
@@ -422,6 +492,42 @@ export default function StrategyDetails() {
 
           {details ? (
             <>
+              <div className="action-bar">
+                <button
+                  type="button"
+                  className="button is-success is-small"
+                  disabled={actionLoading || details.status !== 1}
+                  onClick={handleManualBuy}
+                >
+                  {actionLoading ? t('strategy.executing') : t('strategy.manual_buy')}
+                </button>
+                <button
+                  type="button"
+                  className="button is-danger is-small"
+                  disabled={actionLoading || details.status !== 1}
+                  onClick={handleManualSell}
+                >
+                  {actionLoading ? t('strategy.executing') : t('strategy.manual_sell')}
+                </button>
+                <button
+                  type="button"
+                  className="button is-info is-small is-outlined"
+                  onClick={handleEdit}
+                >
+                  {t('action.edit')}
+                </button>
+                <div className="strategy-status">
+                  {t('strategy.status')}:{' '}
+                  <span
+                    className={`status-badge ${details.status === 1 ? 'status-running' : 'status-stopped'}`}
+                  >
+                    {details.status === 1
+                      ? t('strategy.status_running')
+                      : t('strategy.status_stopped')}
+                  </span>
+                </div>
+              </div>
+
               <div className="columns">
                 <div className="column">
                   <p>
