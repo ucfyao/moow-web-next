@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Image from 'next/image';
 import '../styles/forgetPassword.css';
-import axios from 'axios';
+import HTTP from '@/lib/http';
 import { getInvalidFields } from '@/utils/validator';
 
 interface InvalidFields {
@@ -34,7 +34,7 @@ const ForgetPassword = () => {
   }, []);
 
   const updateCaptcha = () => {
-    setCaptchaSrc('/api/pub/auth/svgCaptcha?' + Math.random());
+    setCaptchaSrc('/api/v1/captcha?' + Math.random());
   };
 
   const handleForgetPassword = async () => {
@@ -45,7 +45,7 @@ const ForgetPassword = () => {
     }
     setIsProccessing(true);
     try {
-      let response = await axios.post('/pub/auth/retrievePassword', formData);
+      let response = await HTTP.post('/v1/auth/passwordRecovery', formData);
       setIsProccessing(false);
       setMailSent(true);
     } catch (error) {
