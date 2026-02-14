@@ -212,6 +212,7 @@ Configured Axios instance in `src/lib/http.ts` (imported as `HTTP`):
 
 ## Git Conventions
 
+- Full git workflow (worktree, branching, PR, cleanup) is defined in the **global `~/.claude/CLAUDE.md`**. Follow that pipeline for all feature work.
 - Commit messages follow **Conventional Commits**: `feat:`, `fix:`, `docs:`, `chore:`, `style:`, `refactor:`, `test:`, `revert:`.
 - Enforced by commitlint + Husky pre-commit hooks.
 

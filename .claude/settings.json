@@ -1,0 +1,10 @@
+{
+  "hooks": {
+    "afterEdit": [
+      {
+        "command": "npx tsc --noEmit --pretty 2>&1 | head -20",
+        "description": "Type-check after edits to catch syntax errors early"
+      }
+    ]
+  }
+}
