@@ -277,6 +277,18 @@
     "total_invested": "Total Invested",
     "total_value": "Total Value"
   },
+  "strategy": {
+    "manual_buy": "Manual Buy",
+    "manual_sell": "Manual Sell",
+    "confirm_manual_buy": "Are you sure you want to execute a manual buy?",
+    "confirm_manual_sell": "Are you sure you want to execute a manual sell?",
+    "buy_success": "Buy order submitted",
+    "sell_success": "Sell order submitted",
+    "status": "Strategy Status",
+    "status_running": "Running",
+    "status_stopped": "Stopped",
+    "executing": "Executing..."
+  },
   "chart": {
     "investment_returns": "Investment Returns Chart",
     "data_source": "Data source: xiaobao.io",
