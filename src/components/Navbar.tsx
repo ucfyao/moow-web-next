@@ -83,7 +83,7 @@ export default function Header({ isFixed = true }: { isFixed?: boolean }) {
           <div className="navbar-start">
             <Link href="/" className="navbar-item">{t('link.home')}</Link>
             <Link href="/aip" className="navbar-item">{t('link.coin_aip')}</Link>
-            <a href="/hq/arbitrage" className="navbar-item" target="_self">{t('link.arbitrage')}</a>
+            <Link href="/arbitrage" className="navbar-item">{t('link.arbitrage')}</Link>
             <div className="navbar-item has-dropdown is-hoverable">
               <a href="/hq/coin" className="navbar-link">{t('link.coin')}</a>
               <div className="navbar-dropdown is-boxed">
