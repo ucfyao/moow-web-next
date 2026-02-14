@@ -370,7 +370,11 @@ const signUpStyle = css`
   }
   @media screen and (max-width: 768px) {
     .card {
-      /*margin-top: 50px;*/
+      margin-top: 30px;
+      width: 90%;
+    }
+    .feature {
+      padding: 1rem 1rem;
     }
   }
 `;
