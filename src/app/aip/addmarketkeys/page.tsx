@@ -1,108 +1,14 @@
 /** @jsxImportSource @emotion/react */
-
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { css } from '@emotion/react';
-import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import { getInvalidFields } from '@/utils/validator';
 import { useTranslation } from 'react-i18next';
-
-
-const styles = css`
-  .box {
-    margin: 0 auto;
-    padding: 50px;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
-
-  .input {
-    width: 100%;
-    max-width: 600px;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
-    margin-bottom: 16px;
-  }
-
-  .exchangeItem {
-    width: 168px;
-    flex: 1 1 auto;
-    max-width: 200px;
-    padding: 0;
-    background-color: rgb(246, 246, 246);
-    border-radius: 8px;
-    text-align: center;
-    cursor: pointer;
-    transition:
-      transform 0.3s,
-      box-shadow 0.3s;
-    margin-bottom: 16px;
-    overflow: hidden;
-  }
-
-  .exchangeButton {
-    display: block;
-    width: 100%;
-    padding: 16px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    text-align: center;
-  }
-
-  .active {
-    border-color: #007bff;
-    box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
-  }
-
-  .choice {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-
-  .tit {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .desc {
-    margin-top: 8px;
-    font-size: 0.9em;
-  }
-
-  .img {
-    width: 22px;
-    margin-right: 5px;
-  }
-
-  .error {
-    color: red;
-    font-size: 12px;
-    margin-top: -12px;
-    margin-bottom: 12px;
-  }
-
-  .button-back {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 4px 14px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-
-  .button-back:hover {
-    background-color: #0056b3;
-  }
-`;
+import { getInvalidFields } from '@/utils/validator';
+import Alert from '@mui/material/Alert';
+import Snackbar from '@mui/material/Snackbar';
+import HTTP from '@/lib/http';
 
 interface ExchangeItem {
   exchange: string;
@@ -124,16 +30,18 @@ interface InvalidFields {
   desc?: string;
 }
 
-function Newmarket() {
+const EXCHANGE_LIST: ExchangeItem[] = [
+  { exchange: 'binance', name: 'Binance', url: 'https://www.binance.com' },
+  { exchange: 'huobi', name: 'Huobi', url: 'https://www.huobi.com' },
+  { exchange: 'okex', name: 'OKEx', url: 'https://www.okex.com' },
+  { exchange: 'gateio', name: 'Gate.io', url: 'https://www.gate.io' },
+  { exchange: 'bitfinex', name: 'Bitfinex', url: 'https://www.bitfinex.com' },
+  { exchange: 'bibox', name: 'Bibox', url: 'https://www.bibox.com' },
+];
+
+export default function AddMarketKeysPage() {
   const { t } = useTranslation('');
-
   const router = useRouter();
-
-  const [exchangeList, setExchangeList] = useState<ExchangeItem[]>([
-    { exchange: 'binance', name: 'Binance', url: 'https://www.binance.com' },
-    { exchange: 'huobi', name: 'HuoBi', url: 'https://www.huobi.com' },
-    { exchange: 'okex', name: 'OKEx', url: 'https://www.okex.com' },
-  ]);
 
   const [formData, setFormData] = useState<FormData>({
     exchange: '',
@@ -143,231 +51,189 @@ function Newmarket() {
   });
   const [invalidFields, setInvalidFields] = useState<InvalidFields>({});
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isClient, setIsClient] = useState(false);
+  const [alertMessage, setAlertMessage] = useState<{
+    type: 'success' | 'error';
+    message: string;
+  } | null>(null);
+  const [open, setOpen] = useState(false);
 
-  // Defining form validation rules
-  const rules = () => {
-    return {
-      exchange: [
-        {
-          required: true,
-          message: t('exchange.validation.required'),
-        }
-      ],
-      key: [
-        {
-          required: true,
-          message: t('access_key.validation.required'),
-        },
-        {
-          max: 65,
-          message: t('input.validation.too_long'),
-        }
-      ],
-      secret: [
-        {
-          required: true,
-          message: t('secret_key.validation.required'),
-        },
-        {
-          max: 65,
-          message: t('input.validation.too_long'),
-        }
-      ],
-      desc: [
-        {
-          required: true,
-          message: t('remark.validation.required'),
-        }
-      ]
-    };
-  };
-
-  // Use get method to search all the marketlist
-  async function queryMarketList() {
-    try {
-      const response = await axios.get('http://127.0.0.1:3000/api/v1/markets', {});
-      if (response.data && Array.isArray(response.data.list)) {
-        setExchangeList(
-          response.data.list.map((item: any) => ({
-            exchange: item.exchange,
-            name: item.name,
-            url: item.url,
-          }))
-        );
-      }
-    } catch (error) {
-      console.error('Failed to fetch market list', error);
-    }
-  }
+  const rules = () => ({
+    exchange: [{ required: true, message: t('validator.exchange_cant_empty') }],
+    access_key: [
+      { required: true, message: t('validator.key_cant_empty') },
+      { max: 65, message: t('validator.input_too_long') },
+    ],
+    secret_key: [
+      { required: true, message: t('validator.secret_cant_empty') },
+      { max: 65, message: t('validator.input_too_long') },
+    ],
+    desc: [{ required: true, message: t('validator.desc_cant_empty') }],
+  });
 
   function handleSelectExchange(exchange: string) {
-    setFormData((prevFormData) => ({ ...prevFormData, exchange }));
+    setFormData((prev) => ({ ...prev, exchange }));
+    setInvalidFields((prev) => ({ ...prev, exchange: undefined }));
   }
 
-  // Process changes to the input box and update the corresponding data state.
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setInvalidFields((prev) => ({ ...prev, [name]: undefined }));
   }
 
-  async function handleAddMarket() {
+  async function handleSubmit() {
     if (isProcessing) return;
 
+    const errors = await getInvalidFields(formData, rules());
+    if (errors) {
+      setInvalidFields(errors);
+      return;
+    }
+
+    setIsProcessing(true);
     try {
-      const newInvalidFields = await getInvalidFields(formData, rules());
-      console.log('Invalid fields:', newInvalidFields);
-      if (newInvalidFields) {
-        setInvalidFields(newInvalidFields);
-        return;
-      }
-
-      setIsProcessing(true);
-      console.log('Sending request with formData:', formData);
-      const response = await axios.post('http://127.0.0.1:3000/api/v1/keys', {
-        access_key: formData.access_key,
-        exchange: formData.exchange,
-        secret_key: formData.secret_key,
-        desc: formData.desc,
-      });
-      setIsProcessing(false);
-
-      console.log('Response from API:', response);
-      alert('Market added successfully');
-      if (response.data && response.data.id) {
-        console.log('Market added, redirecting to /addstrategy');
-        router.push(`/aip/addstrategy?marketId=${response.data.id}`);
-      } else {
-        console.log('No market ID, redirecting to /markets');
+      await HTTP.post('/v1/keys', formData);
+      setAlertMessage({ type: 'success', message: t('prompt.key_validated_saved') });
+      setOpen(true);
+      setTimeout(() => {
         router.push('/aip/markets');
-      }
-    } catch (error) {
-      console.error('Failed to add market', error);
-      alert('An error occurred while adding the market');
+      }, 1500);
+    } catch (error: any) {
+      const msg = error?.message || t('prompt.error_occurs');
+      setAlertMessage({ type: 'error', message: msg });
+      setOpen(true);
       setIsProcessing(false);
     }
   }
 
-  useEffect(() => {
-    setIsClient(true);
-    queryMarketList();
-  }, []);
-
-  const goBack = () => {
-    router.back();
+  const handleClose = () => {
+    setOpen(false);
   };
 
-  if (!isClient) {
-    // Show empty content when server rendering to avoid hydration errors
-    return null;
-  }
-
   return (
-    <div
-      css={styles}
-      className="container mx-auto"
-      style={{ marginTop: '70px', maxWidth: '1200px' }}
-    >
+    <div css={pageStyle} className="container">
+      <Snackbar
+        open={open}
+        autoHideDuration={6000}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        {alertMessage ? (
+          <Alert onClose={handleClose} severity={alertMessage.type}>
+            {alertMessage.message}
+          </Alert>
+        ) : undefined}
+      </Snackbar>
       <section className="section">
         <div className="box">
-          <div className="header">
-            <p className="is-size-6 is-pulled-left" style={{ marginRight: '10px' }}>
-              {t('page.new_exchange_api_key')}
-            </p>
-            <button type="button" onClick={goBack} className="is-pulled-right button-back">
-              {t('button.go_back')}
+          <div className="box-header">
+            <p className="is-size-6">{t('caption.new_exchange_apikey')}</p>
+            <button type="button" className="button is-small" onClick={() => router.back()}>
+              {t('action.go_back')}
             </button>
           </div>
+
           <div className="field">
-            {/* eslint-disable-next-line */}
-            <label className="label" htmlFor="exchange-select">
-              {t('form.select_exchange')}
+            <label className="label">
+              <span className="has-text-danger">*</span>
+              {t('label.select')}
+              {t('label.exchange')}
             </label>
             <div className="control">
-              <ul className="choice">
-                {exchangeList.map((item) => (
+              <ul className="exchange-list">
+                {EXCHANGE_LIST.map((item) => (
                   <li
                     key={item.exchange}
-                    className={`exchangeItem ${formData.exchange === item.exchange ? 'active' : ''}`}
+                    className={`exchange-item ${formData.exchange === item.exchange ? 'active' : ''}`}
                   >
                     <button
                       type="button"
-                      className="exchangeButton"
+                      className="exchange-button"
                       onClick={() => handleSelectExchange(item.exchange)}
                     >
-                      <div className="tit">
-                        <img className="img" src={`/images/${item.exchange}.png`} alt={item.name} />
+                      <div className="exchange-title">
+                        <img src={`/images/${item.exchange}.png`} alt={item.name} />
                         {item.name}
                       </div>
-                      <p className="desc">{item.url}</p>
+                      <p className="exchange-url">{item.url}</p>
                     </button>
                   </li>
                 ))}
               </ul>
             </div>
-            {invalidFields.exchange && <p className="error">{invalidFields.exchange}</p>}
+            {invalidFields.exchange && <p className="help is-danger">{invalidFields.exchange}</p>}
           </div>
 
           <div className="field">
-            {/* eslint-disable-next-line */}
-            <label className="label">{t('form.access_key')}</label>
+            <label className="label">
+              <span className="has-text-danger">*</span>
+              {t('label.input')}
+              {t('label.access_key')}
+            </label>
             <div className="control">
               <input
-                className="input"
+                className="input key-input"
                 type="text"
                 name="access_key"
                 value={formData.access_key}
                 onChange={handleInputChange}
-                placeholder="ACCESS KEY"
+                placeholder={t('placeholder.access_key')}
               />
             </div>
-            {invalidFields.access_key && <p className="error">{invalidFields.access_key}</p>}
+            {invalidFields.access_key && (
+              <p className="help is-danger">{invalidFields.access_key}</p>
+            )}
           </div>
 
           <div className="field">
-            {/* eslint-disable-next-line */}
-            <label className="label">{t('form.secret_key')}</label>
+            <label className="label">
+              <span className="has-text-danger">*</span>
+              {t('label.input')}
+              {t('label.secret_key')}
+            </label>
             <div className="control">
               <input
-                className="input"
+                className="input key-input"
                 type="text"
                 name="secret_key"
                 value={formData.secret_key}
                 onChange={handleInputChange}
-                placeholder="SECRET KEY"
+                placeholder={t('placeholder.secret_key')}
               />
             </div>
-            {invalidFields.secret_key && <p className="error">{invalidFields.secret_key}</p>}
+            {invalidFields.secret_key && (
+              <p className="help is-danger">{invalidFields.secret_key}</p>
+            )}
           </div>
 
           <div className="field">
-            {/* eslint-disable-next-line */}
-            <label className="label">{t('form.remark')}</label>
+            <label className="label">
+              <span className="has-text-danger">*</span>
+              {t('label.input')}
+              {t('label.remark')}
+            </label>
             <div className="control">
               <input
-                className="input"
+                className="input key-input"
                 type="text"
                 name="desc"
                 value={formData.desc}
                 onChange={handleInputChange}
-                placeholder="REMARK"
+                placeholder={t('placeholder.remark')}
               />
             </div>
-            {invalidFields.desc && <p className="error">{invalidFields.desc}</p>}
+            {invalidFields.desc && <p className="help is-danger">{invalidFields.desc}</p>}
           </div>
 
           <div className="field is-grouped">
             <div className="control">
               <button
                 type="button"
-                className={`button is-link button-pad ${isProcessing ? 'is-loading' : ''}`}
-                onClick={handleAddMarket}
+                className={`button is-link ${isProcessing ? 'is-loading' : ''}`}
+                onClick={handleSubmit}
                 disabled={isProcessing}
               >
-                {t('button.confirm')}
+                {t('action.confirm')}
               </button>
             </div>
           </div>
@@ -377,4 +243,84 @@ function Newmarket() {
   );
 }
 
-export default Newmarket;
+const pageStyle = css`
+  .box {
+    margin: 0 auto;
+    padding: 50px;
+  }
+
+  .box-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .key-input {
+    max-width: 600px;
+  }
+
+  .exchange-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .exchange-item {
+    width: 168px;
+    background-color: #f6f6f6;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    text-align: center;
+    cursor: pointer;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
+    overflow: hidden;
+  }
+
+  .exchange-item.active {
+    border-color: #3273dc;
+    box-shadow: 0 0 8px rgba(50, 115, 220, 0.4);
+  }
+
+  .exchange-button {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+  }
+
+  .exchange-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+  }
+
+  .exchange-title img {
+    width: 22px;
+  }
+
+  .exchange-url {
+    margin-top: 8px;
+    font-size: 0.85em;
+    color: #888;
+  }
+
+  @media screen and (max-width: 768px) {
+    .box {
+      padding: 30px 10px;
+    }
+
+    .key-input {
+      max-width: 100%;
+    }
+  }
+`;
