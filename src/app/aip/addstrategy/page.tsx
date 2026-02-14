@@ -2,9 +2,8 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { css } from '@emotion/react';
-import { fetchExchangeSymbolList } from '@/utils/defines';
 import Link from 'next/link';
 import { getInvalidFields } from '@/utils/validator';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -89,12 +88,14 @@ interface UserMarketItem {
   exchange: string;
   name?: string;
   access_key: string;
+  secret_key: string;
 }
 
 interface SymbolItem {
   symbol: string;
   base: string;
   quote: string;
+  exchange: string;
 }
 
 interface PlanType {
@@ -116,6 +117,8 @@ interface StrategyFormData {
   _id?: string;
   user_market_id: string;
   exchange: string;
+  key: string;
+  secret: string;
   symbol: string;
   base: string;
   quote: string;
@@ -174,6 +177,8 @@ function desensitize(val: string): string {
 const INITIAL_FORM_DATA: StrategyFormData = {
   user_market_id: '',
   exchange: '',
+  key: '',
+  secret: '',
   symbol: '',
   base: '',
   quote: '',
@@ -192,8 +197,9 @@ function AddStrategy() {
   const { t } = useTranslation('');
   const router = useRouter();
 
+  const allSymbolsRef = useRef<SymbolItem[]>([]);
   const [userMarketList, setUserMarketList] = useState<UserMarketItem[]>([]);
-  const [symbolList, setSymbolList] = useState<SymbolItem[]>(fetchExchangeSymbolList(''));
+  const [symbolList, setSymbolList] = useState<SymbolItem[]>([]);
   const [formData, setFormData] = useState<StrategyFormData>(INITIAL_FORM_DATA);
   const [periodDataList, setPeriodDataList] = useState<PeriodDataItem[]>([]);
   const [invalidFields, setInvalidFields] = useState<InvalidFields>({});
@@ -250,11 +256,15 @@ function AddStrategy() {
       ...prev,
       user_market_id: item._id,
       exchange: item.exchange,
+      key: item.access_key,
+      secret: item.secret_key,
       symbol: '',
       base: '',
       quote: '',
     }));
-    setSymbolList(fetchExchangeSymbolList(item.exchange));
+    setSymbolList(
+      allSymbolsRef.current.filter((s) => s.exchange === item.exchange),
+    );
     setInvalidFields((prev) => ({ ...prev, user_market_id: undefined }));
   }
 
@@ -357,18 +367,20 @@ function AddStrategy() {
     setLoading(true);
     try {
       const res: any = await HTTP.get(`/v1/strategies/${strategyId}`);
-      const data = res?.data;
+      const data = res?.data?.info;
       if (data) {
         setFormData({
           _id: data._id,
           user_market_id: data.user_market_id || '',
           exchange: data.exchange || '',
+          key: '',
+          secret: '',
           symbol: data.symbol || '',
           base: data.base || '',
           quote: data.quote || '',
           base_limit: data.base_limit != null ? String(data.base_limit) : '',
-          type: data.type || '1',
-          period: data.period || '',
+          type: data.type != null ? String(data.type) : '1',
+          period: data.period != null ? String(data.period) : '',
           period_value: data.period_value || [],
           stop_profit_percentage:
             data.stop_profit_percentage != null ? String(data.stop_profit_percentage) : '',
@@ -376,11 +388,13 @@ function AddStrategy() {
         });
 
         if (data.exchange) {
-          setSymbolList(fetchExchangeSymbolList(data.exchange));
+          setSymbolList(
+            allSymbolsRef.current.filter((s) => s.exchange === data.exchange),
+          );
         }
 
         if (data.period) {
-          handleSelectPeriod(data.period, data.period_value || []);
+          handleSelectPeriod(String(data.period), data.period_value || []);
         }
       }
     } catch (error: any) {
@@ -393,8 +407,20 @@ function AddStrategy() {
   }, [strategyId, t]);
 
   useEffect(() => {
-    fetchUserMarketList();
-    fetchStrategy();
+    async function init() {
+      // Fetch symbols first (needed by market selection and strategy loading)
+      try {
+        const res: any = await HTTP.get('/v1/symbols');
+        const list = res?.data?.list || [];
+        allSymbolsRef.current = list;
+      } catch (error: any) {
+        console.error('Failed to fetch symbols:', error);
+      }
+      // Then fetch keys and strategy (they depend on symbols being loaded)
+      fetchUserMarketList();
+      fetchStrategy();
+    }
+    init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -410,29 +436,42 @@ function AddStrategy() {
 
     setIsProcessing(true);
     try {
-      const payload: any = {
-        user_market_id: formData.user_market_id,
-        exchange: formData.exchange,
-        symbol: formData.symbol,
-        base: formData.base,
-        quote: formData.quote,
-        base_limit: Number(formData.base_limit),
-        type: formData.type,
-        period: formData.period,
-        period_value: formData.period_value,
-      };
-
-      if (formData.stop_profit_percentage !== '') {
-        payload.stop_profit_percentage = Number(formData.stop_profit_percentage);
-      }
-      if (formData.drawdown !== '') {
-        payload.drawdown = Number(formData.drawdown);
-      }
-
       if (strategyId) {
-        await HTTP.patch(`/v1/strategies/${strategyId}`, payload);
+        // Update: only send editable fields
+        const updatePayload: any = {
+          base_limit: Number(formData.base_limit),
+          period: formData.period,
+          period_value: formData.period_value,
+        };
+        if (formData.stop_profit_percentage !== '') {
+          updatePayload.stop_profit_percentage = Number(formData.stop_profit_percentage);
+        }
+        if (formData.drawdown !== '') {
+          updatePayload.drawdown = Number(formData.drawdown);
+        }
+        await HTTP.patch(`/v1/strategies/${strategyId}`, updatePayload);
       } else {
-        await HTTP.post('/v1/strategies', payload);
+        // Create: send all required fields including key/secret
+        const createPayload: any = {
+          user_market_id: formData.user_market_id,
+          exchange: formData.exchange,
+          key: formData.key,
+          secret: formData.secret,
+          symbol: formData.symbol,
+          base: formData.base,
+          quote: formData.quote,
+          base_limit: Number(formData.base_limit),
+          type: formData.type,
+          period: formData.period,
+          period_value: formData.period_value,
+        };
+        if (formData.stop_profit_percentage !== '') {
+          createPayload.stop_profit_percentage = Number(formData.stop_profit_percentage);
+        }
+        if (formData.drawdown !== '') {
+          createPayload.drawdown = Number(formData.drawdown);
+        }
+        await HTTP.post('/v1/strategies', createPayload);
       }
       showSuccess(t('prompt.operation_succeed'));
       router.push('/aip');
