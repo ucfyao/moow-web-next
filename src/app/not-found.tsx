@@ -2,42 +2,37 @@
 'use client';
 
 import { css } from '@emotion/react';
-import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 
-const errorStyle = css`
-  .error-container {
+const notFoundStyle = css`
+  .nf-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     min-height: 60vh;
     text-align: center;
-    padding: 2rem;
   }
-  .error-code {
+  .nf-code {
     font-size: 6rem;
     font-weight: bold;
     color: #dbdbdb;
-    margin-bottom: 1rem;
   }
-  .error-message {
+  .nf-text {
     font-size: 1.2rem;
     color: #7a7a7a;
-    margin-bottom: 2rem;
+    margin: 1rem 0 2rem;
   }
 `;
 
-export default function ErrorPage() {
-  const { t } = useTranslation('');
-
+export default function NotFound() {
   return (
-    <div css={errorStyle}>
-      <div className="error-container">
-        <div className="error-code">404</div>
-        <p className="error-message">{t('page_not_found')}</p>
+    <div css={notFoundStyle}>
+      <div className="nf-container">
+        <div className="nf-code">404</div>
+        <p className="nf-text">Page not found</p>
         <Link href="/" className="button is-primary">
-          {t('back_to_home')}
+          Back to Home
         </Link>
       </div>
     </div>
