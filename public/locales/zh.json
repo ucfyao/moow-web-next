@@ -238,6 +238,23 @@
     "create_strategy": "去创建",
     "loading": "加载中..."
   },
+  "order": {
+    "side": "方向",
+    "buy": "买入",
+    "sell": "卖出",
+    "total_orders": "总订单数",
+    "buy_orders": "买入订单",
+    "sell_orders": "卖出订单",
+    "total_invested": "总投入",
+    "total_value": "总价值"
+  },
+  "chart": {
+    "investment_returns": "定投收益图",
+    "data_source": "数据来源：xiaobao.io",
+    "profit_rate": "利润率",
+    "total_invested": "总投入",
+    "total_value": "总价值"
+  },
   "pager": {
     "prev": "上一页",
     "next": "下一页",

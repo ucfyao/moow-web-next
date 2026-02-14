@@ -2,9 +2,8 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import axios from 'axios';
 import { useParams } from 'next/navigation';
 import no_record from '@/assets/images/no_record.png';
 import { css } from '@emotion/react';
@@ -13,6 +12,9 @@ import util from '@/utils/util';
 import Highcharts from 'highcharts';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
+import HTTP from '@/lib/http';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 
 const strategyDetailStyle = css`
   .isNone {
@@ -72,9 +74,51 @@ const strategyDetailStyle = css`
     margin: 60px auto;
     display: block;
   }
+
+  .loading-container {
+    text-align: center;
+    padding: 60px 0;
+    color: #999;
+  }
+
+  .stats-box {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    padding: 16px 0;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .stat-item {
+    text-align: center;
+    min-width: 120px;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 4px;
+  }
+
+  .stat-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: #363636;
+  }
+
+  .side-buy {
+    color: #23d160;
+    font-weight: 600;
+  }
+
+  .side-sell {
+    color: #ff3860;
+    font-weight: 600;
+  }
 `;
 
-interface DetailProps {
+interface StrategyDetail {
   _id: string;
   created_at: string;
   exchange: string;
@@ -93,22 +137,27 @@ interface DetailProps {
   status: string;
 }
 
-interface OrderProps {
+interface Order {
   _id: string;
   created_at: string;
   symbol: string;
+  side: string;
   price: string;
-  amount: number;
+  amount: string;
   funds: string;
-  record_amount: number;
-  avg_price: number;
+  record_amount: string;
+  avg_price: string;
   base_total: number;
   value_total: number;
-  cost: number;
+  cost: string;
 }
 
-interface OrderListProps {
-  orders: OrderProps[];
+interface OrderStats {
+  totalOrders: number;
+  buyOrders: number;
+  sellOrders: number;
+  totalInvested: number;
+  totalValue: number;
 }
 
 interface ChartProps {
@@ -119,103 +168,39 @@ interface ChartProps {
   series3: number[];
   max: number;
   min: number;
+  t: (key: string) => string;
 }
 
-function OrderList({ orders }: OrderListProps): React.JSX.Element {
-  const { t } = useTranslation('');
-  // Handle page changes
-  const [currentPage, setCurrentPage] = useState(1);
-  const total = orders.length;
-  const pageSize = 20;
-  const indexOfLastItem = currentPage * pageSize;
-  const indexOfFirstItem = indexOfLastItem - pageSize;
-  const currentData = orders.slice(indexOfFirstItem, indexOfLastItem);
+const PAGE_SIZE = 20;
 
-  const handleCurrentChange = (newPage: number) => {
-    setCurrentPage(newPage);
-  };
-
-  return (
-    <div className="table-wrapper">
-      <table className="table is-fullwidth is-striped">
-        <thead>
-          <tr>
-            <th>{t('title.commission_time')}</th>
-            <th>{t('title.symbol')}</th>
-            <th>{t('title.commission_price')}</th>
-            <th>{t('title.commission_quantity')}</th>
-            <th>{t('title.commission_amount')}</th>
-            <th>{t('title.closed_quantity')}</th>
-            <th>{t('title.closed_avg_price')}</th>
-            <th>{t('title.closed_amount')}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentData.map((row) => (
-            // eslint-disable-next-line
-            <tr key={row._id}>
-              <td>{util.formatDate(row.created_at)}</td>
-              <td>{row.symbol}</td>
-              <td>{row.price}</td>
-              <td>{row.amount}</td>
-              <td>{row.funds}</td>
-              <td>{util.formatNumber(row.record_amount, 8)}</td>
-              <td>
-                {row.avg_price === undefined
-                  ? util.formatNumber(row.cost / row.record_amount, 8)
-                  : util.formatNumber(row.avg_price, 8)}
-              </td>
-              <td>{row.cost}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <Pagination
-        current={currentPage}
-        total={total}
-        pageSize={pageSize}
-        showTotal={false}
-        onPageChange={handleCurrentChange}
-      />
-    </div>
-  );
-}
-
-function Chart({ id, categories, series1, series2, series3, max, min }: ChartProps) {
-  const colors = Highcharts.getOptions().colors || [];
+function Chart({ id, categories, series1, series2, series3, max, min, t }: ChartProps) {
   useEffect(() => {
+    const colors = Highcharts.getOptions().colors || [];
     Highcharts.chart({
       chart: {
         type: 'spline',
-        renderTo: 'line-container',
+        renderTo: id,
       },
       title: {
-        text: 'Investment Returns Chart',
+        text: t('chart.investment_returns'),
       },
       subtitle: {
-        text: 'Data source: xiaobao.io',
+        text: t('chart.data_source'),
       },
       xAxis: {
         categories,
       },
       yAxis: [
         {
-          title: {
-            text: '',
-          },
+          title: { text: '' },
           labels: {
-            // eslint-disable-next-line no-template-curly-in-string
             format: '${value}',
           },
           tickAmount: 8,
         },
         {
-          title: {
-            text: 'Profit Rate',
-          },
-          labels: {
-            format: '{value}%',
-          },
+          title: { text: t('chart.profit_rate') },
+          labels: { format: '{value}%' },
           max,
           min,
           tickAmount: 8,
@@ -224,19 +209,12 @@ function Chart({ id, categories, series1, series2, series3, max, min }: ChartPro
       ],
       plotOptions: {
         line: {
-          dataLabels: {
-            enabled: true,
-          },
+          dataLabels: { enabled: true },
           enableMouseTracking: false,
           lineWidth: 1,
           marker: {
             radius: 0,
-            states: {
-              hover: {
-                enabled: false,
-                lineWidth: 1,
-              },
-            },
+            states: { hover: { enabled: false, lineWidth: 1 } },
           },
         },
       },
@@ -244,135 +222,189 @@ function Chart({ id, categories, series1, series2, series3, max, min }: ChartPro
         {
           type: 'line',
           yAxis: 1,
-          name: 'Profit Rate',
+          name: t('chart.profit_rate'),
           data: series3,
           color: colors[8] || '#000000',
         },
         {
           type: 'line',
-          name: 'Total Quote',
+          name: t('chart.total_invested'),
           data: series1,
         },
         {
           type: 'line',
           yAxis: 0,
-          name: 'Total Value',
+          name: t('chart.total_value'),
           data: series2,
         },
       ],
     });
-  }, [id, categories, series1, series2, series3, max, min]);
+  }, [id, categories, series1, series2, series3, max, min, t]);
 
   return <div id={id} />;
 }
 
-function StrategyDetails() {
+function computeOrderStats(orders: Order[]): OrderStats {
+  let buyOrders = 0;
+  let sellOrders = 0;
+  let totalInvested = 0;
+  let totalValue = 0;
+
+  orders.forEach((order) => {
+    if (order.side === 'buy') buyOrders++;
+    else if (order.side === 'sell') sellOrders++;
+    totalInvested = Math.max(totalInvested, order.base_total || 0);
+    totalValue = Math.max(totalValue, order.value_total || 0);
+  });
+
+  return {
+    totalOrders: orders.length,
+    buyOrders,
+    sellOrders,
+    totalInvested,
+    totalValue,
+  };
+}
+
+export default function StrategyDetails() {
   const { t } = useTranslation('');
   const { strategyId } = useParams();
-  const [orders, setOrders] = useState<OrderProps[]>([]);
-  const [details, setDetails] = useState<DetailProps>({
-    _id: '',
-    created_at: '',
-    exchange: '',
-    symbol: '',
-    quote: '',
-    quote_total: 0,
-    price_native: '',
-    price_total: 0,
-    base: '',
-    base_limit: 0,
-    base_total: 0,
-    profit: 0,
-    profit_percentage: 0,
-    stop_profit_percentage: 0,
-    price_usd: '',
-    status: '',
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [details, setDetails] = useState<StrategyDetail | null>(null);
+  const [fontColor, setFontColor] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [orderStats, setOrderStats] = useState<OrderStats>({
+    totalOrders: 0,
+    buyOrders: 0,
+    sellOrders: 0,
+    totalInvested: 0,
+    totalValue: 0,
   });
-  const [fontColor, setFontColor] = useState<string>('');
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'error';
+  }>({ open: false, message: '', severity: 'success' });
 
-  // Props for chart
+  // Chart data
   const [baseTotal, setBaseTotal] = useState<number[]>([]);
   const [valueTotal, setValueTotal] = useState<number[]>([]);
   const [profitRate, setProfitRate] = useState<number[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
-  const [max, setMax] = useState(0);
-  const [min, setMin] = useState(0);
+  const [chartMax, setChartMax] = useState(0);
+  const [chartMin, setChartMin] = useState(0);
+
+  // Order pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const indexOfLastItem = currentPage * PAGE_SIZE;
+  const indexOfFirstItem = indexOfLastItem - PAGE_SIZE;
+  const currentOrders = orders.slice(indexOfFirstItem, indexOfLastItem);
+
+  const showError = useCallback(
+    (error: any) => {
+      setSnackbar({
+        open: true,
+        message: error?.message || t('prompt.operation_failed'),
+        severity: 'error',
+      });
+    },
+    [t],
+  );
 
   useEffect(() => {
-    async function queryDetails() {
+    async function fetchData() {
+      setLoading(true);
       try {
-        const detailsResponse = await axios.get(`/api/v1/strategies/${strategyId}`);
-        const { data } = detailsResponse.data;
+        const [detailRes, ordersRes]: [any, any] = await Promise.all([
+          HTTP.get(`/v1/strategies/${strategyId}`),
+          HTTP.get('/v1/orders', { params: { strategy_id: strategyId } }),
+        ]);
 
-        // Set variables
-        if (data && data.info && data.symbolPrice) {
-          const { info, symbolPrice } = data;
-          info.price_usd = symbolPrice && symbolPrice.price_usd ? symbolPrice.price_usd : '';
+        // Process strategy details
+        if (detailRes.data?.info) {
+          const { info, symbolPrice } = detailRes.data;
+          info.price_usd = symbolPrice?.price_usd ?? '';
           info.created_at = util.formatDate(info.created_at, 'yyyy-MM-dd HH:mm');
-          info.base_total = util.formatNumber(info.base_total, 8);
-          info.price_total = util.formatNumber(info.price_usd * info.quote_total, 8);
-          info.quote_total = util.formatNumber(info.quote_total, 8);
-          info.profit = util.formatNumber(info.price_total - info.base_total, 8);
+          const rawBaseTotal = Number(info.base_total);
+          const rawQuoteTotal = Number(info.quote_total);
+          const priceUsd = Number(info.price_usd);
+          info.base_total = util.formatNumber(rawBaseTotal, 8);
+          info.price_total = util.formatNumber(priceUsd * rawQuoteTotal, 8);
+          info.quote_total = util.formatNumber(rawQuoteTotal, 8);
+          const profitVal = Number(info.price_total) - Number(info.base_total);
+          info.profit = util.formatNumber(profitVal, 8);
           info.profit_percentage =
-            parseInt(info.base_total, 8) === 0
-              ? 0
-              : util.formatNumber((info.profit / info.base_total) * 100, 2);
-
+            rawBaseTotal === 0 ? 0 : util.formatNumber((profitVal / rawBaseTotal) * 100, 2);
           setDetails(info);
-
-          if (info.profit_percentage >= 0) {
-            setFontColor('col-green');
-          } else {
-            setFontColor('col-red');
-          }
+          setFontColor(Number(info.profit_percentage) >= 0 ? 'has-text-success' : 'has-text-danger');
         }
-      } catch (error) {
-        console.error(error);
-      }
-    }
 
-    async function queryOrders() {
-      try {
-        const ordersResponse = await axios.get(`/api/v1/orders?strategy_id=${strategyId}`);
-        const orderData = ordersResponse.data.data.list;
+        // Process orders
+        const orderData: Order[] = ordersRes.data?.list ?? [];
         setOrders(orderData);
+        setOrderStats(computeOrderStats(orderData));
 
-        // Handle the chart update
-        const newBaseTotal: number[] = [];
-        const newValueTotal: number[] = [];
-        const newProfitRate: number[] = [];
-        const newCategories: string[] = [];
+        // Build chart data
+        if (orderData.length > 0) {
+          const newBaseTotal: number[] = [];
+          const newValueTotal: number[] = [];
+          const newProfitRate: number[] = [];
+          const newCategories: string[] = [];
 
-        orderData.forEach((v: OrderProps) => {
-          newBaseTotal.push(+util.formatNumber(v.base_total, 2));
-          newValueTotal.push(+util.formatNumber(v.value_total, 2));
-          newProfitRate.push(
-            +util.formatNumber((v.value_total - v.base_total) / v.value_total, 4) * 100
-          );
-          const date = util.formatDate(v.created_at, 'yy.MM.dd');
-          newCategories.push(date);
-        });
+          orderData.forEach((v) => {
+            newBaseTotal.push(+util.formatNumber(v.base_total, 2));
+            newValueTotal.push(+util.formatNumber(v.value_total, 2));
+            const valTotal = v.value_total || 0;
+            const rate = valTotal !== 0 ? ((valTotal - v.base_total) / valTotal) * 100 : 0;
+            newProfitRate.push(+util.formatNumber(rate, 4));
+            newCategories.push(util.formatDate(v.created_at, 'yy.MM.dd'));
+          });
 
-        setBaseTotal(newBaseTotal.reverse());
-        setValueTotal(newValueTotal.reverse());
-        setProfitRate(newProfitRate.reverse());
-        setCategories(newCategories.reverse());
+          const reversed1 = newBaseTotal.reverse();
+          const reversed2 = newValueTotal.reverse();
+          const reversed3 = newProfitRate.reverse();
+          const reversedCat = newCategories.reverse();
 
-        const maxVal = Math.max(...newProfitRate);
-        const minVal = Math.min(...newProfitRate);
-        const b = maxVal - minVal * 1.4 - (maxVal - minVal);
-        setMax(maxVal + b / 2);
-        setMin(minVal - b / 2);
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Unkown Error';
-        alert(message);
+          setBaseTotal(reversed1);
+          setValueTotal(reversed2);
+          setProfitRate(reversed3);
+          setCategories(reversedCat);
+
+          const maxVal = Math.max(...reversed3);
+          const minVal = Math.min(...reversed3);
+          const b = maxVal - minVal * 1.4 - (maxVal - minVal);
+          setChartMax(maxVal + b / 2);
+          setChartMin(minVal - b / 2);
+        }
+      } catch (error: any) {
+        console.error(error);
+        showError(error);
+      } finally {
+        setLoading(false);
       }
     }
-    queryDetails();
-    queryOrders();
-  }, []);
 
-  // TODO  translate dynamically by i18n
+    if (strategyId) {
+      fetchData();
+    }
+  }, [strategyId, showError]);
+
+  function handlePageChange(newPage: number) {
+    setCurrentPage(newPage);
+  }
+
+  if (loading) {
+    return (
+      <div className="container" css={strategyDetailStyle}>
+        <section className="section">
+          <div className="box">
+            <div className="loading-container">{t('prompt.loading')}</div>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className="container" css={strategyDetailStyle}>
       <section className="section">
@@ -383,11 +415,11 @@ function StrategyDetails() {
           <div className="tabs">
             <ul>
               <li className="is-active">
-                {/* eslint-disable-next-line */}
                 <a>{t('caption.investment_details')}</a>
               </li>
             </ul>
           </div>
+
           {details ? (
             <>
               <div className="columns">
@@ -431,7 +463,7 @@ function StrategyDetails() {
                 <div className="column">
                   <p>
                     {t('label.stop_profit_rate')}:{' '}
-                    <span>{details.stop_profit_percentage || 0} %</span>
+                    <span>{details.stop_profit_percentage || 0}%</span>
                   </p>
                   <p>
                     {t('label.current_price')}:{' '}
@@ -440,10 +472,11 @@ function StrategyDetails() {
                     </span>
                   </p>
                   <p className={fontColor}>
-                    {t('label.profit_rate')}: <span>{details.profit_percentage} %</span>
+                    {t('label.profit_rate')}: <span>{details.profit_percentage}%</span>
                   </p>
                 </div>
               </div>
+
               {orders.length > 0 && (
                 <Chart
                   id="line-container"
@@ -451,32 +484,117 @@ function StrategyDetails() {
                   series1={baseTotal}
                   series2={valueTotal}
                   series3={profitRate}
-                  max={max}
-                  min={min}
+                  max={chartMax}
+                  min={chartMin}
+                  t={t}
                 />
               )}
             </>
           ) : (
             <Image className="no-record" src={no_record} alt="No records found" />
           )}
+
+          {/* Order Statistics */}
+          {orders.length > 0 && (
+            <div className="stats-box">
+              <div className="stat-item">
+                <div className="stat-label">{t('order.total_orders')}</div>
+                <div className="stat-value">{orderStats.totalOrders}</div>
+              </div>
+              <div className="stat-item">
+                <div className="stat-label">{t('order.buy_orders')}</div>
+                <div className="stat-value side-buy">{orderStats.buyOrders}</div>
+              </div>
+              <div className="stat-item">
+                <div className="stat-label">{t('order.sell_orders')}</div>
+                <div className="stat-value side-sell">{orderStats.sellOrders}</div>
+              </div>
+              <div className="stat-item">
+                <div className="stat-label">{t('order.total_invested')}</div>
+                <div className="stat-value">{util.formatNumber(orderStats.totalInvested, 2)}</div>
+              </div>
+              <div className="stat-item">
+                <div className="stat-label">{t('order.total_value')}</div>
+                <div className="stat-value">{util.formatNumber(orderStats.totalValue, 2)}</div>
+              </div>
+            </div>
+          )}
+
+          {/* Order List */}
           <div className="tabs">
             <ul>
               <li className="is-active">
-                {/* eslint-disable-next-line */}
                 <a>{t('caption.investment_orders')}</a>
               </li>
             </ul>
           </div>
 
-          {orders && orders.length > 0 ? (
-            <OrderList orders={orders} />
+          {orders.length > 0 ? (
+            <div className="table-wrapper">
+              <table className="table is-fullwidth is-striped">
+                <thead>
+                  <tr>
+                    <th>{t('title.commission_time')}</th>
+                    <th>{t('title.symbol')}</th>
+                    <th>{t('order.side')}</th>
+                    <th>{t('title.commission_price')}</th>
+                    <th>{t('title.commission_quantity')}</th>
+                    <th>{t('title.commission_amount')}</th>
+                    <th>{t('title.closed_quantity')}</th>
+                    <th>{t('title.closed_avg_price')}</th>
+                    <th>{t('title.closed_amount')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentOrders.map((row) => (
+                    <tr key={row._id}>
+                      <td>{util.formatDate(row.created_at, 'yyyy-MM-dd HH:mm')}</td>
+                      <td>{row.symbol}</td>
+                      <td className={row.side === 'buy' ? 'side-buy' : 'side-sell'}>
+                        {row.side === 'buy' ? t('order.buy') : t('order.sell')}
+                      </td>
+                      <td>{row.price}</td>
+                      <td>{row.amount}</td>
+                      <td>{row.funds}</td>
+                      <td>{util.formatNumber(Number(row.record_amount), 8)}</td>
+                      <td>
+                        {row.avg_price
+                          ? util.formatNumber(Number(row.avg_price), 8)
+                          : util.formatNumber(Number(row.cost) / Number(row.record_amount), 8)}
+                      </td>
+                      <td>{row.cost}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <Pagination
+                current={currentPage}
+                total={orders.length}
+                pageSize={PAGE_SIZE}
+                showTotal={false}
+                onPageChange={handlePageChange}
+              />
+            </div>
           ) : (
             <Image className="no-record" src={no_record} alt="No records found" />
           )}
         </div>
       </section>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
+          severity={snackbar.severity}
+          variant="filled"
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }
-
-export default StrategyDetails;

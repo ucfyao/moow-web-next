@@ -238,6 +238,23 @@
     "create_strategy": "Create One",
     "loading": "Loading..."
   },
+  "order": {
+    "side": "Side",
+    "buy": "Buy",
+    "sell": "Sell",
+    "total_orders": "Total Orders",
+    "buy_orders": "Buy Orders",
+    "sell_orders": "Sell Orders",
+    "total_invested": "Total Invested",
+    "total_value": "Total Value"
+  },
+  "chart": {
+    "investment_returns": "Investment Returns Chart",
+    "data_source": "Data source: xiaobao.io",
+    "profit_rate": "Profit Rate",
+    "total_invested": "Total Invested",
+    "total_value": "Total Value"
+  },
   "pager": {
     "prev": "Previous",
     "next": "Next page",
