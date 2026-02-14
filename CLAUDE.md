@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 ## Project Overview
 
 Moow - cryptocurrency robo-advisory platform. A Next.js App Router web application with i18n support (Chinese/English).
@@ -35,6 +37,12 @@ npm test               # Run unit/component tests (vitest run)
 npm run test:watch     # Run tests in watch mode (vitest)
 npm run test:coverage  # Run tests with v8 coverage
 npm run test:e2e       # Run E2E tests (playwright test)
+
+# Run a single test file
+npx vitest run src/__tests__/utils/auth.test.ts
+
+# Run tests matching a pattern
+npx vitest run -t "login"
 ```
 
 ## Project Structure
