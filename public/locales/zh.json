@@ -153,7 +153,10 @@
     "loading": "加载中...",
     "plan_tips": "友情提示：您选择的交易对表示用 {{base}} 定投 {{quote}}",
     "click_refresh_captcha": "点击刷新验证码",
-    "have_not_login": "您尚未登录或登录已过期，立即登录？"
+    "have_not_login": "您尚未登录或登录已过期，立即登录？",
+    "key_validated_saved": "API密钥验证成功并已保存",
+    "confirm_delete_key_title": "删除交易所密钥",
+    "no_exchange_keys": "暂无交易所API密钥，请先添加。"
   },
   "placeholder": {
     "input_single_purchase_amount": "单次购买金额。如：定投交易对为BTC/USDT，单位为USDT。",
