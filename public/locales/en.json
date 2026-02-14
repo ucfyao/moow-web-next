@@ -217,6 +217,25 @@
     "desc_cant_empty": "Remark cannot be empty",
     "input_too_long": "Input too long"
   },
+  "assets": {
+    "page_title": "My Assets",
+    "account_info": "Account Information",
+    "email": "Email",
+    "nickname": "Nickname",
+    "vip_status": "VIP Status",
+    "vip_active": "VIP Active",
+    "vip_expired": "VIP Expired",
+    "vip_expiry": "VIP Expiry Date",
+    "strategy_summary": "Strategy Summary",
+    "total_strategies": "Total Strategies",
+    "active_strategies": "Active Strategies",
+    "total_investment": "Total Investment",
+    "total_profit": "Total Profit",
+    "xbt_balance": "XBT Balance",
+    "no_strategies": "No investment strategies yet",
+    "create_strategy": "Create One",
+    "loading": "Loading..."
+  },
   "pager": {
     "prev": "Previous",
     "next": "Next page",
