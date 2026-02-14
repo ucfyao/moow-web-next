@@ -153,7 +153,10 @@
     "loading": "Loading...",
     "plan_tips": "Tips: You selected symbol means plan to use {{base}} buy {{quote}}",
     "click_refresh_captcha": "Click Refresh Captcha",
-    "have_not_login": "You are not logged in or your login has expired. Sign in now?"
+    "have_not_login": "You are not logged in or your login has expired. Sign in now?",
+    "key_validated_saved": "API key validated and saved successfully",
+    "confirm_delete_key_title": "Delete Exchange Key",
+    "no_exchange_keys": "No exchange API keys yet. Add one to get started."
   },
   "placeholder": {
     "input_single_purchase_amount": "Single purchase amount. eg: BTC/USDT, charge unit is USDT.",
