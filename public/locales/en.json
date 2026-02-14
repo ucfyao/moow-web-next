@@ -156,7 +156,12 @@
     "have_not_login": "You are not logged in or your login has expired. Sign in now?",
     "key_validated_saved": "API key validated and saved successfully",
     "confirm_delete_key_title": "Delete Exchange Key",
-    "no_exchange_keys": "No exchange API keys yet. Add one to get started."
+    "no_exchange_keys": "No exchange API keys yet. Add one to get started.",
+    "login_failed": "Login failed, server returned incorrect data.",
+    "activation_success_title": "Account Activation Successful",
+    "activation_success_desc": "Congratulations, your account has been successfully activated. Enjoy your investments and achieve financial freedom soon.",
+    "activation_failed_title": "Account Activation Failed",
+    "activation_failed_desc": "Activation failed, please try again."
   },
   "placeholder": {
     "input_single_purchase_amount": "Single purchase amount. eg: BTC/USDT, charge unit is USDT.",
@@ -377,5 +382,19 @@
     "total": "Total",
     "item": "item",
     "items": "items"
+  },
+  "feature": {
+    "multiple_strategies": "Multiple Strategies",
+    "multiple_strategies_desc": "Ordinary price investment, intelligent value investment, etc.",
+    "risk_control": "Strict Risk Control",
+    "risk_control_desc": "Secure storage and strict operation flow",
+    "transparent": "Transparent Transactions",
+    "transparent_desc": "One-click hosting, transparent API transactions",
+    "open_data": "Open Data",
+    "open_data_desc": "Multidimensional and intuitive visualization of investment data"
+  },
+  "activation": {
+    "go_homepage": "Go back Homepage",
+    "go_activation_page": "Go to Activation Email Page"
   }
 }
