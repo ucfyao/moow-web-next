@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import '../styles/resetPassword.css';
@@ -12,6 +13,7 @@ interface InvalidFields {
   passwordCheck?: string;
 }
 const ResetPassword = () => {
+  const { t } = useTranslation('');
   const searchParams = useSearchParams();
   const [captchaSrc, setCaptchaSrc] = useState('');
   const [formData, setFormData] = useState({
@@ -73,10 +75,10 @@ const ResetPassword = () => {
         password: formData.password,
       });
       setIsProccessing(false);
-      alert('prompt.password_is_reset');
+      window.alert(t('prompt.password_is_reset'));
       router.push('/login');
     } catch (error) {
-      alert(error || 'prompt.error_occurs');
+      window.alert(t('prompt.error_occurs'));
       setIsProccessing(false);
     }
   };
@@ -88,21 +90,21 @@ const ResetPassword = () => {
           <div className="box">
             <div className="header">
               <p className="is-size-6 is-pulled-left margin-right: 10px;">
-                {'caption.reset_password'}
+                {t('caption.reset_password')}
               </p>
             </div>
             <div className="field">
               <label className="label">
                 <span className="has-text-danger">*</span>
-                {'label.input'}
-                {'label.new_password'}
+                {t('label.input')}
+                {t('label.new_password')}
               </label>
               <div className="control has-icons-left">
                 <input
                   className="input"
                   type="password"
                   value={formData.password}
-                  placeholder="password"
+                  placeholder={t('placeholder.password')}
                 />
                 <span className="icon is-small is-left">
                   <i className="fa fa-lock"></i>
@@ -113,15 +115,15 @@ const ResetPassword = () => {
             <div className="field">
               <label className="label">
                 <span className="has-text-danger">*</span>
-                {'label.input'}
-                {'label.confirm_password'}
+                {t('label.input')}
+                {t('label.confirm_password')}
               </label>
               <div className="control has-icons-left">
                 <input
                   className="input"
                   type="password"
                   value={formData.passwordCheck}
-                  placeholder="Confirm password"
+                  placeholder={t('placeholder.repeat_password')}
                 />
                 <span className="icon is-small is-left">
                   <i className="fa fa-lock"></i>
@@ -136,7 +138,7 @@ const ResetPassword = () => {
                   onClick={handleResetPassword}
                   disabled={isProccessing}
                 >
-                  {'action.confirm'}
+                  {t('action.confirm')}
                 </button>
               </div>
             </div>

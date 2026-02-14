@@ -19,9 +19,13 @@ const ActiveConfirm: React.FC = () => {
   const [stateLabel, setStateLabel] = useState('');
   const [stateDescription, setStateDescription] = useState('');
   const [buttonUrl, setButtonUrl] = useState('/login');
-  const [buttonText, setButtonText] = useState('Login Now');
+  const [buttonText, setButtonText] = useState('');
   const [alertMessage, setAlertMessage] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    setButtonText(t('sign_in_now'));
+  }, [t]);
 
   useEffect(() => {
     if (token) {
@@ -32,20 +36,20 @@ const ActiveConfirm: React.FC = () => {
   const activateUser = async (token: string) => {
     try {
       const response = await axios.patch('/api/v1/auth/verification', { token });
-      setStateLabel('Account Activation Successful');
-      setStateDescription('Congratulations, your account has been successfully activated. Enjoy your investments and achieve financial freedom soon.');
+      setStateLabel(t('prompt.activation_success_title'));
+      setStateDescription(t('prompt.activation_success_desc'));
       setButtonUrl('/');
-      setButtonText('Go back Homepage');
-      setAlertMessage({ type: 'success', message: 'Account activation successful' });
+      setButtonText(t('activation.go_homepage'));
+      setAlertMessage({ type: 'success', message: t('prompt.activation_success_title') });
       setOpen(true);
     } catch (error: any) {
-      setStateLabel('Account Activation Failed');
-      setStateDescription(error.message || 'Activation failed, please try again');
-      setAlertMessage({ type: 'error', message: error.message || 'Activation failed, please try again' });
+      setStateLabel(t('prompt.activation_failed_title'));
+      setStateDescription(error.message || t('prompt.activation_failed_desc'));
+      setAlertMessage({ type: 'error', message: error.message || t('prompt.activation_failed_desc') });
       setOpen(true);
       if (error.response?.status === 40006 || error.response?.status === 40007) {
         setButtonUrl('/activate');
-        setButtonText('Go to Activation Email Page');
+        setButtonText(t('activation.go_activation_page'));
       }
     }
   };

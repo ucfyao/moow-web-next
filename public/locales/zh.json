@@ -156,7 +156,12 @@
     "have_not_login": "您尚未登录或登录已过期，立即登录？",
     "key_validated_saved": "API密钥验证成功并已保存",
     "confirm_delete_key_title": "删除交易所密钥",
-    "no_exchange_keys": "暂无交易所API密钥，请先添加。"
+    "no_exchange_keys": "暂无交易所API密钥，请先添加。",
+    "login_failed": "登录失败，服务器返回了错误的数据。",
+    "activation_success_title": "账号激活成功",
+    "activation_success_desc": "恭喜您，账号已成功激活。祝您投资顺利，早日实现财务自由！",
+    "activation_failed_title": "账号激活失败",
+    "activation_failed_desc": "激活失败，请重新尝试。"
   },
   "placeholder": {
     "input_single_purchase_amount": "单次购买金额。如：定投交易对为BTC/USDT，单位为USDT。",
@@ -389,5 +394,19 @@
     "total": "共",
     "item": "条",
     "items": "条"
+  },
+  "feature": {
+    "multiple_strategies": "多种策略",
+    "multiple_strategies_desc": "普通定投、智能价值定投等多种策略可选",
+    "risk_control": "严格风控",
+    "risk_control_desc": "加密存储，严格操作流程",
+    "transparent": "透明交易",
+    "transparent_desc": "一键托管，API透明交易",
+    "open_data": "数据开放",
+    "open_data_desc": "多维度直观的投资数据可视化"
+  },
+  "activation": {
+    "go_homepage": "返回首页",
+    "go_activation_page": "去激活邮件发送页面"
   }
 }

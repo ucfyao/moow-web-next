@@ -3,17 +3,17 @@ import { render, screen } from '@testing-library/react';
 import Footer from '@/components/Footer';
 
 describe('Footer', () => {
-  it('renders footer with navigation links', () => {
+  it('renders footer with i18n navigation links', () => {
     render(<Footer />);
-    expect(screen.getByText('About us')).toBeInTheDocument();
-    expect(screen.getByText('FAQ')).toBeInTheDocument();
-    expect(screen.getByText('Use Tutorial')).toBeInTheDocument();
-    expect(screen.getByText('Business Partner')).toBeInTheDocument();
+    expect(screen.getByText('about_us')).toBeInTheDocument();
+    expect(screen.getByText('faqs')).toBeInTheDocument();
+    expect(screen.getByText('use_tutorial')).toBeInTheDocument();
+    expect(screen.getByText('business_cooperation')).toBeInTheDocument();
   });
 
-  it('renders copyright text', () => {
+  it('renders copyright text with i18n key', () => {
     render(<Footer />);
-    expect(screen.getByText(/AntClony All right reserved/)).toBeInTheDocument();
+    expect(screen.getByText('copy_right')).toBeInTheDocument();
   });
 
   it('renders social media icons', () => {

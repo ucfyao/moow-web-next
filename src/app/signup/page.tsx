@@ -301,37 +301,33 @@ const SignUp = () => {
           <div className="column has-text-centered">
             <div>
               <p className="title is-4">
-                <strong>Multiple Strategies</strong>
+                <strong>{t('feature.multiple_strategies')}</strong>
               </p>
-              <p className="subtitle is-6">
-                Ordinary price investment, intelligent value investment, etc.
-              </p>
+              <p className="subtitle is-6">{t('feature.multiple_strategies_desc')}</p>
             </div>
           </div>
           <div className="column has-text-centered">
             <div>
               <p className="title is-4">
-                <strong>Strict Risk Control</strong>
+                <strong>{t('feature.risk_control')}</strong>
               </p>
-              <p className="subtitle is-6">Secure storage and strict operation flow</p>
+              <p className="subtitle is-6">{t('feature.risk_control_desc')}</p>
             </div>
           </div>
           <div className="column has-text-centered">
             <div>
               <p className="title is-4">
-                <strong>Transparent Transactions</strong>
+                <strong>{t('feature.transparent')}</strong>
               </p>
-              <p className="subtitle is-6">One-click hosting, transparent API transactions</p>
+              <p className="subtitle is-6">{t('feature.transparent_desc')}</p>
             </div>
           </div>
           <div className="column has-text-centered">
             <div>
               <p className="title is-4">
-                <strong>Open Data</strong>
+                <strong>{t('feature.open_data')}</strong>
               </p>
-              <p className="subtitle is-6">
-                Multidimensional and intuitive visualization of investment data
-              </p>
+              <p className="subtitle is-6">{t('feature.open_data_desc')}</p>
             </div>
           </div>
         </nav>
@@ -374,7 +370,11 @@ const signUpStyle = css`
   }
   @media screen and (max-width: 768px) {
     .card {
-      /*margin-top: 50px;*/
+      margin-top: 30px;
+      width: 90%;
+    }
+    .feature {
+      padding: 1rem 1rem;
     }
   }
 `;

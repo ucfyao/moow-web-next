@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import Image from 'next/image';
 import '../styles/forgetPassword.css';
 import axios from 'axios';
@@ -11,6 +12,7 @@ interface InvalidFields {
   captcha?: { message: string }[];
 }
 const ForgetPassword = () => {
+  const { t } = useTranslation('');
   const [captchaSrc, setCaptchaSrc] = useState('');
   const [formData, setFormData] = useState({
     email: '',
@@ -47,7 +49,7 @@ const ForgetPassword = () => {
       setIsProccessing(false);
       setMailSent(true);
     } catch (error) {
-      alert(error || 'prompt.error_occurs');
+      console.error(error);
       setIsProccessing(false);
     }
   };
@@ -58,25 +60,25 @@ const ForgetPassword = () => {
         <div className="box">
           <div className="header">
             <p className="is-size-6 is-pulled-left margin-right: 10px;">
-              {'caption.retrieve_password'}
+              {t('caption.retrieve_password')}
             </p>
           </div>
 
           {mailSent ? (
-            <div className="notification is-primary">{'prompt.reset_mail_sent'}</div>
+            <div className="notification is-primary">{t('prompt.reset_mail_sent')}</div>
           ) : (
             <div className="box-body">
               <div className="field">
                 <label className="label">
                   <span className="has-text-danger">*</span>
-                  {'label.retrieve_password'}
+                  {t('label.retrieve_password')}
                 </label>
                 <div className="control has-icons-left">
                   <input
                     className="input"
                     type="email"
                     value={formData.email}
-                    placeholder="Email"
+                    placeholder={t('placeholder.email')}
                   />
                   <span className="icon is-small is-left">
                     <i className="fa fa-envelope"></i>
@@ -92,15 +94,15 @@ const ForgetPassword = () => {
                         className="input"
                         type="text"
                         value={formData.captcha}
-                        placeholder="Captcha"
+                        placeholder={t('placeholder.captcha')}
                       />
                     </p>
                     <div className="control">
                       <Image
                         className="captcha"
                         src={captchaSrc}
-                        alt={'prompt.click_refresh_captcha'}
-                        title={'prompt.click_refresh_captcha'}
+                        alt={t('prompt.click_refresh_captcha')}
+                        title={t('prompt.click_refresh_captcha')}
                         onClick={updateCaptcha}
                         width={150}
                         height={50}
@@ -117,7 +119,7 @@ const ForgetPassword = () => {
                     onClick={handleForgetPassword}
                     disabled={isProccessing}
                   >
-                    {'action.confirm'}
+                    {t('action.confirm')}
                   </button>
                 </div>
               </div>
