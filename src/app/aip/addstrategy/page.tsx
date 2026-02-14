@@ -2,18 +2,19 @@
 
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { css } from '@emotion/react';
 import { fetchExchangeSymbolList } from '@/utils/defines';
 import Link from 'next/link';
-import axios from 'axios';
 import { getInvalidFields } from '@/utils/validator';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { useTranslation } from 'react-i18next';
+import HTTP from '@/lib/http';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 
-// Define CSS styles using Emotion
-const newStrategyStyle = css`
+const addStrategyStyle = css`
   .box {
     margin: 0 auto;
     padding: 30px 50px 50px;
@@ -23,17 +24,22 @@ const newStrategyStyle = css`
     cursor: no-drop;
   }
 
-  .control label {
+  .control label.checkbox {
     margin-right: 10px;
-    width: 100px;
   }
 
   .input {
     width: 600px;
+    max-width: 100%;
   }
 
   .market-item {
     width: 200px;
+  }
+
+  .symbol-item {
+    width: auto;
+    min-width: 120px;
   }
 
   .plantype-item {
@@ -44,6 +50,25 @@ const newStrategyStyle = css`
     width: 120px;
   }
 
+  .choice button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+  }
+
+  .button-pad {
+    margin-right: 10px;
+  }
+
+  .loading-container {
+    text-align: center;
+    padding: 60px 0;
+    color: #999;
+  }
+
   @media screen and (max-width: 768px) {
     .section {
       padding: 20px 0;
@@ -52,390 +77,223 @@ const newStrategyStyle = css`
     .box {
       padding: 30px 10px;
     }
+
+    .input {
+      width: 100%;
+    }
   }
 `;
 
-// Define interfaces for various data types
 interface UserMarketItem {
   _id: string;
   exchange: string;
-  key: string;
-  secret: string;
+  name?: string;
+  access_key: string;
 }
+
 interface SymbolItem {
   symbol: string;
   base: string;
   quote: string;
 }
+
 interface PlanType {
   type: string;
   name: string;
 }
+
 interface PeriodType {
   periodType: string;
   name: string;
 }
+
 interface PeriodDataItem {
   value: number;
   label: string;
 }
-interface FormData {
+
+interface StrategyFormData {
+  _id?: string;
   user_market_id: string;
   exchange: string;
-  key: string;
-  secret: string;
   symbol: string;
   base: string;
-  base_limit: number | undefined;
   quote: string;
+  base_limit: string;
   type: string;
   period: string;
   period_value: number[];
-  desc: string;
-  stop_profit_percentage: number | undefined;
-  drawdown: number | undefined;
-}
-interface InvalidFields {
-  user_market_id?: string;
-  symbol?: string;
-  base_limit?: string;
-  type?: string;
-  period?: string;
-  period_value?: string;
-  stop_profit_percentage?: string;
-  drawdown?: string;
+  stop_profit_percentage: string;
+  drawdown: string;
 }
 
-function NewStrategy() {
+interface InvalidFields {
+  [key: string]: string | undefined;
+}
+
+const WEEKDAY_KEYS = [
+  'monday',
+  'tuesday',
+  'wednesday',
+  'thursday',
+  'friday',
+  'saturday',
+  'sunday',
+];
+
+function buildPeriodDictionary(
+  t: (key: string) => string,
+): Record<string, { children: PeriodDataItem[] }> {
+  return {
+    '1': {
+      children: Array.from({ length: 24 }, (_, i) => ({
+        value: i,
+        label: t(`period.hour_${i}`),
+      })),
+    },
+    '2': {
+      children: WEEKDAY_KEYS.map((key, i) => ({
+        value: i + 1,
+        label: t(`period.${key}`),
+      })),
+    },
+    '3': {
+      children: Array.from({ length: 28 }, (_, i) => ({
+        value: i + 1,
+        label: t(`period.day_${i + 1}`),
+      })),
+    },
+  };
+}
+
+function desensitize(val: string): string {
+  if (!val || val.length < 7) return val;
+  return `${val.slice(0, 4)}****${val.slice(-3)}`;
+}
+
+const INITIAL_FORM_DATA: StrategyFormData = {
+  user_market_id: '',
+  exchange: '',
+  symbol: '',
+  base: '',
+  quote: '',
+  base_limit: '',
+  type: '1',
+  period: '',
+  period_value: [],
+  stop_profit_percentage: '',
+  drawdown: '',
+};
+
+function AddStrategy() {
   const searchParams = useSearchParams();
   const strategyId = searchParams.get('strategyId') || '';
   const marketId = searchParams.get('marketId') || '';
   const { t } = useTranslation('');
+  const router = useRouter();
+
   const [userMarketList, setUserMarketList] = useState<UserMarketItem[]>([]);
-  const [symbolList, setSymbolList] = useState<SymbolItem[]>([]);
+  const [symbolList, setSymbolList] = useState<SymbolItem[]>(fetchExchangeSymbolList(''));
+  const [formData, setFormData] = useState<StrategyFormData>(INITIAL_FORM_DATA);
+  const [periodDataList, setPeriodDataList] = useState<PeriodDataItem[]>([]);
+  const [invalidFields, setInvalidFields] = useState<InvalidFields>({});
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'error';
+  }>({ open: false, message: '', severity: 'success' });
+
+  const periodDictionary = buildPeriodDictionary(t);
+
   const planTypeList: PlanType[] = [
     { type: '1', name: t('label.price_investment') },
-    // { type: '2', name: t('label.value_investment') },
   ];
+
   const periodList: PeriodType[] = [
     { periodType: '1', name: t('label.daily') },
     { periodType: '2', name: t('label.weekly') },
     { periodType: '3', name: t('label.monthly') },
   ];
-  const [periodDataList, setPeriodDataList] = useState<PeriodDataItem[]>([]);
-  const periodDictionary: { [key: string]: { label: string; children: PeriodDataItem[] } } = {
-    '1': {
-      label: 'Daily',
-      children: Array.from({ length: 24 }, (_, i) => ({ value: i, label: `${i}:00` })),
-    },
-    '2': {
-      label: 'Weekly',
-      children: [
-        { value: 1, label: 'Monday' },
-        { value: 2, label: 'Tuesday' },
-        { value: 3, label: 'Wednesday' },
-        { value: 4, label: 'Thursday' },
-        { value: 5, label: 'Friday' },
-        { value: 6, label: 'Saturday' },
-        { value: 7, label: 'Sunday' },
-      ],
-    },
-    '3': {
-      label: 'Monthly',
-      children: [
-        { value: 1, label: '1st' },
-        { value: 2, label: '2nd' },
-        { value: 3, label: '3rd' },
-        { value: 4, label: '4th' },
-        { value: 5, label: '5th' },
-        { value: 6, label: '6th' },
-        { value: 7, label: '7th' },
-        { value: 8, label: '8th' },
-        { value: 9, label: '9th' },
-        { value: 10, label: '10th' },
-        { value: 11, label: '11th' },
-        { value: 12, label: '12th' },
-        { value: 13, label: '13th' },
-        { value: 14, label: '14th' },
-        { value: 15, label: '15th' },
-        { value: 16, label: '16th' },
-        { value: 17, label: '17th' },
-        { value: 18, label: '18th' },
-        { value: 19, label: '19th' },
-        { value: 20, label: '20th' },
-        { value: 21, label: '21st' },
-        { value: 22, label: '22nd' },
-        { value: 23, label: '23rd' },
-        { value: 24, label: '24th' },
-        { value: 25, label: '25th' },
-        { value: 26, label: '26th' },
-        { value: 27, label: '27th' },
-        { value: 28, label: '28th' },
-      ],
-    },
-  };
 
-  // Define initial form data state
-  const [formData, setFormData] = useState<FormData>({
-    user_market_id: '',
-    exchange: '',
-    key: '',
-    secret: '',
-    symbol: '',
-    base: '',
-    base_limit: undefined,
-    quote: '',
-    type: '1',
-    period: '',
-    period_value: [],
-    desc: '',
-    stop_profit_percentage: undefined,
-    drawdown: undefined,
-  });
-
-  const [invalidFields, setInvalidFields] = useState<InvalidFields>({});
-  const [isCreate, setIsCreate] = useState(true); // Track if it's a new strategy
-  const [isProcessing, setIsProcessing] = useState(false); // Track if form submission is in progress
-  const [isDelete, setIsDelete] = useState(false); // Track if delete action is in progress
-  const router = useRouter();
-
-  function handleSelectPeriod(item: PeriodType) {
-    if (!item || typeof item !== 'object') return;
-    const newPeriodDataList = periodDictionary[item.periodType]?.children || [];
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      period: item.periodType,
-      period_value: [],
-    }));
-    setPeriodDataList(newPeriodDataList);
+  function showError(message: string) {
+    setSnackbar({ open: true, message, severity: 'error' });
   }
 
-  function handleCheckboxChange(item: PeriodDataItem) {
-    if (!item || typeof item !== 'object') return;
-    setFormData((prevFormData) => {
-      const newPeriodValue = prevFormData.period_value.includes(item.value)
-        ? prevFormData.period_value.filter((val) => val !== item.value)
-        : [...prevFormData.period_value, item.value];
-      return {
-        ...prevFormData,
-        period_value: newPeriodValue,
-      };
+  function showSuccess(message: string) {
+    setSnackbar({ open: true, message, severity: 'success' });
+  }
+
+  function handleSelectPeriod(periodType: string, periodValue?: number[]) {
+    const children = periodDictionary[periodType]?.children || [];
+    setFormData((prev) => ({
+      ...prev,
+      period: periodType,
+      period_value: periodValue || [],
+    }));
+    setPeriodDataList(children);
+  }
+
+  function handleCheckboxChange(value: number) {
+    setFormData((prev) => {
+      const newPeriodValue = prev.period_value.includes(value)
+        ? prev.period_value.filter((v) => v !== value)
+        : [...prev.period_value, value];
+      return { ...prev, period_value: newPeriodValue };
     });
   }
 
-  // Fetch strategy details if editing an existing strategy
-  async function getStrategy() {
-    if (!strategyId) {
-      return;
-    }
-
-    try {
-      // TODO  use baseURL instead of hardcode
-      const requestUrl = `http://127.0.0.1:3000/api/v1/strategies/${strategyId}`;
-      const response = await axios.get(requestUrl);
-      const { data } = response;
-      if (data) {
-        setFormData((prevFormData) => ({
-          ...prevFormData,
-          ...data,
-          stop_profit_percentage: data.stop_profit_percentage || undefined,
-          drawdown: data.drawdown || undefined,
-        }));
-        setIsCreate(false);
-        handleSelectPeriod({
-          periodType: data.period,
-          name: '',
-        });
-
-        if (data.period_value) {
-          data.period_value.forEach((value: number) => {
-            handleCheckboxChange({ value, label: '' });
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Failed to fetch plan', error);
-    }
-  }
-
   function handleSelectUserMarket(item: UserMarketItem) {
-    if (!item || typeof item !== 'object') return;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      // eslint-disable-next-line
+    setFormData((prev) => ({
+      ...prev,
       user_market_id: item._id,
       exchange: item.exchange,
-      key: item.key,
-      secret: item.secret,
       symbol: '',
       base: '',
       quote: '',
     }));
-    const newSymbolList = fetchExchangeSymbolList(item.exchange);
-    setSymbolList(newSymbolList);
+    setSymbolList(fetchExchangeSymbolList(item.exchange));
+    setInvalidFields((prev) => ({ ...prev, user_market_id: undefined }));
   }
 
-  // Fetch user market list
-  async function queryUserMarketList() {
-    try {
-      // TODO Replace the mock data with an actual API request when the API is ready.
-      // const response = await axios.get('http://127.0.0.1:3000/api/v1/keys');
-
-      // mock data
-      const response = {
-        data: {
-          list: [
-            {
-              _id: '5b5ef21f07a93fb2244ce752',
-              uid: 'user',
-              exchange: 'binance',
-              access_key: 'your-access-key',
-              secret_show: '6ec2******5c7b',
-              secret_key: 'your-secret-key',
-              desc: 'Binance test',
-              is_deleted: 'false',
-              created_at: '2018-07-30T11:10:23.238Z',
-              updated_at: '2018-07-30T11:10:23.238Z',
-            },
-            {
-              _id: '5b63b788c4670f7a112aeb60',
-              uid: 'user',
-              exchange: 'huobi',
-              access_key: 'your-access-key',
-              secret_show: '6ec2******5c7b',
-              secret_key: 'your-secret-key',
-              desc: 'Huobi local investment',
-              is_deleted: 'false',
-              created_at: '2018-08-03T02:01:44.229Z',
-              updated_at: '2018-08-03T02:01:44.229Z',
-            },
-            {
-              _id: '5b696e975cec0d3e6fb989d9',
-              uid: 'user',
-              exchange: 'fcoin',
-              access_key: 'your-access-key',
-              secret_show: '6ec2******5c7b',
-              secret_key: 'your-secret-key',
-              desc: 'Fcoin investment',
-              is_deleted: 'false',
-              created_at: '2018-08-07T10:04:07.259Z',
-              updated_at: '2018-08-07T10:04:07.259Z',
-            },
-          ],
-          page_number: 1,
-          page_size: 9999,
-          total: 3,
-        },
-        message: 'Success',
-        status: 200,
-      };
-
-      if (response.data && Array.isArray(response.data.list)) {
-        const newUserMarketList = response.data.list.map(
-          (item: {
-            _id: string;
-            exchange: string;
-            access_key: string;
-            secret_key: string;
-            uid: string;
-          }) => ({
-            // eslint-disable-next-line
-            _id: item._id,
-            exchange: item.exchange,
-            key: item.access_key,
-            secret: item.secret_key,
-            user: item.uid,
-          })
-        );
-        setUserMarketList(newUserMarketList);
-
-        if (marketId) {
-          // eslint-disable-next-line
-          const userMarket = userMarketList.find((element) => element._id === marketId);
-          if (userMarket) {
-            handleSelectUserMarket(userMarket);
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Failed to fetch user market list', error);
-    }
+  function handleSelectSymbol(item: SymbolItem) {
+    setFormData((prev) => ({
+      ...prev,
+      symbol: item.symbol,
+      base: item.base,
+      quote: item.quote,
+    }));
+    setInvalidFields((prev) => ({ ...prev, symbol: undefined }));
   }
 
-  useEffect(() => {
-    getStrategy();
-    queryUserMarketList();
-    setSymbolList(fetchExchangeSymbolList(''));
-
-    /* 
-    The following part (marketId) was commented out in the previous project.
-    The following part could be tested with mock url:
-    http://localhost:3001/newStrategy?marketId=5b63b788c4670f7a112aeb60
-    */
-    // const query = new URLSearchParams(window.location.search);
-    // const marketIdQuery = query.get('marketId');
-    // if (marketIdQuery) {
-    //   setFormData((prevFormData) => ({
-    //     ...prevFormData,
-    //     user_market_id: marketIdQuery,
-    //   }));
-    // }
-  }, [strategyId]);
-
-  function validateOptionalInteger(rule: any, value: any, callback: any): void {
-    if (value === undefined || value === '') {
-      callback();
-    } else if (/^[1-9]+\d*$/.test(value)) {
-      callback();
-    } else {
-      callback(new Error(t('validator.must_positive_integer')));
-    }
+  function handleSelectPlanType(item: PlanType) {
+    setFormData((prev) => ({ ...prev, type: item.type }));
   }
 
-  // Define validation rules
-  function rules() {
+  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setInvalidFields((prev) => ({ ...prev, [name]: undefined }));
+  }
+
+  function validationRules() {
     return {
       user_market_id: [
-        {
-          required: true,
-          message: t('validator.cant_empty'),
-          trigger: 'change',
-        },
+        { required: true, message: t('validator.cant_empty'), trigger: 'change' },
       ],
-      symbol: [
-        {
-          required: true,
-          message: t('validator.cant_empty'),
-          trigger: 'change',
-        },
-      ],
+      symbol: [{ required: true, message: t('validator.cant_empty'), trigger: 'change' }],
       base_limit: [
         {
-          type: 'integer',
           required: true,
-          pattern: /^[1-9]+\d*$/,
+          pattern: /^[1-9]\d*$/,
           message: t('validator.must_positive_integer'),
           trigger: 'change',
-          min: 1,
-          transform(value: string) {
-            return parseFloat(value);
-          },
         },
       ],
-      type: [
-        {
-          required: true,
-          message: t('validator.cant_empty'),
-          trigger: 'blur',
-        },
-      ],
-      period: [
-        {
-          required: true,
-          message: t('validator.cant_empty'),
-          trigger: 'blur',
-        },
-      ],
+      type: [{ required: true, message: t('validator.cant_empty'), trigger: 'blur' }],
+      period: [{ required: true, message: t('validator.cant_empty'), trigger: 'blur' }],
       period_value: [
         {
           type: 'array',
@@ -447,149 +305,193 @@ function NewStrategy() {
       ],
       stop_profit_percentage: [
         {
-          type: 'integer',
-          validator: validateOptionalInteger,
+          validator(rule: any, value: any, callback: any) {
+            if (value === '' || value === undefined) {
+              callback();
+            } else if (/^[1-9]\d*$/.test(value)) {
+              callback();
+            } else {
+              callback(new Error(t('validator.must_positive_integer')));
+            }
+          },
           trigger: 'change',
         },
       ],
       drawdown: [
         {
-          type: 'integer',
-          validator: validateOptionalInteger,
+          validator(rule: any, value: any, callback: any) {
+            if (value === '' || value === undefined) {
+              callback();
+            } else if (/^[1-9]\d*$/.test(value)) {
+              callback();
+            } else {
+              callback(new Error(t('validator.must_positive_integer')));
+            }
+          },
           trigger: 'change',
         },
       ],
     };
   }
 
-  function goBack() {
-    router.back();
-  }
+  const fetchUserMarketList = useCallback(async () => {
+    try {
+      const res: any = await HTTP.get('/v1/keys');
+      const list = res?.data?.list || [];
+      setUserMarketList(list);
 
-  // Desensitize sensitive data
-  function desensitization(val: string): string {
-    if (!val || val.length < 7) return val;
-    return `${val.slice(0, 4)}****${val.slice(-3)}`;
-  }
+      if (marketId && list.length > 0) {
+        const found = list.find((item: UserMarketItem) => item._id === marketId);
+        if (found) {
+          handleSelectUserMarket(found);
+        }
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch exchange keys:', error);
+      showError(error?.message || t('prompt.error_occurs'));
+    }
+  }, [marketId, t]);
 
-  function handleSelectSymbol(item: SymbolItem) {
-    if (!item || typeof item !== 'object') return;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      symbol: item.symbol,
-      base: item.base,
-      quote: item.quote,
-    }));
-  }
+  const fetchStrategy = useCallback(async () => {
+    if (!strategyId) return;
+    setLoading(true);
+    try {
+      const res: any = await HTTP.get(`/v1/strategies/${strategyId}`);
+      const data = res?.data;
+      if (data) {
+        setFormData({
+          _id: data._id,
+          user_market_id: data.user_market_id || '',
+          exchange: data.exchange || '',
+          symbol: data.symbol || '',
+          base: data.base || '',
+          quote: data.quote || '',
+          base_limit: data.base_limit != null ? String(data.base_limit) : '',
+          type: data.type || '1',
+          period: data.period || '',
+          period_value: data.period_value || [],
+          stop_profit_percentage:
+            data.stop_profit_percentage != null ? String(data.stop_profit_percentage) : '',
+          drawdown: data.drawdown != null ? String(data.drawdown) : '',
+        });
 
-  function handleSelectPlanType(item: PlanType) {
-    if (!item || typeof item !== 'object') return;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      type: item.type,
-    }));
-  }
+        if (data.exchange) {
+          setSymbolList(fetchExchangeSymbolList(data.exchange));
+        }
 
-  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const { name, value } = e.target;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: value === '' ? undefined : Number(value),
-    }));
-  }
+        if (data.period) {
+          handleSelectPeriod(data.period, data.period_value || []);
+        }
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch strategy:', error);
+      showError(error?.message || t('prompt.error_occurs'));
+    } finally {
+      setLoading(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [strategyId, t]);
 
-  // Handle form submission to create or update an investment plan
-  async function handleCreateInvestmentPlan() {
+  useEffect(() => {
+    fetchUserMarketList();
+    fetchStrategy();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function handleSubmit() {
     if (isProcessing) return;
 
-    const newInvalidFields = await getInvalidFields(formData, rules());
-    if (newInvalidFields) {
-      setInvalidFields(newInvalidFields);
+    setInvalidFields({});
+    const errors = await getInvalidFields(formData, validationRules());
+    if (errors) {
+      setInvalidFields(errors);
       return;
     }
+
     setIsProcessing(true);
     try {
-      const requestMethod = strategyId ? 'patch' : 'post';
-      // TODO  use baseURL instead of hardcode
-      const requestUrl = strategyId
-        ? `http://127.0.0.1:3000/api/v1/strategies/${strategyId}`
-        : 'http://127.0.0.1:3000/api/v1/strategies';
-      const requestData = formData;
-      const response = await axios({
-        method: requestMethod,
-        url: requestUrl,
-        data: requestData,
-      });
-      console.log(response);
-      setIsProcessing(false);
+      const payload: any = {
+        user_market_id: formData.user_market_id,
+        exchange: formData.exchange,
+        symbol: formData.symbol,
+        base: formData.base,
+        quote: formData.quote,
+        base_limit: Number(formData.base_limit),
+        type: formData.type,
+        period: formData.period,
+        period_value: formData.period_value,
+      };
+
+      if (formData.stop_profit_percentage !== '') {
+        payload.stop_profit_percentage = Number(formData.stop_profit_percentage);
+      }
+      if (formData.drawdown !== '') {
+        payload.drawdown = Number(formData.drawdown);
+      }
+
+      if (strategyId) {
+        await HTTP.patch(`/v1/strategies/${strategyId}`, payload);
+      } else {
+        await HTTP.post('/v1/strategies', payload);
+      }
+      showSuccess(t('prompt.operation_succeed'));
       router.push('/aip');
-    } catch (error) {
-      const errorMessage = (error as Error).message || t('prompt.error_occurs');
-      alert(errorMessage);
+    } catch (error: any) {
+      showError(error?.message || t('prompt.error_occurs'));
+    } finally {
       setIsProcessing(false);
     }
   }
 
-  // Handle form submission to delete an investment plan (soft delete)
-  async function handleDeleteInvestmentPlan() {
-    if (isDelete) return; // Prevent multiple submissions by checking if deletion is already in progress
-    setIsDelete(true); // Set isDelete to true to indicate the deletion process has started
+  async function handleDelete() {
+    if (isDeleting || !strategyId) return;
 
-    const confirmed = window.confirm(
-      `${t('prompt.confirm_switch_plan_status')} ${t('action.delete')}`
-    );
-    if (!confirmed) {
-      setIsDelete(false); // If user cancels the deletion, reset isDelete to false and exit the function
+    if (!window.confirm(t('prompt.confirm_delete_strategy'))) {
       return;
     }
 
+    setIsDeleting(true);
     try {
-      // TODO  use baseURL instead of hardcode
-      const requestData = {
-        _id: formData.user_market_id,
-        status: '3',
-      };
-      const requestUrl = `http://127.0.0.1:3000/api/v1/strategies/${strategyId}`;
-      const response = await axios.patch(requestUrl, requestData);
-      console.log(response);
-      setIsDelete(false); // Reset isDelete to false to indicate the deletion process has completed
-      router.push('/strategies');
-    } catch (error) {
-      const errorMessage = (error as Error).message || t('prompt.error_occurs');
-      alert(errorMessage);
-      setIsDelete(false); // Reset isDelete to false to allow the user to attempt deletion again if needed
+      await HTTP.delete(`/v1/strategies/${strategyId}`);
+      showSuccess(t('prompt.operation_succeed'));
+      router.push('/aip');
+    } catch (error: any) {
+      showError(error?.message || t('prompt.error_occurs'));
+    } finally {
+      setIsDeleting(false);
     }
+  }
+
+  if (loading) {
+    return (
+      <div css={addStrategyStyle} className="container">
+        <section className="section">
+          <div className="loading-container">{t('prompt.loading')}</div>
+        </section>
+      </div>
+    );
   }
 
   return (
-    <div css={newStrategyStyle} className="container">
+    <div css={addStrategyStyle} className="container">
       <section className="section">
         <div className="box">
           <div className="header">
             <p className="is-size-6 is-pulled-left" style={{ marginRight: '10px' }}>
-              {isCreate ? (
-                <span>{t('caption.new_plan')}</span>
-              ) : (
-                <span>{t('caption.edit_plan')}</span>
-              )}
+              {strategyId ? t('caption.edit_plan') : t('caption.new_plan')}
             </p>
             <button
               type="button"
-              onClick={goBack}
-              className="is-pulled-right is-link"
-              style={{
-                background: 'none',
-                border: 'none',
-                padding: '0',
-                cursor: 'pointer',
-              }}
+              onClick={() => router.back()}
+              className="is-pulled-right"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3273dc' }}
             >
               {t('action.go_back')}
             </button>
           </div>
 
+          {/* Exchange API Key Selection */}
           <div className="field">
-            {/* eslint-disable-next-line */}
             <label className="label">
               <span className="has-text-danger">*</span>
               {t('label.select')}
@@ -599,9 +501,8 @@ function NewStrategy() {
               <ul className="choice is-clearfix">
                 {userMarketList.map((item) => (
                   <li
-                    key={item.exchange}
-                    // eslint-disable-next-line
-                    className={`styles[market-item] ${formData.user_market_id === item._id ? 'active' : ''} ${strategyId ? 'no-drop' : ''}`}
+                    key={item._id}
+                    className={`market-item ${formData.user_market_id === item._id ? 'active' : ''} ${strategyId ? 'no-drop' : ''}`}
                   >
                     <button
                       type="button"
@@ -611,20 +512,19 @@ function NewStrategy() {
                         <Image
                           style={{ width: '22px', marginRight: '5px' }}
                           src={`/images/${item.exchange}.png`}
-                          alt={`${item.exchange} logo`}
+                          alt={item.exchange}
                           width={22}
                           height={22}
                         />
-                        {item.exchange}
+                        {item.name || item.exchange}
                       </p>
-                      <p className="desc">Access Key: {desensitization(item.key)}</p>
+                      <p className="desc">Access Key: {desensitize(item.access_key)}</p>
                     </button>
                   </li>
                 ))}
                 <li className="more">
                   <Link href="/aip/addmarketkeys">
-                    {/* eslint-disable-next-line */}
-                    <i className="fa fa-plus"></i>
+                    <i className="fa fa-plus" />
                     <span className="color-light-blue" style={{ cursor: 'pointer' }}>
                       {t('action.new_exchange_apikey')}
                     </span>
@@ -642,21 +542,24 @@ function NewStrategy() {
             )}
           </div>
 
+          {/* Symbol Selection */}
           <div className="field">
-            {/* eslint-disable-next-line */}
             <label className="label">
               <span className="has-text-danger">*</span>
               {t('label.select')}
               {t('label.symbol')}
             </label>
             <div className="control">
-              <ul className="choice is-clearfix is-flex">
+              <ul className="choice is-clearfix">
                 {symbolList.map((item) => (
                   <li
                     key={item.symbol}
                     className={`symbol-item ${formData.symbol === item.symbol ? 'active' : ''} ${strategyId ? 'no-drop' : ''}`}
                   >
-                    <button type="button" onClick={() => !strategyId && handleSelectSymbol(item)}>
+                    <button
+                      type="button"
+                      onClick={() => !strategyId && handleSelectSymbol(item)}
+                    >
                       <p>{item.symbol}</p>
                     </button>
                   </li>
@@ -666,8 +569,7 @@ function NewStrategy() {
             {invalidFields.symbol && <p className="help is-danger">{invalidFields.symbol}</p>}
             {formData.symbol && !strategyId && (
               <p className="help is-link">
-                {t('prompt.plan_tips')}
-                {` base: ${formData.base} quote: ${formData.quote}`}
+                {t('prompt.plan_tips', { base: formData.base, quote: formData.quote })}
               </p>
             )}
             {strategyId && (
@@ -677,8 +579,8 @@ function NewStrategy() {
             )}
           </div>
 
+          {/* Plan Type Selection */}
           <div className="field">
-            {/* eslint-disable-next-line */}
             <label className="label">
               <span className="has-text-danger">*</span>
               {t('label.select')}
@@ -689,7 +591,7 @@ function NewStrategy() {
                 {planTypeList.map((item) => (
                   <li
                     key={item.type}
-                    className={`styles['plantype-item'] ${formData.type === item.type ? 'active' : ''}`}
+                    className={`plantype-item ${formData.type === item.type ? 'active' : ''}`}
                   >
                     <button type="button" onClick={() => handleSelectPlanType(item)}>
                       <p>{item.name}</p>
@@ -701,20 +603,20 @@ function NewStrategy() {
             {invalidFields.type && <p className="help is-danger">{invalidFields.type}</p>}
           </div>
 
+          {/* Single Purchase Amount */}
           <div className="field">
-            {/* eslint-disable-next-line */}
-            <label className="label" htmlFor="singleAmountInput">
+            <label className="label" htmlFor="baseLimitInput">
               <span className="has-text-danger">*</span>
               {t('label.input')}
               {t('label.single_purchase_amount')}
             </label>
             <div className="control">
               <input
-                id="singleAmountInput"
+                id="baseLimitInput"
                 className="input"
-                type="number"
+                type="text"
                 name="base_limit"
-                value={formData.base_limit !== undefined ? formData.base_limit : ''}
+                value={formData.base_limit}
                 onChange={handleInputChange}
                 placeholder={t('placeholder.input_single_purchase_amount')}
               />
@@ -724,8 +626,8 @@ function NewStrategy() {
             )}
           </div>
 
+          {/* Period Selection */}
           <div className="field">
-            {/* eslint-disable-next-line */}
             <label className="label">
               <span className="has-text-danger">*</span>
               {t('label.select')}
@@ -736,9 +638,9 @@ function NewStrategy() {
                 {periodList.map((item) => (
                   <li
                     key={item.periodType}
-                    className={`styles['period-item'] ${formData.period === item.periodType ? 'active' : ''}`}
+                    className={`period-item ${formData.period === item.periodType ? 'active' : ''}`}
                   >
-                    <button type="button" onClick={() => handleSelectPeriod(item)}>
+                    <button type="button" onClick={() => handleSelectPeriod(item.periodType)}>
                       <p>{item.name}</p>
                     </button>
                   </li>
@@ -747,48 +649,43 @@ function NewStrategy() {
             </div>
           </div>
 
-          <div className="field">
-            <div className="control">
-              {periodDataList.map((item) => (
-                <label className="checkbox" key={item.value} htmlFor={`period_${item.value}`}>
-                  <input
-                    id={`period_${item.value}`}
-                    type="checkbox"
-                    value={item.value}
-                    checked={formData.period_value.includes(item.value)}
-                    onChange={() => handleCheckboxChange(item)}
-                  />
-                  {item.label}
-                </label>
-              ))}
+          {/* Period Value Checkboxes */}
+          {periodDataList.length > 0 && (
+            <div className="field">
+              <div className="control">
+                {periodDataList.map((item) => (
+                  <label className="checkbox" key={item.value} htmlFor={`period_${item.value}`}>
+                    <input
+                      id={`period_${item.value}`}
+                      type="checkbox"
+                      checked={formData.period_value.includes(item.value)}
+                      onChange={() => handleCheckboxChange(item.value)}
+                    />
+                    {item.label}
+                  </label>
+                ))}
+              </div>
+              {(invalidFields.period || invalidFields.period_value) && (
+                <p className="help is-danger">
+                  {invalidFields.period || invalidFields.period_value}
+                </p>
+              )}
             </div>
-            {(invalidFields.period && !formData.period) ||
-            (invalidFields.period_value && formData.period_value.length === 0) ? (
-              <p className="help is-danger">{invalidFields.period || invalidFields.period_value}</p>
-            ) : null}{' '}
-            {(invalidFields.period && !formData.period) ||
-            (invalidFields.period_value && formData.period_value.length === 0) ? (
-              <p className="help is-danger">{invalidFields.period || invalidFields.period_value}</p>
-            ) : null}
-          </div>
+          )}
 
+          {/* Stop Profit Percentage */}
           <div className="field">
-            {/* eslint-disable-next-line */}
-            <label className="label" htmlFor="stopInput">
+            <label className="label" htmlFor="stopProfitInput">
               {t('label.input')}
               {t('label.stop_profit_rate')}
             </label>
             <div className="control">
               <input
-                id="stopInput"
+                id="stopProfitInput"
                 className="input"
-                type="number"
+                type="text"
                 name="stop_profit_percentage"
-                value={
-                  formData.stop_profit_percentage !== undefined
-                    ? formData.stop_profit_percentage
-                    : ''
-                }
+                value={formData.stop_profit_percentage}
                 onChange={handleInputChange}
                 placeholder={t('placeholder.stop_profit_percentage')}
               />
@@ -798,8 +695,8 @@ function NewStrategy() {
             )}
           </div>
 
+          {/* Drawdown Percentage */}
           <div className="field">
-            {/* eslint-disable-next-line */}
             <label className="label" htmlFor="drawdownInput">
               {t('label.input')}
               {t('label.drawdown')}
@@ -808,22 +705,25 @@ function NewStrategy() {
               <input
                 id="drawdownInput"
                 className="input"
-                type="number"
+                type="text"
                 name="drawdown"
-                value={formData.drawdown !== undefined ? formData.drawdown : ''}
+                value={formData.drawdown}
                 onChange={handleInputChange}
                 placeholder={t('placeholder.drawdown_percentage')}
               />
             </div>
-            {invalidFields.drawdown && <p className="help is-danger">{invalidFields.drawdown}</p>}
+            {invalidFields.drawdown && (
+              <p className="help is-danger">{invalidFields.drawdown}</p>
+            )}
           </div>
 
+          {/* Action Buttons */}
           <div className="field is-grouped">
             <div className="control">
               <button
                 type="button"
                 className={`button is-link button-pad ${isProcessing ? 'is-loading' : ''}`}
-                onClick={handleCreateInvestmentPlan}
+                onClick={handleSubmit}
                 disabled={isProcessing}
               >
                 {strategyId ? t('action.modify') : t('action.submit')}
@@ -831,9 +731,9 @@ function NewStrategy() {
               {strategyId && (
                 <button
                   type="button"
-                  className={`button is-danger button-pad ${isDelete ? 'is-loading' : ''}`}
-                  onClick={handleDeleteInvestmentPlan}
-                  disabled={isDelete}
+                  className={`button is-danger button-pad ${isDeleting ? 'is-loading' : ''}`}
+                  onClick={handleDelete}
+                  disabled={isDeleting}
                 >
                   {t('action.delete')}
                 </button>
@@ -842,14 +742,29 @@ function NewStrategy() {
           </div>
         </div>
       </section>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
+          severity={snackbar.severity}
+          variant="filled"
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }
 
-export default function NewStrategyPage() {
+export default function AddStrategyPage() {
   return (
     <Suspense>
-      <NewStrategy />
+      <AddStrategy />
     </Suspense>
   );
 }
