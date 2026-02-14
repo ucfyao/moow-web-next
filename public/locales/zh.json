@@ -61,7 +61,10 @@
     "drawdown": "回撤百分比",
     "current_price": "当前牌价",
     "plan_period": "选择定投周期",
-    "not_modifiable": "此选项不可修改"
+    "not_modifiable": "此选项不可修改",
+    "min_profit": "最小利润",
+    "last_updated": "最后更新",
+    "auto_refresh_30s": "每30秒自动刷新"
   },
   "action": {
     "edit": "编辑",
@@ -81,7 +84,8 @@
     "wait_timer_resend": "{{timer}}s 后可重新发送",
     "add_plan_success": "添加成功，去创建一个定投吧！",
     "send_code": "发送验证码",
-    "wait_timer_send": "{{timer}}秒后重新发送"
+    "wait_timer_send": "{{timer}}秒后重新发送",
+    "refresh": "刷新"
   },
   "link": {
     "home": "首页",
@@ -141,7 +145,13 @@
     "status_stopped": "停止",
     "status_deleted": "已删除",
     "operations": "操作",
-    "confirm_operation": "操作确认"
+    "confirm_operation": "操作确认",
+    "arbitrage_opportunities": "套利机会",
+    "buy_from": "买入交易所",
+    "buy_price": "买入价",
+    "sell_to": "卖出交易所",
+    "sell_price": "卖出价",
+    "diff_percent": "价差%"
   },
   "prompt": {
     "confirm_logout": "确定要退出登录吗？",
@@ -168,7 +178,8 @@
     "activation_success_title": "账号激活成功",
     "activation_success_desc": "恭喜您，账号已成功激活。祝您投资顺利，早日实现财务自由！",
     "activation_failed_title": "账号激活失败",
-    "activation_failed_desc": "激活失败，请重新尝试。"
+    "activation_failed_desc": "激活失败，请重新尝试。",
+    "no_arbitrage_opportunities": "暂无符合条件的套利机会"
   },
   "placeholder": {
     "search_exchange": "按交易所名称搜索...",

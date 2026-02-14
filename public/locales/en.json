@@ -48,7 +48,10 @@
     "drawdown": "Drawdown Percentage",
     "current_price": "Current Price",
     "plan_period": "Plan Period",
-    "not_modifiable": "This Option Is Not Modifiable"
+    "not_modifiable": "This Option Is Not Modifiable",
+    "min_profit": "Min Profit",
+    "last_updated": "Last Updated",
+    "auto_refresh_30s": "Auto-refresh every 30s"
   },
   "action": {
     "edit": "Edit",
@@ -68,7 +71,8 @@
     "wait_timer_resend": "Wait {{timer}}s to resend",
     "add_plan_success": "Add Success,Create A Plan",
     "send_code": "Send Verification Code",
-    "wait_timer_send": "Resend in {{timer}}s"
+    "wait_timer_send": "Resend in {{timer}}s",
+    "refresh": "Refresh"
   },
   "page": {
     "new_exchange_api_key": "New Exchange API Key"
@@ -141,7 +145,13 @@
     "status_stopped": "Stopped",
     "status_deleted": "Deleted",
     "operations": "Operations",
-    "confirm_operation": "Confirm Operation"
+    "confirm_operation": "Confirm Operation",
+    "arbitrage_opportunities": "Arbitrage Opportunities",
+    "buy_from": "Buy From",
+    "buy_price": "Buy Price",
+    "sell_to": "Sell To",
+    "sell_price": "Sell Price",
+    "diff_percent": "Diff%"
   },
   "prompt": {
     "confirm_logout": "Are you sure you want to log out?",
@@ -168,7 +178,8 @@
     "activation_success_title": "Account Activation Successful",
     "activation_success_desc": "Congratulations, your account has been successfully activated. Enjoy your investments and achieve financial freedom soon.",
     "activation_failed_title": "Account Activation Failed",
-    "activation_failed_desc": "Activation failed, please try again."
+    "activation_failed_desc": "Activation failed, please try again.",
+    "no_arbitrage_opportunities": "No arbitrage opportunities found"
   },
   "placeholder": {
     "search_exchange": "Search by exchange name...",
