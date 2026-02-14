@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import '../styles/resetPassword.css';
-import axios from 'axios';
+import HTTP from '@/lib/http';
 import { getInvalidFields } from '@/utils/validator';
 
 interface InvalidFields {
@@ -58,7 +58,7 @@ const ResetPassword = () => {
   }, []);
 
   const updateCaptcha = () => {
-    setCaptchaSrc('/api/pub/auth/svgCaptcha?' + Math.random());
+    setCaptchaSrc('/api/v1/captcha?' + Math.random());
   };
 
   const handleResetPassword = async () => {
@@ -70,7 +70,7 @@ const ResetPassword = () => {
     }
     setIsProccessing(true);
     try {
-      let response = await axios.post('/pub/auth/resetPassword', {
+      let response = await HTTP.patch('/v1/auth/passwordReset', {
         token,
         password: formData.password,
       });
