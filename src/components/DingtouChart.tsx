@@ -62,7 +62,7 @@ export default function DingtouChart({ orders }: DingtouChartProps) {
       xAxis: { categories },
       yAxis: [
         {
-          title: { enabled: false },
+          title: { text: undefined },
           labels: { format: '${value}' },
           tickAmount: 8,
         },

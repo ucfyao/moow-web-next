@@ -430,7 +430,7 @@ function AddStrategy() {
     setInvalidFields({});
     const errors = await getInvalidFields(formData, validationRules());
     if (errors) {
-      setInvalidFields(errors);
+      setInvalidFields(errors as InvalidFields);
       return;
     }
 
