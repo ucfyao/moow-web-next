@@ -2,18 +2,18 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
 import Image from 'next/image';
-import { format } from 'date-fns';
 import no_record from '@/assets/images/no_record.png';
 import { css } from '@emotion/react';
 import Pagination from '@/components/Pagination';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
-// import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-// import { GetStaticProps } from 'next';
+import HTTP from '@/lib/http';
+import util from '@/utils/util';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 
 const strategyListStyle = css`
   .container {
@@ -54,14 +54,21 @@ const strategyListStyle = css`
     vertical-align: middle;
   }
 
-  div.button + .button {
-    margin-left: 10px;
+  .action-buttons {
+    display: flex;
+    gap: 8px;
   }
 
   .no-record {
     width: 61px;
     margin: 60px auto;
     display: block;
+  }
+
+  .loading-container {
+    text-align: center;
+    padding: 60px 0;
+    color: #999;
   }
 `;
 
@@ -70,31 +77,64 @@ interface Strategy {
   created_at: string;
   exchange: string;
   symbol: string;
-  quote_total: number;
-  price_native: string;
   base_total: number;
-  profit: number;
-  profit_percentage: number;
+  quote_total: number;
+  price_native: number | string;
+  profit: number | string;
+  profit_percentage: number | string;
   status: number;
 }
 
-function StrayegyList() {
+interface StrategyListResponse {
+  data: {
+    list: Strategy[];
+    pageNumber: number;
+    pageSize: number;
+    total: number;
+  };
+}
+
+const PAGE_SIZE = 20;
+
+export default function StrategyList() {
   const { t } = useTranslation('');
-  const [tableData, setTableData] = useState<Strategy[]>([]);
   const router = useRouter();
+  const [tableData, setTableData] = useState<Strategy[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'error';
+  }>({ open: false, message: '', severity: 'success' });
+
+  const fetchStrategies = useCallback(
+    async (page: number) => {
+      setLoading(true);
+      try {
+        const res: StrategyListResponse = await HTTP.get('/v1/strategies', {
+          params: { pageNumber: page, pageSize: PAGE_SIZE },
+        });
+        setTableData(res.data.list);
+        setTotal(res.data.total);
+      } catch (error: any) {
+        console.error(error);
+        setSnackbar({
+          open: true,
+          message: error?.message || t('prompt.operation_failed'),
+          severity: 'error',
+        });
+      } finally {
+        setLoading(false);
+      }
+    },
+    [t],
+  );
 
   useEffect(() => {
-    async function queryStrategies() {
-      try {
-        // TODO use baseURL instead of hardcode
-        const response = await axios.get('/api/v1/strategies');
-        setTableData(response.data.data.list);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    queryStrategies();
-  }, []);
+    fetchStrategies(currentPage);
+  }, [currentPage, fetchStrategies]);
 
   function getStatusText(status: number): string {
     switch (status) {
@@ -105,35 +145,48 @@ function StrayegyList() {
       case 3:
         return t('title.status_deleted');
       default:
-        return 'Unknown';
+        return '';
     }
   }
 
-  function switchStrategyStatus(strategyId: string) {
-    // eslint-disable-next-line
-    const currentStrategy = tableData.find((item) => item._id === strategyId);
-    if (!currentStrategy) return;
+  async function switchStrategyStatus(strategy: Strategy) {
+    const text = getStatusText(strategy.status);
+    const newStatus = strategy.status === 1 ? 2 : 1;
 
-    const currentStatus = currentStrategy.status;
-    const text = getStatusText(currentStatus);
-    const newStatus = currentStatus === 1 ? 2 : 1;
+    if (!window.confirm(t('prompt.confirm_switch_plan_status', { text }))) {
+      return;
+    }
 
-    if (window.confirm(t('prompt.confirm_switch_plan_status', { text }))) {
-      axios
-        .patch(`/api/v1/strategies/${strategyId}`, { status: newStatus })
-        .then((response) => {
-          setTableData((prevData) =>
-            prevData.map((item) =>
-              // eslint-disable-next-line
-              item._id === strategyId ? { ...item, status: newStatus } : item
-            )
-          );
-          return response;
-        })
-        .catch((error) => {
-          console.error(error);
-          alert(error.message || t('prompt.operation_failed'));
-        });
+    try {
+      await HTTP.patch(`/v1/strategies/${strategy._id}`, { status: newStatus });
+      setSnackbar({ open: true, message: t('prompt.operation_succeed'), severity: 'success' });
+      fetchStrategies(currentPage);
+    } catch (error: any) {
+      console.error(error);
+      setSnackbar({
+        open: true,
+        message: error?.message || t('prompt.operation_failed'),
+        severity: 'error',
+      });
+    }
+  }
+
+  async function deleteStrategy(strategy: Strategy) {
+    if (!window.confirm(t('prompt.confirm_delete_strategy'))) {
+      return;
+    }
+
+    try {
+      await HTTP.delete(`/v1/strategies/${strategy._id}`);
+      setSnackbar({ open: true, message: t('prompt.operation_succeed'), severity: 'success' });
+      fetchStrategies(currentPage);
+    } catch (error: any) {
+      console.error(error);
+      setSnackbar({
+        open: true,
+        message: error?.message || t('prompt.operation_failed'),
+        severity: 'error',
+      });
     }
   }
 
@@ -145,18 +198,24 @@ function StrayegyList() {
     router.push(`/aip/${strategyId}`);
   }
 
-  // Handle page changes
-  const [currentPage, setCurrentPage] = useState(1);
-  const total = tableData ? tableData.length : 0;
-  const pageSize = 10;
-
-  const indexOfLastItem = currentPage * pageSize;
-  const indexOfFirstItem = indexOfLastItem - pageSize;
-  const currentData = tableData.slice(indexOfFirstItem, indexOfLastItem);
-
-  const handleCurrentChange = (newPage: number): void => {
+  function handlePageChange(newPage: number) {
     setCurrentPage(newPage);
-  };
+  }
+
+  function formatProfit(value: number | string): string {
+    if (value === '-' || value === undefined || value === null) return '-';
+    return util.formatNumber(Number(value));
+  }
+
+  function formatProfitPercentage(value: number | string): string {
+    if (value === '-' || value === undefined || value === null) return '-';
+    return util.formatNumber(Number(value), 2, '%');
+  }
+
+  function profitColorClass(value: number | string): string {
+    if (value === '-' || value === undefined || value === null) return '';
+    return Number(value) >= 0 ? 'has-text-success' : 'has-text-danger';
+  }
 
   return (
     <div css={strategyListStyle} className="container">
@@ -168,14 +227,15 @@ function StrayegyList() {
           <div className="tabs">
             <ul>
               <li className="is-active">
-                {/* eslint-disable-next-line */}
                 <a>{t('caption.investment_plans')}</a>
               </li>
             </ul>
           </div>
 
           <div className="table-wrapper">
-            {tableData && tableData.length > 0 ? (
+            {loading ? (
+              <div className="loading-container">{t('prompt.loading')}</div>
+            ) : tableData && tableData.length > 0 ? (
               <table className="table is-fullwidth is-striped">
                 <thead>
                   <tr>
@@ -188,60 +248,63 @@ function StrayegyList() {
                     <th>{t('title.profit')}</th>
                     <th>{t('title.profit_percentage')}</th>
                     <th style={{ width: '80px' }}>{t('title.status')}</th>
-                    <th style={{ width: '180px' }}>{t('title.operations')}</th>
+                    <th style={{ width: '220px' }}>{t('title.operations')}</th>
                   </tr>
                 </thead>
 
                 <tbody>
-                  {currentData.map((row) => (
-                    // eslint-disable-next-line
+                  {tableData.map((row) => (
                     <tr key={row._id}>
-                      <td>{format(new Date(row.created_at), 'yyyy/MM/dd HH:mm')}</td>
+                      <td>{util.formatDate(row.created_at, 'yyyy/MM/dd HH:mm')}</td>
                       <td>{row.exchange}</td>
                       <td>{row.symbol}</td>
-                      <td>{row.quote_total}</td>
-                      <td>{row.price_native}</td>
-                      <td>{(row.base_total / row.quote_total).toString()}</td>
-                      <td className={`${row.profit >= 0 ? 'has-text-success' : 'has-text-danger'}`}>
-                        {row.profit}
+                      <td>{util.formatNumber(row.quote_total)}</td>
+                      <td>{formatProfit(row.price_native)}</td>
+                      <td>
+                        {row.quote_total > 0
+                          ? util.formatNumber(row.base_total / row.quote_total)
+                          : '-'}
+                      </td>
+                      <td className={profitColorClass(row.profit)}>
+                        {formatProfit(row.profit)}
+                      </td>
+                      <td className={profitColorClass(row.profit_percentage)}>
+                        {formatProfitPercentage(row.profit_percentage)}
                       </td>
                       <td
-                        className={`${row.profit_percentage >= 0 ? 'has-text-success' : 'has-text-danger'}`}
-                      >
-                        {row.profit_percentage}%
-                      </td>
-                      <td
-                        className={`${row.status === 1 ? 'has-text-success' : 'has-text-danger'}`}
+                        className={row.status === 1 ? 'has-text-success' : 'has-text-danger'}
                       >
                         {getStatusText(row.status)}
                       </td>
-
                       <td>
-                        <div className="flex">
+                        <div className="action-buttons">
                           <button
                             type="button"
                             className="button is-small is-info is-outlined"
-                            // eslint-disable-next-line
                             onClick={() => editStrategy(row._id)}
                           >
                             {t('action.edit')}
                           </button>
                           <button
                             type="button"
-                            className={`button is-small
-                                            ${row.status === 1 ? 'is-danger' : 'is-info'} is-outlined`}
-                            // eslint-disable-next-line
-                            onClick={() => switchStrategyStatus(row._id)}
+                            className={`button is-small ${row.status === 1 ? 'is-warning' : 'is-success'} is-outlined`}
+                            onClick={() => switchStrategyStatus(row)}
                           >
                             {row.status === 1 ? t('action.disable') : t('action.enable')}
                           </button>
                           <button
                             type="button"
                             className="button is-small is-primary is-outlined"
-                            // eslint-disable-next-line
                             onClick={() => viewStrategy(row._id)}
                           >
                             {t('action.view')}
+                          </button>
+                          <button
+                            type="button"
+                            className="button is-small is-danger is-outlined"
+                            onClick={() => deleteStrategy(row)}
+                          >
+                            {t('action.delete')}
                           </button>
                         </div>
                       </td>
@@ -253,23 +316,32 @@ function StrayegyList() {
               <Image className="no-record" src={no_record} alt="No records found" />
             )}
           </div>
-          <Pagination
-            current={currentPage}
-            total={total}
-            pageSize={pageSize}
-            showTotal={false}
-            onPageChange={handleCurrentChange}
-          />
+          {!loading && total > 0 && (
+            <Pagination
+              current={currentPage}
+              total={total}
+              pageSize={PAGE_SIZE}
+              showTotal={false}
+              onPageChange={handlePageChange}
+            />
+          )}
         </div>
       </section>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
+          severity={snackbar.severity}
+          variant="filled"
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }
-
-// export const getStaticProps: GetStaticProps = async ({ locale }) => ({
-//   props: {
-//     ...(await serverSideTranslations(locale!, ['common'])),
-//   },
-// });
-
-export default StrayegyList;
