@@ -3,12 +3,14 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useTranslation } from 'react-i18next';
 import mail from '../assets/images/icon-mail.png';
 import telegram from '../assets/images/telegram.png';
 import wechat from '../assets/images/wechat.png';
 import Tip from './Tip';
 
 export default function Footer() {
+  const { t } = useTranslation('');
   return (
     <footer className="footer">
       <div className="container has-text-centered">
@@ -16,22 +18,22 @@ export default function Footer() {
           <div className="level-left">
             <div className="level-item">
               <Link href="/" target="_blank">
-                About us
+                {t('about_us')}
               </Link>
             </div>
             <div className="level-item">
               <Link href="/" target="_blank">
-                FAQ
+                {t('faqs')}
               </Link>
             </div>
             <div className="level-item">
               <Link href="/" target="_blank">
-                Use Tutorial
+                {t('use_tutorial')}
               </Link>
             </div>
             <div className="level-item">
               <Link href="http://cn.mikecrm.com/ovI6Cub" target="_blank">
-                Business Partner
+                {t('business_cooperation')}
               </Link>
             </div>
           </div>
@@ -60,7 +62,7 @@ export default function Footer() {
           </div>
         </nav>
         <div className="copy-right">
-          <p className="has-text-grey-light">© 2024 AntClony All right reserved</p>
+          <p className="has-text-grey-light">{t('copy_right')}</p>
         </div>
       </div>
     </footer>

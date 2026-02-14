@@ -20,8 +20,8 @@ const Activate: React.FC = () => {
   const [open, setOpen] = useState(false);
 
   const buttonText = timerCounter > 0
-  ? `Wait ${timerCounter} seconds to resend`
-  : 'Resend activation email';
+  ? t('action.wait_timer_resend', { timer: timerCounter })
+  : t('action.resend_activate_email');
 
   const sendActivateEmail = async () => {
     setTimerCounter(60); 
