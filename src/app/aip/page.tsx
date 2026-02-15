@@ -9,6 +9,7 @@ import no_record from '@/assets/images/no_record.png';
 import { css } from '@emotion/react';
 import Pagination from '@/components/Pagination';
 import Skeleton from '@/components/Skeleton';
+import ConfirmModal from '@/components/ConfirmModal';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import HTTP from '@/lib/http';
@@ -109,6 +110,14 @@ export default function StrategyList() {
     message: string;
     severity: 'success' | 'error';
   }>({ open: false, message: '', severity: 'success' });
+  const [modal, setModal] = useState<{
+    open: boolean;
+    title: string;
+    message: string;
+    variant: 'danger' | 'warning' | 'info';
+    onConfirm: () => void;
+    loading: boolean;
+  }>({ open: false, title: '', message: '', variant: 'info', onConfirm: () => {}, loading: false });
 
   const fetchStrategies = useCallback(
     async (page: number) => {
@@ -150,45 +159,61 @@ export default function StrategyList() {
     }
   }
 
-  async function switchStrategyStatus(strategy: Strategy) {
+  function switchStrategyStatus(strategy: Strategy) {
     const text = getStatusText(strategy.status);
     const newStatus = strategy.status === 1 ? 2 : 1;
 
-    if (!window.confirm(t('prompt.confirm_switch_plan_status', { text }))) {
-      return;
-    }
-
-    try {
-      await HTTP.patch(`/v1/strategies/${strategy._id}`, { status: newStatus });
-      setSnackbar({ open: true, message: t('prompt.operation_succeed'), severity: 'success' });
-      fetchStrategies(currentPage);
-    } catch (error: any) {
-      console.error(error);
-      setSnackbar({
-        open: true,
-        message: error?.message || t('prompt.operation_failed'),
-        severity: 'error',
-      });
-    }
+    setModal({
+      open: true,
+      title: t('prompt.confirm_action'),
+      message: t('prompt.confirm_switch_plan_status', { text }),
+      variant: 'warning',
+      loading: false,
+      onConfirm: async () => {
+        setModal((prev) => ({ ...prev, loading: true }));
+        try {
+          await HTTP.patch(`/v1/strategies/${strategy._id}`, { status: newStatus });
+          setSnackbar({ open: true, message: t('prompt.operation_succeed'), severity: 'success' });
+          fetchStrategies(currentPage);
+        } catch (error: any) {
+          console.error(error);
+          setSnackbar({
+            open: true,
+            message: error?.message || t('prompt.operation_failed'),
+            severity: 'error',
+          });
+        } finally {
+          setModal((prev) => ({ ...prev, open: false, loading: false }));
+        }
+      },
+    });
   }
 
-  async function deleteStrategy(strategy: Strategy) {
-    if (!window.confirm(t('prompt.confirm_delete_strategy'))) {
-      return;
-    }
-
-    try {
-      await HTTP.delete(`/v1/strategies/${strategy._id}`);
-      setSnackbar({ open: true, message: t('prompt.operation_succeed'), severity: 'success' });
-      fetchStrategies(currentPage);
-    } catch (error: any) {
-      console.error(error);
-      setSnackbar({
-        open: true,
-        message: error?.message || t('prompt.operation_failed'),
-        severity: 'error',
-      });
-    }
+  function deleteStrategy(strategy: Strategy) {
+    setModal({
+      open: true,
+      title: t('prompt.confirm_action'),
+      message: t('prompt.confirm_delete_strategy'),
+      variant: 'danger',
+      loading: false,
+      onConfirm: async () => {
+        setModal((prev) => ({ ...prev, loading: true }));
+        try {
+          await HTTP.delete(`/v1/strategies/${strategy._id}`);
+          setSnackbar({ open: true, message: t('prompt.operation_succeed'), severity: 'success' });
+          fetchStrategies(currentPage);
+        } catch (error: any) {
+          console.error(error);
+          setSnackbar({
+            open: true,
+            message: error?.message || t('prompt.operation_failed'),
+            severity: 'error',
+          });
+        } finally {
+          setModal((prev) => ({ ...prev, open: false, loading: false }));
+        }
+      },
+    });
   }
 
   function editStrategy(strategyId: string) {
@@ -353,6 +378,16 @@ export default function StrategyList() {
           {snackbar.message}
         </Alert>
       </Snackbar>
+
+      <ConfirmModal
+        isOpen={modal.open}
+        title={modal.title}
+        message={modal.message}
+        variant={modal.variant}
+        loading={modal.loading}
+        onConfirm={modal.onConfirm}
+        onCancel={() => setModal((prev) => ({ ...prev, open: false }))}
+      />
     </div>
   );
 }

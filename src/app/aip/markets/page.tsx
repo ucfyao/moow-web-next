@@ -11,6 +11,7 @@ import HTTP from '@/lib/http';
 import util from '@/utils/util';
 import Pagination from '@/components/Pagination';
 import Skeleton from '@/components/Skeleton';
+import ConfirmModal from '@/components/ConfirmModal';
 
 interface ExchangeKey {
   _id: string;
@@ -35,6 +36,14 @@ export default function MarketsPage() {
     message: string;
     severity: 'success' | 'error';
   }>({ open: false, message: '', severity: 'success' });
+  const [modal, setModal] = useState<{
+    open: boolean;
+    title: string;
+    message: string;
+    variant: 'danger' | 'warning' | 'info';
+    onConfirm: () => void;
+    loading: boolean;
+  }>({ open: false, title: '', message: '', variant: 'info', onConfirm: () => {}, loading: false });
 
   const fetchKeys = useCallback(
     async (page: number, search: string) => {
@@ -59,24 +68,31 @@ export default function MarketsPage() {
     fetchKeys(currentPage, searchTerm);
   }, [currentPage, fetchKeys, searchTerm]);
 
-  const handleDelete = async (key: ExchangeKey) => {
-    const confirmed = window.confirm(
-      t('prompt.confirm_delete_market', { exchange: key.exchange }),
-    );
-    if (!confirmed) return;
-
-    try {
-      await HTTP.delete(`/v1/keys/${key._id}`);
-      setSnackbar({ open: true, message: t('prompt.operation_succeed'), severity: 'success' });
-      if (keys.length === 1 && currentPage > 1) {
-        setCurrentPage(currentPage - 1);
-      } else {
-        fetchKeys(currentPage, searchTerm);
-      }
-    } catch (error: any) {
-      const msg = error?.message || t('prompt.operation_failed');
-      setSnackbar({ open: true, message: msg, severity: 'error' });
-    }
+  const handleDelete = (key: ExchangeKey) => {
+    setModal({
+      open: true,
+      title: t('prompt.confirm_action'),
+      message: t('prompt.confirm_delete_market', { exchange: key.exchange }),
+      variant: 'danger',
+      loading: false,
+      onConfirm: async () => {
+        setModal((prev) => ({ ...prev, loading: true }));
+        try {
+          await HTTP.delete(`/v1/keys/${key._id}`);
+          setSnackbar({ open: true, message: t('prompt.operation_succeed'), severity: 'success' });
+          if (keys.length === 1 && currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+          } else {
+            fetchKeys(currentPage, searchTerm);
+          }
+        } catch (error: any) {
+          const msg = error?.message || t('prompt.operation_failed');
+          setSnackbar({ open: true, message: msg, severity: 'error' });
+        } finally {
+          setModal((prev) => ({ ...prev, open: false, loading: false }));
+        }
+      },
+    });
   };
 
   function handlePageChange(newPage: number) {
@@ -196,6 +212,16 @@ export default function MarketsPage() {
           )}
         </div>
       </section>
+
+      <ConfirmModal
+        isOpen={modal.open}
+        title={modal.title}
+        message={modal.message}
+        variant={modal.variant}
+        loading={modal.loading}
+        onConfirm={modal.onConfirm}
+        onCancel={() => setModal((prev) => ({ ...prev, open: false }))}
+      />
     </div>
   );
 }

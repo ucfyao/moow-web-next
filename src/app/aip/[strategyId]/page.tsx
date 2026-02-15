@@ -9,6 +9,7 @@ import no_record from '@/assets/images/no_record.png';
 import { css } from '@emotion/react';
 import Pagination from '@/components/Pagination';
 import Skeleton from '@/components/Skeleton';
+import ConfirmModal from '@/components/ConfirmModal';
 import util from '@/utils/util';
 import Highcharts from 'highcharts';
 import Link from 'next/link';
@@ -368,6 +369,14 @@ export default function StrategyDetails() {
     message: string;
     severity: 'success' | 'error';
   }>({ open: false, message: '', severity: 'success' });
+  const [modal, setModal] = useState<{
+    open: boolean;
+    title: string;
+    message: string;
+    variant: 'danger' | 'warning' | 'info';
+    onConfirm: () => void;
+    loading: boolean;
+  }>({ open: false, title: '', message: '', variant: 'info', onConfirm: () => {}, loading: false });
 
   // Chart data
   const [baseTotal, setBaseTotal] = useState<number[]>([]);
@@ -414,30 +423,50 @@ export default function StrategyDetails() {
     setSnackbar({ open: true, message, severity: 'success' });
   }, []);
 
-  async function handleManualBuy() {
-    if (!window.confirm(t('strategy.confirm_manual_buy'))) return;
-    setActionLoading(true);
-    try {
-      await HTTP.post(`/v1/strategies/${strategyId}/execute-buy`);
-      showSuccess(t('strategy.buy_success'));
-    } catch (error: any) {
-      showError(error);
-    } finally {
-      setActionLoading(false);
-    }
+  function handleManualBuy() {
+    setModal({
+      open: true,
+      title: t('strategy.manual_buy'),
+      message: t('strategy.confirm_manual_buy'),
+      variant: 'info',
+      loading: false,
+      onConfirm: async () => {
+        setModal((prev) => ({ ...prev, loading: true }));
+        setActionLoading(true);
+        try {
+          await HTTP.post(`/v1/strategies/${strategyId}/execute-buy`);
+          showSuccess(t('strategy.buy_success'));
+        } catch (error: any) {
+          showError(error);
+        } finally {
+          setActionLoading(false);
+          setModal((prev) => ({ ...prev, open: false, loading: false }));
+        }
+      },
+    });
   }
 
-  async function handleManualSell() {
-    if (!window.confirm(t('strategy.confirm_manual_sell'))) return;
-    setActionLoading(true);
-    try {
-      await HTTP.post(`/v1/strategies/${strategyId}/execute-sell`);
-      showSuccess(t('strategy.sell_success'));
-    } catch (error: any) {
-      showError(error);
-    } finally {
-      setActionLoading(false);
-    }
+  function handleManualSell() {
+    setModal({
+      open: true,
+      title: t('strategy.manual_sell'),
+      message: t('strategy.confirm_manual_sell'),
+      variant: 'info',
+      loading: false,
+      onConfirm: async () => {
+        setModal((prev) => ({ ...prev, loading: true }));
+        setActionLoading(true);
+        try {
+          await HTTP.post(`/v1/strategies/${strategyId}/execute-sell`);
+          showSuccess(t('strategy.sell_success'));
+        } catch (error: any) {
+          showError(error);
+        } finally {
+          setActionLoading(false);
+          setModal((prev) => ({ ...prev, open: false, loading: false }));
+        }
+      },
+    });
   }
 
   function handleEdit() {
@@ -807,6 +836,16 @@ export default function StrategyDetails() {
           {snackbar.message}
         </Alert>
       </Snackbar>
+
+      <ConfirmModal
+        isOpen={modal.open}
+        title={modal.title}
+        message={modal.message}
+        variant={modal.variant}
+        loading={modal.loading}
+        onConfirm={modal.onConfirm}
+        onCancel={() => setModal((prev) => ({ ...prev, open: false }))}
+      />
     </div>
   );
 }
