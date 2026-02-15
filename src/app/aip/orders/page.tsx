@@ -7,6 +7,7 @@ import Image from 'next/image';
 import no_record from '@/assets/images/no_record.png';
 import { css } from '@emotion/react';
 import Pagination from '@/components/Pagination';
+import Skeleton from '@/components/Skeleton';
 import util from '@/utils/util';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
@@ -285,7 +286,9 @@ export default function OrderHistory() {
       <div className="container" css={ordersPageStyle}>
         <section className="section">
           <div className="box">
-            <div className="loading-container">{t('prompt.loading')}</div>
+            <div style={{ padding: '20px 0' }}>
+              <Skeleton variant="text" count={5} height="2.5rem" />
+            </div>
           </div>
         </section>
       </div>

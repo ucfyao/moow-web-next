@@ -9,6 +9,7 @@ import { format } from 'date-fns';
 import { css } from '@emotion/react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
+import Skeleton from '@/components/Skeleton';
 import auth from '@/utils/auth';
 
 const assetsPageStyle = css`
@@ -176,8 +177,22 @@ export default function AssetsPage() {
     return (
       <div css={assetsPageStyle} className="container">
         <section className="section">
-          <div className="box has-text-centered">
-            <p>{t('assets.loading')}</p>
+          <div className="box">
+            <Skeleton variant="text" count={3} height="1.5rem" width="60%" />
+          </div>
+        </section>
+        <section className="section">
+          <div className="box">
+            <div className="columns is-multiline">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="column is-one-quarter">
+                  <div className="summary-card">
+                    <Skeleton variant="text" height="1.5rem" width="60%" />
+                    <Skeleton variant="text" height="0.85rem" width="80%" />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       </div>

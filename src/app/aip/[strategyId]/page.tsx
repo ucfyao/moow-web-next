@@ -8,6 +8,7 @@ import { useParams, useRouter } from 'next/navigation';
 import no_record from '@/assets/images/no_record.png';
 import { css } from '@emotion/react';
 import Pagination from '@/components/Pagination';
+import Skeleton from '@/components/Skeleton';
 import util from '@/utils/util';
 import Highcharts from 'highcharts';
 import Link from 'next/link';
@@ -530,7 +531,10 @@ export default function StrategyDetails() {
       <div className="container" css={strategyDetailStyle}>
         <section className="section">
           <div className="box">
-            <div className="loading-container">{t('prompt.loading')}</div>
+            <Skeleton variant="rect" width="100%" height="400px" />
+            <div style={{ marginTop: '20px' }}>
+              <Skeleton variant="text" count={5} height="2.5rem" />
+            </div>
           </div>
         </section>
       </div>

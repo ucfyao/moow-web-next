@@ -10,6 +10,7 @@ import Snackbar from '@mui/material/Snackbar';
 import HTTP from '@/lib/http';
 import util from '@/utils/util';
 import Pagination from '@/components/Pagination';
+import Skeleton from '@/components/Skeleton';
 
 interface ExchangeKey {
   _id: string;
@@ -141,7 +142,9 @@ export default function MarketsPage() {
             </div>
           </form>
           {loading ? (
-            <p className="has-text-centered py-4">{t('prompt.loading')}</p>
+            <div style={{ padding: '20px 0' }}>
+              <Skeleton variant="text" count={5} height="2.5rem" />
+            </div>
           ) : keys.length === 0 ? (
             <p className="has-text-centered has-text-grey py-4">
               {t('prompt.no_exchange_keys')}
