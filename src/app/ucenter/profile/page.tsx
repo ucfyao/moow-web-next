@@ -20,6 +20,7 @@ interface UserProfile {
   nick_name: string;
   vip_time_out_at: string;
   is_activated: boolean;
+  created_at: string;
 }
 
 interface InvalidFields {
@@ -185,6 +186,20 @@ export default function ProfilePage() {
               )}
             </div>
           </div>
+
+          {user?.created_at && (
+            <div className="field">
+              <label className="label">{t('profile.registration_date')}</label>
+              <div className="control">
+                <input
+                  className="input"
+                  type="text"
+                  value={format(new Date(user.created_at), 'yyyy/MM/dd')}
+                  disabled
+                />
+              </div>
+            </div>
+          )}
 
           <div className="field">
             <label className="label">{t('profile.nickname')}</label>

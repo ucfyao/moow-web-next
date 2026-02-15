@@ -14,7 +14,6 @@ import logo2 from '@/assets/images/logo2.png';
 
 export default function Header({ isFixed = true }: { isFixed?: boolean }) {
   const { t, i18n } = useTranslation();
-  const [locale, setLocale] = useState('English');
   const [burgerActive, setBurgerActive] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
@@ -23,11 +22,12 @@ export default function Header({ isFixed = true }: { isFixed?: boolean }) {
   const setUserInfo = useUserStore((state) => state.setUserInfo);
   const isAuthenticated = !!userInfo?.email;
 
+  const localeLabel = i18n.language === 'zh' ? 'English' : '中文';
 
   const switchLocale = () => {
-    i18n.changeLanguage(i18n.language === 'zh' ? 'en' : 'zh');
-    setLocale(i18n.language === 'zh' ? 'English' : '中文');
-    auth.setLocale(i18n.language);
+    const newLang = i18n.language === 'zh' ? 'en' : 'zh';
+    i18n.changeLanguage(newLang);
+    auth.setLocale(newLang);
   };
 
   const handleLogout = async () => {
@@ -107,6 +107,8 @@ export default function Header({ isFixed = true }: { isFixed?: boolean }) {
                   <hr className="navbar-divider" />
                   <Link href="/aip/markets" className="navbar-item">{t('link.exchange_apikeys')}</Link>
                   <hr className="navbar-divider" />
+                  <Link href="/aip/orders" className="navbar-item">{t('link.orders')}</Link>
+                  <hr className="navbar-divider" />
                   <Link href="/ucenter/profile" className="navbar-item">{t('link.my_profile')}</Link>
                   <hr className="navbar-divider" />
                   <a className="navbar-item" onClick={handleLogout}>{t('sign_out')}</a>
@@ -124,7 +126,7 @@ export default function Header({ isFixed = true }: { isFixed?: boolean }) {
               </div>
             )}
             <a className="navbar-item" onClick={switchLocale}>
-              {locale}
+              {localeLabel}
             </a>
           </div>
         </div>
