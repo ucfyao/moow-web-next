@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 'use client';
 
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect, useMemo, ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { css } from '@emotion/react';
 import { useTranslation } from 'react-i18next';
@@ -16,6 +16,17 @@ interface InvalidFields {
   code?: string;
   password?: string;
   passwordCheck?: string;
+}
+
+function getPasswordStrength(password: string): number {
+  if (!password) return 0;
+  let score = 0;
+  if (password.length >= 6) score++;
+  if (password.length >= 10) score++;
+  if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score++;
+  if (/\d/.test(password)) score++;
+  if (/[^a-zA-Z0-9]/.test(password)) score++;
+  return Math.min(score, 4);
 }
 
 export default function ChangePasswordPage() {
@@ -37,6 +48,17 @@ export default function ChangePasswordPage() {
     message: string;
     severity: 'success' | 'error';
   }>({ open: false, message: '', severity: 'success' });
+
+  const passwordStrength = useMemo(() => getPasswordStrength(formData.password), [formData.password]);
+
+  const strengthLabels = [
+    '',
+    t('profile.strength_weak'),
+    t('profile.strength_fair'),
+    t('profile.strength_good'),
+    t('profile.strength_strong'),
+  ];
+  const strengthColors = ['', '#ff4d4f', '#faad14', '#52c41a', '#1890ff'];
 
   useEffect(() => {
     if (!auth.isAuthenticated()) {
@@ -207,6 +229,28 @@ export default function ChangePasswordPage() {
                     autoComplete="new-password"
                   />
                 </div>
+                {formData.password && (
+                  <div className="password-strength">
+                    <div className="strength-bars">
+                      {[1, 2, 3, 4].map((level) => (
+                        <div
+                          key={level}
+                          className="strength-bar"
+                          style={{
+                            backgroundColor:
+                              level <= passwordStrength ? strengthColors[passwordStrength] : '#e8e8e8',
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <span
+                      className="strength-label"
+                      style={{ color: strengthColors[passwordStrength] }}
+                    >
+                      {strengthLabels[passwordStrength]}
+                    </span>
+                  </div>
+                )}
                 {invalidFields.password && (
                   <p className="help is-danger">{invalidFields.password}</p>
                 )}
@@ -256,5 +300,30 @@ const changePasswordStyle = css`
 
   .card {
     margin-top: 20px;
+  }
+
+  .password-strength {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .strength-bars {
+    display: flex;
+    gap: 4px;
+    flex: 1;
+  }
+
+  .strength-bar {
+    height: 4px;
+    flex: 1;
+    border-radius: 2px;
+    transition: background-color 0.3s;
+  }
+
+  .strength-label {
+    font-size: 0.75rem;
+    white-space: nowrap;
   }
 `;
