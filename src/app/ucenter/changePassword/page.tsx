@@ -43,6 +43,8 @@ export default function ChangePasswordPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [timerCounter, setTimerCounter] = useState(0);
   const [codeSending, setCodeSending] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordCheck, setShowPasswordCheck] = useState(false);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -183,7 +185,7 @@ export default function ChangePasswordPage() {
               <div className="field">
                 <label className="label">{t('profile.current_email')}</label>
                 <div className="control">
-                  <input className="input" type="text" value={email} disabled />
+                  <input id="change-email" className="input" type="text" value={email} disabled aria-label={t('profile.current_email')} />
                 </div>
               </div>
 
@@ -192,10 +194,12 @@ export default function ChangePasswordPage() {
                 <div className="field has-addons">
                   <div className="control is-expanded">
                     <input
+                      id="change-code"
                       className="input"
                       type="text"
                       name="code"
                       placeholder={t('profile.verification_code')}
+                      aria-label={t('profile.verification_code')}
                       value={formData.code}
                       onChange={handleChange}
                       autoComplete="off"
@@ -213,21 +217,34 @@ export default function ChangePasswordPage() {
                     </button>
                   </div>
                 </div>
-                {invalidFields.code && <p className="help is-danger">{invalidFields.code}</p>}
+                {invalidFields.code && <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.code}</p>}
               </div>
 
               <div className="field">
                 <label className="label">{t('label.new_password')}</label>
-                <div className="control">
+                <div className="control has-icons-right">
                   <input
+                    id="change-password"
                     className="input"
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     name="password"
                     placeholder={t('placeholder.password')}
+                    aria-label={t('placeholder.password')}
                     value={formData.password}
                     onChange={handleChange}
                     autoComplete="new-password"
                   />
+                  <span
+                    className="icon is-small is-right"
+                    style={{ pointerEvents: 'auto', cursor: 'pointer' }}
+                    onClick={() => setShowPassword(!showPassword)}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={showPassword ? '隐藏密码' : '显示密码'}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowPassword(!showPassword); } }}
+                  >
+                    <i className={`fa ${showPassword ? 'fa-eye' : 'fa-eye-slash'}`}></i>
+                  </span>
                 </div>
                 {formData.password && (
                   <div className="password-strength">
@@ -252,25 +269,38 @@ export default function ChangePasswordPage() {
                   </div>
                 )}
                 {invalidFields.password && (
-                  <p className="help is-danger">{invalidFields.password}</p>
+                  <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.password}</p>
                 )}
               </div>
 
               <div className="field">
                 <label className="label">{t('label.confirm_password')}</label>
-                <div className="control">
+                <div className="control has-icons-right">
                   <input
+                    id="change-password-check"
                     className="input"
-                    type="password"
+                    type={showPasswordCheck ? 'text' : 'password'}
                     name="passwordCheck"
                     placeholder={t('placeholder.repeat_password')}
+                    aria-label={t('placeholder.repeat_password')}
                     value={formData.passwordCheck}
                     onChange={handleChange}
                     autoComplete="new-password"
                   />
+                  <span
+                    className="icon is-small is-right"
+                    style={{ pointerEvents: 'auto', cursor: 'pointer' }}
+                    onClick={() => setShowPasswordCheck(!showPasswordCheck)}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={showPasswordCheck ? '隐藏密码' : '显示密码'}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowPasswordCheck(!showPasswordCheck); } }}
+                  >
+                    <i className={`fa ${showPasswordCheck ? 'fa-eye' : 'fa-eye-slash'}`}></i>
+                  </span>
                 </div>
                 {invalidFields.passwordCheck && (
-                  <p className="help is-danger">{invalidFields.passwordCheck}</p>
+                  <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.passwordCheck}</p>
                 )}
               </div>
 
