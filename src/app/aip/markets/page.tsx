@@ -12,6 +12,7 @@ import util from '@/utils/util';
 import Pagination from '@/components/Pagination';
 import Skeleton from '@/components/Skeleton';
 import ConfirmModal from '@/components/ConfirmModal';
+import EmptyState from '@/components/EmptyState';
 
 interface ExchangeKey {
   _id: string;
@@ -162,9 +163,12 @@ export default function MarketsPage() {
               <Skeleton variant="text" count={5} height="2.5rem" />
             </div>
           ) : keys.length === 0 ? (
-            <p className="has-text-centered has-text-grey py-4">
-              {t('prompt.no_exchange_keys')}
-            </p>
+            <EmptyState
+              title={t('empty.no_exchange_keys')}
+              description={t('empty.add_exchange_key')}
+              actionText={t('action.new_exchange_apikey')}
+              actionHref="/aip/addmarketkeys"
+            />
           ) : (
             <div className="table-container">
               <table

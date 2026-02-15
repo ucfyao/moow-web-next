@@ -7,9 +7,9 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { format } from 'date-fns';
 import { css } from '@emotion/react';
-import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import Skeleton from '@/components/Skeleton';
+import EmptyState from '@/components/EmptyState';
 import auth from '@/utils/auth';
 
 const assetsPageStyle = css`
@@ -276,16 +276,12 @@ export default function AssetsPage() {
             </div>
           </div>
           {summary.totalCount === 0 && (
-            <div className="has-text-centered" style={{ padding: '20px 0' }}>
-              <p className="has-text-grey">{t('assets.no_strategies')}</p>
-              <Link
-                href="/aip/addstrategy"
-                className="button is-info is-small"
-                style={{ marginTop: '10px' }}
-              >
-                {t('assets.create_strategy')}
-              </Link>
-            </div>
+            <EmptyState
+              title={t('empty.start_investing')}
+              description={t('empty.create_strategy_desc')}
+              actionText={t('empty.get_started')}
+              actionHref="/aip/addstrategy"
+            />
           )}
         </div>
       </section>

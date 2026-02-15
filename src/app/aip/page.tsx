@@ -4,12 +4,11 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import no_record from '@/assets/images/no_record.png';
 import { css } from '@emotion/react';
 import Pagination from '@/components/Pagination';
 import Skeleton from '@/components/Skeleton';
 import ConfirmModal from '@/components/ConfirmModal';
+import EmptyState from '@/components/EmptyState';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import HTTP from '@/lib/http';
@@ -349,7 +348,12 @@ export default function StrategyList() {
                 </tbody>
               </table>
             ) : (
-              <Image className="no-record" src={no_record} alt="No records found" />
+              <EmptyState
+                title={t('empty.no_strategies')}
+                description={t('empty.create_first_strategy')}
+                actionText={t('action.new_plan')}
+                actionHref="/aip/addstrategy"
+              />
             )}
           </div>
           {!loading && total > 0 && (

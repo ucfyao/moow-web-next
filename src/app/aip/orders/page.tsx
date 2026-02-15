@@ -3,11 +3,10 @@
 'use client';
 
 import { useState, useEffect, useCallback, ChangeEvent } from 'react';
-import Image from 'next/image';
-import no_record from '@/assets/images/no_record.png';
 import { css } from '@emotion/react';
 import Pagination from '@/components/Pagination';
 import Skeleton from '@/components/Skeleton';
+import EmptyState from '@/components/EmptyState';
 import util from '@/utils/util';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
@@ -428,7 +427,12 @@ export default function OrderHistory() {
               />
             </div>
           ) : (
-            <Image className="no-record" src={no_record} alt="No records found" />
+            <EmptyState
+              title={t('empty.no_orders')}
+              description={t('empty.orders_will_appear')}
+              actionText={t('empty.view_strategies')}
+              actionHref="/aip"
+            />
           )}
         </div>
       </section>
