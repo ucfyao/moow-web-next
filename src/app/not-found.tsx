@@ -3,6 +3,7 @@
 
 import { css } from '@emotion/react';
 import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 
 const notFoundStyle = css`
   .nf-container {
@@ -26,13 +27,15 @@ const notFoundStyle = css`
 `;
 
 export default function NotFound() {
+  const { t } = useTranslation();
+
   return (
     <div css={notFoundStyle}>
       <div className="nf-container">
         <div className="nf-code">404</div>
-        <p className="nf-text">Page not found</p>
+        <p className="nf-text">{t('page_not_found')}</p>
         <Link href="/" className="button is-primary">
-          Back to Home
+          {t('back_to_home')}
         </Link>
       </div>
     </div>
