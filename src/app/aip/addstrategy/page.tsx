@@ -546,6 +546,8 @@ function AddStrategy() {
                     <button
                       type="button"
                       onClick={() => !strategyId && handleSelectUserMarket(item)}
+                      aria-label={`${t('label.exchange_apikey')}: ${item.name || item.exchange}`}
+                      aria-pressed={formData.user_market_id === item._id}
                     >
                       <p className="tit">
                         <Image
@@ -572,7 +574,7 @@ function AddStrategy() {
               </ul>
             </div>
             {invalidFields.user_market_id && (
-              <p className="help is-danger">{invalidFields.user_market_id}</p>
+              <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.user_market_id}</p>
             )}
             {strategyId && (
               <p className="help" style={{ color: '#ff9900', fontWeight: 'bold' }}>
@@ -598,6 +600,8 @@ function AddStrategy() {
                     <button
                       type="button"
                       onClick={() => !strategyId && handleSelectSymbol(item)}
+                      aria-label={`${t('label.symbol')}: ${item.symbol}`}
+                      aria-pressed={formData.symbol === item.symbol}
                     >
                       <p>{item.symbol}</p>
                     </button>
@@ -605,7 +609,7 @@ function AddStrategy() {
                 ))}
               </ul>
             </div>
-            {invalidFields.symbol && <p className="help is-danger">{invalidFields.symbol}</p>}
+            {invalidFields.symbol && <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.symbol}</p>}
             {formData.symbol && !strategyId && (
               <p className="help is-link">
                 {t('prompt.plan_tips', { base: formData.base, quote: formData.quote })}
@@ -632,14 +636,14 @@ function AddStrategy() {
                     key={item.type}
                     className={`plantype-item ${formData.type === item.type ? 'active' : ''}`}
                   >
-                    <button type="button" onClick={() => handleSelectPlanType(item)}>
+                    <button type="button" onClick={() => handleSelectPlanType(item)} aria-label={`${t('label.plan_type')}: ${item.name}`} aria-pressed={formData.type === item.type}>
                       <p>{item.name}</p>
                     </button>
                   </li>
                 ))}
               </ul>
             </div>
-            {invalidFields.type && <p className="help is-danger">{invalidFields.type}</p>}
+            {invalidFields.type && <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.type}</p>}
           </div>
 
           {/* Single Purchase Amount */}
@@ -658,10 +662,11 @@ function AddStrategy() {
                 value={formData.base_limit}
                 onChange={handleInputChange}
                 placeholder={t('placeholder.input_single_purchase_amount')}
+                aria-label={t('label.single_purchase_amount')}
               />
             </div>
             {invalidFields.base_limit && (
-              <p className="help is-danger">{invalidFields.base_limit}</p>
+              <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.base_limit}</p>
             )}
           </div>
 
@@ -679,7 +684,7 @@ function AddStrategy() {
                     key={item.periodType}
                     className={`period-item ${formData.period === item.periodType ? 'active' : ''}`}
                   >
-                    <button type="button" onClick={() => handleSelectPeriod(item.periodType)}>
+                    <button type="button" onClick={() => handleSelectPeriod(item.periodType)} aria-label={`${t('label.plan_period')}: ${item.name}`} aria-pressed={formData.period === item.periodType}>
                       <p>{item.name}</p>
                     </button>
                   </li>
@@ -705,7 +710,7 @@ function AddStrategy() {
                 ))}
               </div>
               {(invalidFields.period || invalidFields.period_value) && (
-                <p className="help is-danger">
+                <p className="help is-danger" role="alert" aria-live="polite">
                   {invalidFields.period || invalidFields.period_value}
                 </p>
               )}
@@ -727,10 +732,11 @@ function AddStrategy() {
                 value={formData.stop_profit_percentage}
                 onChange={handleInputChange}
                 placeholder={t('placeholder.stop_profit_percentage')}
+                aria-label={t('label.stop_profit_rate')}
               />
             </div>
             {invalidFields.stop_profit_percentage && (
-              <p className="help is-danger">{invalidFields.stop_profit_percentage}</p>
+              <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.stop_profit_percentage}</p>
             )}
           </div>
 
@@ -749,10 +755,11 @@ function AddStrategy() {
                 value={formData.drawdown}
                 onChange={handleInputChange}
                 placeholder={t('placeholder.drawdown_percentage')}
+                aria-label={t('label.drawdown')}
               />
             </div>
             {invalidFields.drawdown && (
-              <p className="help is-danger">{invalidFields.drawdown}</p>
+              <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.drawdown}</p>
             )}
           </div>
 

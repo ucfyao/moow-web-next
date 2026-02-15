@@ -7,8 +7,9 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { format } from 'date-fns';
 import { css } from '@emotion/react';
-import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
+import Skeleton from '@/components/Skeleton';
+import EmptyState from '@/components/EmptyState';
 import auth from '@/utils/auth';
 
 const assetsPageStyle = css`
@@ -176,8 +177,22 @@ export default function AssetsPage() {
     return (
       <div css={assetsPageStyle} className="container">
         <section className="section">
-          <div className="box has-text-centered">
-            <p>{t('assets.loading')}</p>
+          <div className="box">
+            <Skeleton variant="text" count={3} height="1.5rem" width="60%" />
+          </div>
+        </section>
+        <section className="section">
+          <div className="box">
+            <div className="columns is-multiline">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="column is-one-quarter">
+                  <div className="summary-card">
+                    <Skeleton variant="text" height="1.5rem" width="60%" />
+                    <Skeleton variant="text" height="0.85rem" width="80%" />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       </div>
@@ -253,7 +268,7 @@ export default function AssetsPage() {
                 <p
                   className={`summary-value ${summary.totalProfit >= 0 ? 'has-text-success' : 'has-text-danger'}`}
                 >
-                  {summary.totalProfit >= 0 ? '+' : ''}
+                  {summary.totalProfit > 0 ? '▲ +' : summary.totalProfit < 0 ? '▼ ' : ''}
                   {summary.totalProfit.toFixed(2)} USDT
                 </p>
                 <p className="summary-label">{t('assets.total_profit')}</p>
@@ -261,16 +276,12 @@ export default function AssetsPage() {
             </div>
           </div>
           {summary.totalCount === 0 && (
-            <div className="has-text-centered" style={{ padding: '20px 0' }}>
-              <p className="has-text-grey">{t('assets.no_strategies')}</p>
-              <Link
-                href="/aip/addstrategy"
-                className="button is-info is-small"
-                style={{ marginTop: '10px' }}
-              >
-                {t('assets.create_strategy')}
-              </Link>
-            </div>
+            <EmptyState
+              title={t('empty.start_investing')}
+              description={t('empty.create_strategy_desc')}
+              actionText={t('empty.get_started')}
+              actionHref="/aip/addstrategy"
+            />
           )}
         </div>
       </section>

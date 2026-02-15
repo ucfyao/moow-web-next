@@ -28,6 +28,8 @@ const SignUp = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [alertMessage, setAlertMessage] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [open, setOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   //data initialization
   const [formData, setFormData] = useState({
@@ -162,9 +164,11 @@ const SignUp = () => {
                   <div className="field">
                     <div className="control has-icons-left has-icons-right">
                       <input
+                        id="signup-name"
                         className="input"
                         type="text"
                         placeholder={t('placeholder.name')}
+                        aria-label={t('placeholder.name')}
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
@@ -174,14 +178,16 @@ const SignUp = () => {
                         <i className="fa fa-user"></i>
                       </span>
                     </div>
-                    {invalidFields.name && <p className="help is-danger">{(invalidFields.name)}</p>}
+                    {invalidFields.name && <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.name}</p>}
                   </div>
                   <div className="field">
                     <div className="control has-icons-left has-icons-right">
                       <input
+                        id="signup-email"
                         className="input"
                         type="email"
                         placeholder={t('placeholder.email')}
+                        aria-label={t('placeholder.email')}
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
@@ -191,14 +197,16 @@ const SignUp = () => {
                         <i className="fa fa-envelope"></i>
                       </span>
                     </div>
-                    {invalidFields.email && <p className="help is-danger">{(invalidFields.email)}</p>}
+                    {invalidFields.email && <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.email}</p>}
                   </div>
                   <div className="field">
-                    <div className="control has-icons-left">
+                    <div className="control has-icons-left has-icons-right">
                       <input
+                        id="signup-password"
                         className="input"
-                        type="password"
+                        type={showPassword ? 'text' : 'password'}
                         placeholder={t('placeholder.password')}
+                        aria-label={t('placeholder.password')}
                         name="password"
                         value={formData.password}
                         onChange={handleChange}
@@ -207,17 +215,30 @@ const SignUp = () => {
                       <span className="icon is-small is-left">
                         <i className="fa fa-lock"></i>
                       </span>
+                      <span
+                        className="icon is-small is-right"
+                        style={{ pointerEvents: 'auto', cursor: 'pointer' }}
+                        onClick={() => setShowPassword(!showPassword)}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={showPassword ? '隐藏密码' : '显示密码'}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowPassword(!showPassword); } }}
+                      >
+                        <i className={`fa ${showPassword ? 'fa-eye' : 'fa-eye-slash'}`}></i>
+                      </span>
                     </div>
                     {invalidFields.password && (
-                      <p className="help is-danger">{(invalidFields.password)}</p>
+                      <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.password}</p>
                     )}
                   </div>
                   <div className="field">
-                    <div className="control has-icons-left">
+                    <div className="control has-icons-left has-icons-right">
                       <input
+                        id="signup-confirm-password"
                         className="input"
-                        type="password"
+                        type={showConfirmPassword ? 'text' : 'password'}
                         placeholder={t('placeholder.repeat_password')}
+                        aria-label={t('placeholder.repeat_password')}
                         name="confirmPassword"
                         value={formData.confirmPassword}
                         onChange={handleChange}
@@ -226,17 +247,30 @@ const SignUp = () => {
                       <span className="icon is-small is-left">
                         <i className="fa fa-lock"></i>
                       </span>
+                      <span
+                        className="icon is-small is-right"
+                        style={{ pointerEvents: 'auto', cursor: 'pointer' }}
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={showConfirmPassword ? '隐藏密码' : '显示密码'}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowConfirmPassword(!showConfirmPassword); } }}
+                      >
+                        <i className={`fa ${showConfirmPassword ? 'fa-eye' : 'fa-eye-slash'}`}></i>
+                      </span>
                     </div>
                     {invalidFields.confirmPassword && (
-                      <p className="help is-danger">{(invalidFields.confirmPassword)}</p>
+                      <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.confirmPassword}</p>
                     )}
                   </div>
                   <div className="field">
                     <div className="control has-icons-left">
                       <input
+                        id="signup-refcode"
                         className="input"
                         type="text"
                         placeholder={t('placeholder.invitation_code')}
+                        aria-label={t('placeholder.invitation_code')}
                         name="refCode"
                         value={formData.refCode}
                         onChange={handleChange}
@@ -247,16 +281,18 @@ const SignUp = () => {
                       </span>
                     </div>
                     {invalidFields.refCode && (
-                      <p className="help is-danger">{(invalidFields.refCode)}</p>
+                      <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.refCode}</p>
                     )}
                   </div>
                   <div className="field">
                     <div className="field is-grouped">
                       <p className="control is-expanded">
                         <input
+                          id="signup-captcha"
                           className="input"
                           type="text"
                           placeholder={t('placeholder.captcha')}
+                          aria-label={t('placeholder.captcha')}
                           name="captcha"
                           value={formData.captcha}
                           onChange={handleChange}
@@ -265,13 +301,17 @@ const SignUp = () => {
                       </p>
                       <div
                         className="control"
-                        dangerouslySetInnerHTML={{ __html: captchaSrc }}
+                        dangerouslySetInnerHTML={{ __html: captchaSrc }} /* SVG captcha from own API */
                         title={t('prompt.click_refresh_captcha')}
+                        aria-label="验证码，点击刷新"
+                        role="button"
+                        tabIndex={0}
                         onClick={updateCaptcha}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); updateCaptcha(); } }}
                       />
                     </div>
                     {invalidFields.captcha && (
-                      <p className="help is-danger">{(invalidFields.captcha)}</p>
+                      <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.captcha}</p>
                     )}
                   </div>
                   <div className="field" style={{ marginTop: '30px' }}>

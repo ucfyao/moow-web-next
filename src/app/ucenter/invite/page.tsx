@@ -11,6 +11,7 @@ import Image from 'next/image';
 import { QRCodeCanvas } from 'qrcode.react';
 import { useTranslation } from 'react-i18next';
 import auth from '@/utils/auth';
+import Skeleton from '@/components/Skeleton';
 import no_record from '@/assets/images/no_record.png';
 
 const invitePageStyle = css`
@@ -450,8 +451,13 @@ export default function InvitePage() {
     return (
       <div css={invitePageStyle} className="container">
         <section className="section">
-          <div className="box has-text-centered">
-            <p>{t('invite.loading')}</p>
+          <div className="box">
+            <Skeleton variant="text" count={3} height="1.5rem" width="70%" />
+          </div>
+        </section>
+        <section className="section">
+          <div className="box">
+            <Skeleton variant="text" count={5} height="2.5rem" />
           </div>
         </section>
       </div>

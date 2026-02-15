@@ -4,10 +4,11 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import no_record from '@/assets/images/no_record.png';
 import { css } from '@emotion/react';
 import Pagination from '@/components/Pagination';
+import Skeleton from '@/components/Skeleton';
+import ConfirmModal from '@/components/ConfirmModal';
+import EmptyState from '@/components/EmptyState';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import HTTP from '@/lib/http';
@@ -108,6 +109,14 @@ export default function StrategyList() {
     message: string;
     severity: 'success' | 'error';
   }>({ open: false, message: '', severity: 'success' });
+  const [modal, setModal] = useState<{
+    open: boolean;
+    title: string;
+    message: string;
+    variant: 'danger' | 'warning' | 'info';
+    onConfirm: () => void;
+    loading: boolean;
+  }>({ open: false, title: '', message: '', variant: 'info', onConfirm: () => {}, loading: false });
 
   const fetchStrategies = useCallback(
     async (page: number) => {
@@ -139,9 +148,9 @@ export default function StrategyList() {
   function getStatusText(status: number): string {
     switch (status) {
       case 1:
-        return t('title.status_normal');
+        return `● ${t('title.status_normal')}`;
       case 2:
-        return t('title.status_stopped');
+        return `■ ${t('title.status_stopped')}`;
       case 3:
         return t('title.status_deleted');
       default:
@@ -149,45 +158,61 @@ export default function StrategyList() {
     }
   }
 
-  async function switchStrategyStatus(strategy: Strategy) {
+  function switchStrategyStatus(strategy: Strategy) {
     const text = getStatusText(strategy.status);
     const newStatus = strategy.status === 1 ? 2 : 1;
 
-    if (!window.confirm(t('prompt.confirm_switch_plan_status', { text }))) {
-      return;
-    }
-
-    try {
-      await HTTP.patch(`/v1/strategies/${strategy._id}`, { status: newStatus });
-      setSnackbar({ open: true, message: t('prompt.operation_succeed'), severity: 'success' });
-      fetchStrategies(currentPage);
-    } catch (error: any) {
-      console.error(error);
-      setSnackbar({
-        open: true,
-        message: error?.message || t('prompt.operation_failed'),
-        severity: 'error',
-      });
-    }
+    setModal({
+      open: true,
+      title: t('prompt.confirm_action'),
+      message: t('prompt.confirm_switch_plan_status', { text }),
+      variant: 'warning',
+      loading: false,
+      onConfirm: async () => {
+        setModal((prev) => ({ ...prev, loading: true }));
+        try {
+          await HTTP.patch(`/v1/strategies/${strategy._id}`, { status: newStatus });
+          setSnackbar({ open: true, message: t('prompt.operation_succeed'), severity: 'success' });
+          fetchStrategies(currentPage);
+        } catch (error: any) {
+          console.error(error);
+          setSnackbar({
+            open: true,
+            message: error?.message || t('prompt.operation_failed'),
+            severity: 'error',
+          });
+        } finally {
+          setModal((prev) => ({ ...prev, open: false, loading: false }));
+        }
+      },
+    });
   }
 
-  async function deleteStrategy(strategy: Strategy) {
-    if (!window.confirm(t('prompt.confirm_delete_strategy'))) {
-      return;
-    }
-
-    try {
-      await HTTP.delete(`/v1/strategies/${strategy._id}`);
-      setSnackbar({ open: true, message: t('prompt.operation_succeed'), severity: 'success' });
-      fetchStrategies(currentPage);
-    } catch (error: any) {
-      console.error(error);
-      setSnackbar({
-        open: true,
-        message: error?.message || t('prompt.operation_failed'),
-        severity: 'error',
-      });
-    }
+  function deleteStrategy(strategy: Strategy) {
+    setModal({
+      open: true,
+      title: t('prompt.confirm_action'),
+      message: t('prompt.confirm_delete_strategy'),
+      variant: 'danger',
+      loading: false,
+      onConfirm: async () => {
+        setModal((prev) => ({ ...prev, loading: true }));
+        try {
+          await HTTP.delete(`/v1/strategies/${strategy._id}`);
+          setSnackbar({ open: true, message: t('prompt.operation_succeed'), severity: 'success' });
+          fetchStrategies(currentPage);
+        } catch (error: any) {
+          console.error(error);
+          setSnackbar({
+            open: true,
+            message: error?.message || t('prompt.operation_failed'),
+            severity: 'error',
+          });
+        } finally {
+          setModal((prev) => ({ ...prev, open: false, loading: false }));
+        }
+      },
+    });
   }
 
   function editStrategy(strategyId: string) {
@@ -204,12 +229,20 @@ export default function StrategyList() {
 
   function formatProfit(value: number | string): string {
     if (value === '-' || value === undefined || value === null) return '-';
-    return util.formatNumber(Number(value));
+    const num = Number(value);
+    const formatted = util.formatNumber(num);
+    if (num > 0) return `▲ ${formatted}`;
+    if (num < 0) return `▼ ${formatted}`;
+    return formatted;
   }
 
   function formatProfitPercentage(value: number | string): string {
     if (value === '-' || value === undefined || value === null) return '-';
-    return util.formatNumber(Number(value), 2, '%');
+    const num = Number(value);
+    const formatted = util.formatNumber(num, 2, '%');
+    if (num > 0) return `▲ ${formatted}`;
+    if (num < 0) return `▼ ${formatted}`;
+    return formatted;
   }
 
   function profitColorClass(value: number | string): string {
@@ -234,7 +267,9 @@ export default function StrategyList() {
 
           <div className="table-wrapper">
             {loading ? (
-              <div className="loading-container">{t('prompt.loading')}</div>
+              <div style={{ padding: '20px 0' }}>
+                <Skeleton variant="text" count={5} height="2.5rem" />
+              </div>
             ) : tableData && tableData.length > 0 ? (
               <table className="table is-fullwidth is-striped">
                 <thead>
@@ -313,7 +348,12 @@ export default function StrategyList() {
                 </tbody>
               </table>
             ) : (
-              <Image className="no-record" src={no_record} alt="No records found" />
+              <EmptyState
+                title={t('empty.no_strategies')}
+                description={t('empty.create_first_strategy')}
+                actionText={t('action.new_plan')}
+                actionHref="/aip/addstrategy"
+              />
             )}
           </div>
           {!loading && total > 0 && (
@@ -342,6 +382,16 @@ export default function StrategyList() {
           {snackbar.message}
         </Alert>
       </Snackbar>
+
+      <ConfirmModal
+        isOpen={modal.open}
+        title={modal.title}
+        message={modal.message}
+        variant={modal.variant}
+        loading={modal.loading}
+        onConfirm={modal.onConfirm}
+        onCancel={() => setModal((prev) => ({ ...prev, open: false }))}
+      />
     </div>
   );
 }

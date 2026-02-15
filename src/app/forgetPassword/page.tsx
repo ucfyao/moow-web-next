@@ -75,42 +75,50 @@ const ForgetPassword = () => {
                 </label>
                 <div className="control has-icons-left">
                   <input
+                    id="forget-email"
                     className="input"
                     type="email"
                     value={formData.email}
                     placeholder={t('placeholder.email')}
+                    aria-label={t('placeholder.email')}
                   />
                   <span className="icon is-small is-left">
                     <i className="fa fa-envelope"></i>
                   </span>
                 </div>
-                {invalidFields.email && <p className="help is-danger"></p>}
+                {invalidFields.email && <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.email}</p>}
               </div>
               <div className="field">
                 <div className="field-body">
                   <div className="field is-grouped">
                     <p className="control is-expanded">
                       <input
+                        id="forget-captcha"
                         className="input"
                         type="text"
                         value={formData.captcha}
                         placeholder={t('placeholder.captcha')}
+                        aria-label={t('placeholder.captcha')}
                       />
                     </p>
                     <div className="control">
                       <Image
                         className="captcha"
                         src={captchaSrc}
-                        alt={t('prompt.click_refresh_captcha')}
+                        alt="验证码，点击刷新"
                         title={t('prompt.click_refresh_captcha')}
+                        role="button"
+                        tabIndex={0}
                         onClick={updateCaptcha}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); updateCaptcha(); } }}
                         width={150}
                         height={50}
+                        style={{ cursor: 'pointer' }}
                       />
                     </div>
                   </div>
                 </div>
-                {invalidFields.captcha && <p className="help is-danger"></p>}
+                {invalidFields.captcha && <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.captcha}</p>}
               </div>
               <div className="field is-grouped">
                 <div className="control">

@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback, KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import auth from '@/utils/auth';
 import '@/i18n';
@@ -15,12 +15,81 @@ import logo2 from '@/assets/images/logo2.png';
 export default function Header({ isFixed = true }: { isFixed?: boolean }) {
   const { t, i18n } = useTranslation();
   const [burgerActive, setBurgerActive] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [focusedIndex, setFocusedIndex] = useState(-1);
+  const coinDropdownRef = useRef<HTMLDivElement>(null);
+  const userDropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
   const isHome = pathname === '/';
   const userInfo = useUserStore((state) => state.userInfo);
   const setUserInfo = useUserStore((state) => state.setUserInfo);
   const isAuthenticated = !!userInfo?.email;
+
+  const closeDropdown = useCallback(() => {
+    setActiveDropdown(null);
+    setFocusedIndex(-1);
+  }, []);
+
+  const handleDropdownKeyDown = useCallback(
+    (e: KeyboardEvent, dropdownId: string, itemCount: number) => {
+      switch (e.key) {
+        case 'Enter':
+        case ' ': {
+          e.preventDefault();
+          if (activeDropdown === dropdownId) {
+            if (focusedIndex >= 0) {
+              const ref = dropdownId === 'coin' ? coinDropdownRef : userDropdownRef;
+              const items = ref.current?.querySelectorAll('[role="menuitem"]');
+              if (items?.[focusedIndex]) {
+                (items[focusedIndex] as HTMLElement).click();
+              }
+              closeDropdown();
+            } else {
+              closeDropdown();
+            }
+          } else {
+            setActiveDropdown(dropdownId);
+            setFocusedIndex(0);
+          }
+          break;
+        }
+        case 'Escape':
+          e.preventDefault();
+          closeDropdown();
+          break;
+        case 'ArrowDown':
+          e.preventDefault();
+          if (activeDropdown !== dropdownId) {
+            setActiveDropdown(dropdownId);
+            setFocusedIndex(0);
+          } else {
+            setFocusedIndex((prev) => (prev + 1) % itemCount);
+          }
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          if (activeDropdown !== dropdownId) {
+            setActiveDropdown(dropdownId);
+            setFocusedIndex(itemCount - 1);
+          } else {
+            setFocusedIndex((prev) => (prev - 1 + itemCount) % itemCount);
+          }
+          break;
+      }
+    },
+    [activeDropdown, focusedIndex, closeDropdown],
+  );
+
+  useEffect(() => {
+    if (activeDropdown) {
+      const ref = activeDropdown === 'coin' ? coinDropdownRef : userDropdownRef;
+      const items = ref.current?.querySelectorAll('[role="menuitem"]');
+      if (items?.[focusedIndex]) {
+        (items[focusedIndex] as HTMLElement).focus();
+      }
+    }
+  }, [activeDropdown, focusedIndex]);
 
   const localeLabel = i18n.language === 'zh' ? 'English' : '中文';
 
@@ -50,7 +119,8 @@ export default function Header({ isFixed = true }: { isFixed?: boolean }) {
 
   useEffect(() => {
     setBurgerActive(false);
-  }, [pathname]);
+    closeDropdown();
+  }, [pathname, closeDropdown]);
 
   //useEffect(() => {
     //console.log('Current user info:', userInfo);
@@ -84,34 +154,54 @@ export default function Header({ isFixed = true }: { isFixed?: boolean }) {
             <Link href="/" className="navbar-item">{t('link.home')}</Link>
             <Link href="/aip" className="navbar-item">{t('link.coin_aip')}</Link>
             <Link href="/arbitrage" className="navbar-item">{t('link.arbitrage')}</Link>
-            <div className="navbar-item has-dropdown is-hoverable">
-              <a href="/hq/coin" className="navbar-link">{t('link.coin')}</a>
-              <div className="navbar-dropdown is-boxed">
-                <a href="/hq/coin" className="navbar-item" target="_self">{t('link.coins')}</a>
-                <a href="/hq/exchange" className="navbar-item" target="_self">{t('link.exchanges')}</a>
-                <a href="/hq/news" className="navbar-item" target="_self">{t('link.news')}</a>
+            <div
+              className={`navbar-item has-dropdown is-hoverable ${activeDropdown === 'coin' ? 'is-active' : ''}`}
+              ref={coinDropdownRef}
+            >
+              <a
+                href="/hq/coin"
+                className="navbar-link"
+                aria-haspopup="true"
+                aria-expanded={activeDropdown === 'coin'}
+                onKeyDown={(e) => handleDropdownKeyDown(e, 'coin', 3)}
+              >
+                {t('link.coin')}
+              </a>
+              <div className="navbar-dropdown is-boxed" role="menu">
+                <a href="/hq/coin" className="navbar-item" role="menuitem" tabIndex={-1} target="_self">{t('link.coins')}</a>
+                <a href="/hq/exchange" className="navbar-item" role="menuitem" tabIndex={-1} target="_self">{t('link.exchanges')}</a>
+                <a href="/hq/news" className="navbar-item" role="menuitem" tabIndex={-1} target="_self">{t('link.news')}</a>
               </div>
             </div>
           </div>
 
           <div className="navbar-end">
             {isAuthenticated ? (
-              <div className="navbar-item has-dropdown is-hoverable">
-                <Link href="" className="navbar-link">
+              <div
+                className={`navbar-item has-dropdown is-hoverable ${activeDropdown === 'user' ? 'is-active' : ''}`}
+                ref={userDropdownRef}
+              >
+                <Link
+                  href=""
+                  className="navbar-link"
+                  aria-haspopup="true"
+                  aria-expanded={activeDropdown === 'user'}
+                  onKeyDown={(e) => handleDropdownKeyDown(e, 'user', 6)}
+                >
                   {userInfo.email}
                 </Link>
-                <div className="navbar-dropdown is-boxed">
-                  <Link href="/assets" className="navbar-item">{t('link.my_assets')}</Link>
+                <div className="navbar-dropdown is-boxed" role="menu">
+                  <Link href="/assets" className="navbar-item" role="menuitem" tabIndex={-1}>{t('link.my_assets')}</Link>
                   <hr className="navbar-divider" />
-                  <Link href="/invite" className="navbar-item">{t('link.my_invite')}</Link>
+                  <Link href="/invite" className="navbar-item" role="menuitem" tabIndex={-1}>{t('link.my_invite')}</Link>
                   <hr className="navbar-divider" />
-                  <Link href="/aip/markets" className="navbar-item">{t('link.exchange_apikeys')}</Link>
+                  <Link href="/aip/markets" className="navbar-item" role="menuitem" tabIndex={-1}>{t('link.exchange_apikeys')}</Link>
                   <hr className="navbar-divider" />
-                  <Link href="/aip/orders" className="navbar-item">{t('link.orders')}</Link>
+                  <Link href="/aip/orders" className="navbar-item" role="menuitem" tabIndex={-1}>{t('link.orders')}</Link>
                   <hr className="navbar-divider" />
-                  <Link href="/ucenter/profile" className="navbar-item">{t('link.my_profile')}</Link>
+                  <Link href="/ucenter/profile" className="navbar-item" role="menuitem" tabIndex={-1}>{t('link.my_profile')}</Link>
                   <hr className="navbar-divider" />
-                  <a className="navbar-item" onClick={handleLogout}>{t('sign_out')}</a>
+                  <a className="navbar-item" role="menuitem" tabIndex={-1} onClick={handleLogout}>{t('sign_out')}</a>
                 </div>
               </div>
             ) : (

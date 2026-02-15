@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Highcharts from 'highcharts';
 import { useTranslation } from 'react-i18next';
 
@@ -26,9 +26,36 @@ function formatDate(date: string): string {
   return `${yy}.${mm}.${dd}`;
 }
 
+function getChartHeight(): number {
+  if (typeof window === 'undefined') return 400;
+  return window.innerWidth < 768 ? 250 : 400;
+}
+
 export default function DingtouChart({ orders }: DingtouChartProps) {
   const chartRef = useRef<HTMLDivElement>(null);
+  const chartInstanceRef = useRef<Highcharts.Chart | null>(null);
+  const [chartHeight, setChartHeight] = useState(getChartHeight);
   const { t } = useTranslation();
+
+  useEffect(() => {
+    let debounceTimer: ReturnType<typeof setTimeout>;
+
+    function handleResize() {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        setChartHeight(getChartHeight());
+        if (chartInstanceRef.current) {
+          chartInstanceRef.current.reflow();
+        }
+      }, 200);
+    }
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      clearTimeout(debounceTimer);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     if (!chartRef.current || orders.length === 0) return;
@@ -55,8 +82,12 @@ export default function DingtouChart({ orders }: DingtouChartProps) {
     max = max + b / 2;
     min = min - b / 2;
 
-    Highcharts.chart(chartRef.current, {
-      chart: { type: 'spline' },
+    chartInstanceRef.current = Highcharts.chart(chartRef.current, {
+      chart: {
+        type: 'spline',
+        height: chartHeight,
+        reflow: true,
+      },
       title: { text: undefined },
       subtitle: { text: 'BTC/USDT' },
       xAxis: { categories },
@@ -103,7 +134,14 @@ export default function DingtouChart({ orders }: DingtouChartProps) {
       ],
       credits: { enabled: false },
     });
-  }, [orders, t]);
 
-  return <div ref={chartRef} className="dingtou-line" />;
+    return () => {
+      if (chartInstanceRef.current) {
+        chartInstanceRef.current.destroy();
+        chartInstanceRef.current = null;
+      }
+    };
+  }, [orders, t, chartHeight]);
+
+  return <div ref={chartRef} className="dingtou-line" style={{ width: '100%' }} />;
 }
