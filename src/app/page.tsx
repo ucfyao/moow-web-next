@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Autoplay } from 'swiper/modules';
+import Highcharts from 'highcharts';
 import DingtouChart from '@/components/DingtouChart';
 import HTTP from '@/lib/http';
 import iconDown from '@/assets/images/icon-down.png';
@@ -19,7 +20,12 @@ interface DingtouOrder {
   createdAt: string;
 }
 
-// Demo data for DCA chart while backend API (S11 tickets 302-303) is not yet available
+interface BtcHistoryItem {
+  date: string;
+  close: number;
+}
+
+// Fallback demo data if API is unavailable
 const DEMO_ORDERS: DingtouOrder[] = [
   { base_total: 100, value_total: 98, createdAt: '2025-01-15' },
   { base_total: 200, value_total: 210, createdAt: '2025-02-15' },
@@ -33,13 +39,62 @@ const DEMO_ORDERS: DingtouOrder[] = [
   { base_total: 1000, value_total: 1150, createdAt: '2025-10-15' },
 ];
 
+function BtcPriceChart({ data }: { data: BtcHistoryItem[] }) {
+  const chartRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    if (!chartRef.current || data.length === 0) return;
+
+    const categories = data.map((d) => d.date);
+    const prices = data.map((d) => d.close);
+
+    Highcharts.chart(chartRef.current, {
+      chart: { type: 'area' },
+      title: { text: undefined },
+      subtitle: { text: 'BTC/USDT' },
+      xAxis: {
+        categories,
+        tickInterval: Math.ceil(categories.length / 6),
+        labels: { rotation: -45 },
+      },
+      yAxis: {
+        title: { text: t('home.btc_price') },
+        labels: { format: '${value:,.0f}' },
+      },
+      tooltip: {
+        pointFormat: '<b>${point.y:,.2f}</b>',
+      },
+      plotOptions: {
+        area: {
+          fillOpacity: 0.15,
+          marker: { enabled: false },
+          lineWidth: 2,
+        },
+      },
+      series: [
+        {
+          type: 'area',
+          name: t('home.btc_price'),
+          data: prices,
+          color: '#f7931a',
+        },
+      ],
+      credits: { enabled: false },
+    });
+  }, [data, t]);
+
+  return <div ref={chartRef} style={{ width: '100%', minHeight: '300px' }} />;
+}
+
 export default function Home() {
   const { t } = useTranslation();
   const [orders, setOrders] = useState<DingtouOrder[]>([]);
+  const [btcHistory, setBtcHistory] = useState<BtcHistoryItem[]>([]);
 
   useEffect(() => {
-    // Try to fetch from API; fall back to demo data if backend not available
-    HTTP.post('/v1/public/dingtou/orders', {})
+    // Fetch DCA demo orders from public API
+    HTTP.get('/v1/public/dingtou/orders')
       .then((res: any) => {
         if (res?.data?.list?.length) {
           setOrders(res.data.list);
@@ -50,6 +105,18 @@ export default function Home() {
       })
       .catch(() => {
         setOrders(DEMO_ORDERS);
+      });
+
+    // Fetch BTC price history
+    HTTP.get('/v1/public/btc-history', { params: { limit: 365 } })
+      .then((res: any) => {
+        if (res?.data?.list?.length) {
+          setBtcHistory(res.data.list);
+        }
+        return res;
+      })
+      .catch(() => {
+        // silently fail — chart section just won't render
       });
   }, []);
 
@@ -97,6 +164,20 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* BTC Price Trend */}
+      {btcHistory.length > 0 && (
+        <div className="display-bg" style={{ paddingTop: '1rem' }}>
+          <div className="display-data">
+            <div className="card">
+              <h6 className="title is-6" style={{ paddingBottom: 0 }}>
+                {t('home.btc_trend')}
+              </h6>
+              <BtcPriceChart data={btcHistory} />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Pain Points & Solutions */}
       <div className="pb_st c_container c_center">
