@@ -18,30 +18,27 @@ vi.mock('@/utils/util', () => ({
   },
 }));
 
-// Mock window.confirm
-const mockConfirm = vi.fn();
-Object.defineProperty(window, 'confirm', { value: mockConfirm, writable: true });
-
 import MarketsPage from '@/app/aip/markets/page';
 
 describe('MarketsPage', () => {
   beforeEach(() => {
     mockGet.mockReset();
     mockDelete.mockReset();
-    mockConfirm.mockReset();
   });
 
-  it('renders loading state initially', () => {
+  it('renders skeleton loading state initially', () => {
     mockGet.mockReturnValue(new Promise(() => {}));
-    render(<MarketsPage />);
-    expect(screen.getByText('prompt.loading')).toBeInTheDocument();
+    const { container } = render(<MarketsPage />);
+    // Skeleton component renders shimmer elements via Emotion
+    // Table should not be visible during loading
+    expect(container.querySelector('table')).not.toBeInTheDocument();
   });
 
   it('renders empty state when no keys', async () => {
     mockGet.mockResolvedValue({ data: { list: [], total: 0 } });
     render(<MarketsPage />);
     await waitFor(() => {
-      expect(screen.getByText('prompt.no_exchange_keys')).toBeInTheDocument();
+      expect(screen.getByText('empty.no_exchange_keys')).toBeInTheDocument();
     });
   });
 
@@ -79,7 +76,7 @@ describe('MarketsPage', () => {
     });
   });
 
-  it('calls delete API when confirmed', async () => {
+  it('opens confirm modal and calls delete API when confirmed', async () => {
     mockGet.mockResolvedValue({
       data: {
         list: [
@@ -96,20 +93,27 @@ describe('MarketsPage', () => {
       },
     });
     mockDelete.mockResolvedValue({});
-    mockConfirm.mockReturnValue(true);
 
     render(<MarketsPage />);
     await waitFor(() => {
       expect(screen.getByText('action.delete')).toBeInTheDocument();
     });
 
+    // Click delete opens ConfirmModal
     fireEvent.click(screen.getByText('action.delete'));
+    await waitFor(() => {
+      expect(screen.getByText('prompt.confirm_action')).toBeInTheDocument();
+    });
+
+    // Click confirm button in modal
+    const confirmBtn = screen.getByTestId('confirm-button');
+    fireEvent.click(confirmBtn);
     await waitFor(() => {
       expect(mockDelete).toHaveBeenCalledWith('/v1/keys/123');
     });
   });
 
-  it('does not call delete API when cancelled', async () => {
+  it('does not call delete API when modal cancelled', async () => {
     mockGet.mockResolvedValue({
       data: {
         list: [
@@ -125,14 +129,21 @@ describe('MarketsPage', () => {
         total: 1,
       },
     });
-    mockConfirm.mockReturnValue(false);
 
     render(<MarketsPage />);
     await waitFor(() => {
       expect(screen.getByText('action.delete')).toBeInTheDocument();
     });
 
+    // Click delete opens modal
     fireEvent.click(screen.getByText('action.delete'));
+    await waitFor(() => {
+      expect(screen.getByText('prompt.confirm_action')).toBeInTheDocument();
+    });
+
+    // Click cancel
+    const cancelBtn = screen.getByTestId('cancel-button');
+    fireEvent.click(cancelBtn);
     expect(mockDelete).not.toHaveBeenCalled();
   });
 
