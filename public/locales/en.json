@@ -415,7 +415,9 @@
     "feature_3": "Support for multiple exchanges, multi-currency, cross-platform asset management",
     "feature_4": "One-click asset management with multi-dimensional data visualization",
     "go_invest": "Start Investing",
-    "no_data": "No data available"
+    "no_data": "No data available",
+    "btc_trend": "BTC Price Trend (1 Year)",
+    "btc_price": "BTC Price (USD)"
   },
   "pager": {
     "prev": "Previous",

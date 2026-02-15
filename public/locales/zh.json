@@ -415,7 +415,9 @@
     "feature_3": "支持数家交易所，多币种，跨平台资产管理",
     "feature_4": "一键式资产托管，多维度的数据可视化",
     "go_invest": "去定投",
-    "no_data": "暂无数据"
+    "no_data": "暂无数据",
+    "btc_trend": "BTC 价格走势 (近一年)",
+    "btc_price": "BTC 价格 (USD)"
   },
   "pager": {
     "prev": "上一页",
