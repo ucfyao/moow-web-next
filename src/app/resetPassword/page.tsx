@@ -29,6 +29,8 @@ const ResetPassword = () => {
   });
   const [invalidFields, setInvalidFields] = useState<InvalidFields>({});
   const [isProccessing, setIsProccessing] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordCheck, setShowPasswordCheck] = useState(false);
 
   const router = useRouter();
 
@@ -99,18 +101,31 @@ const ResetPassword = () => {
                 {t('label.input')}
                 {t('label.new_password')}
               </label>
-              <div className="control has-icons-left">
+              <div className="control has-icons-left has-icons-right">
                 <input
+                  id="reset-password"
                   className="input"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={formData.password}
                   placeholder={t('placeholder.password')}
+                  aria-label={t('placeholder.password')}
                 />
                 <span className="icon is-small is-left">
                   <i className="fa fa-lock"></i>
                 </span>
+                <span
+                  className="icon is-small is-right"
+                  style={{ pointerEvents: 'auto', cursor: 'pointer' }}
+                  onClick={() => setShowPassword(!showPassword)}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={showPassword ? '隐藏密码' : '显示密码'}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowPassword(!showPassword); } }}
+                >
+                  <i className={`fa ${showPassword ? 'fa-eye' : 'fa-eye-slash'}`}></i>
+                </span>
               </div>
-              {invalidFields.password && <p className="help is-danger"></p>}
+              {invalidFields.password && <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.password}</p>}
             </div>
             <div className="field">
               <label className="label">
@@ -118,18 +133,31 @@ const ResetPassword = () => {
                 {t('label.input')}
                 {t('label.confirm_password')}
               </label>
-              <div className="control has-icons-left">
+              <div className="control has-icons-left has-icons-right">
                 <input
+                  id="reset-password-check"
                   className="input"
-                  type="password"
+                  type={showPasswordCheck ? 'text' : 'password'}
                   value={formData.passwordCheck}
                   placeholder={t('placeholder.repeat_password')}
+                  aria-label={t('placeholder.repeat_password')}
                 />
                 <span className="icon is-small is-left">
                   <i className="fa fa-lock"></i>
                 </span>
+                <span
+                  className="icon is-small is-right"
+                  style={{ pointerEvents: 'auto', cursor: 'pointer' }}
+                  onClick={() => setShowPasswordCheck(!showPasswordCheck)}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={showPasswordCheck ? '隐藏密码' : '显示密码'}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowPasswordCheck(!showPasswordCheck); } }}
+                >
+                  <i className={`fa ${showPasswordCheck ? 'fa-eye' : 'fa-eye-slash'}`}></i>
+                </span>
               </div>
-              {invalidFields.passwordCheck && <p className="help is-danger"></p>}
+              {invalidFields.passwordCheck && <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.passwordCheck}</p>}
             </div>
             <div className="field is-grouped">
               <div className="control">
