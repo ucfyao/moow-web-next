@@ -98,6 +98,7 @@
     "my_invite": "邀请赚币",
     "exchange_apikeys": "交易所API授权",
     "my_profile": "个人信息",
+    "orders": "订单",
     "exchanges": "交易所",
     "coins": "币种",
     "coin": "行情"
@@ -303,6 +304,13 @@
     "total_invested": "总投入",
     "total_value": "总价值"
   },
+  "orders": {
+    "page_title": "订单历史",
+    "all_strategies": "全部策略",
+    "all_sides": "全部方向",
+    "total_revenue": "总收入",
+    "total_profit": "总利润"
+  },
   "strategy": {
     "manual_buy": "手动买入",
     "manual_sell": "手动卖出",
@@ -435,7 +443,12 @@
     "logout": "退出登录",
     "change_password": "修改密码",
     "current_email": "当前邮箱",
-    "verification_code": "验证码"
+    "verification_code": "验证码",
+    "registration_date": "注册日期",
+    "strength_weak": "弱",
+    "strength_fair": "一般",
+    "strength_good": "良好",
+    "strength_strong": "强"
   },
   "activation": {
     "go_homepage": "返回首页",

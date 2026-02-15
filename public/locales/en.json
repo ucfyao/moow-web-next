@@ -98,6 +98,7 @@
     "my_invite": "My Invite",
     "exchange_apikeys": "Exchange API Keys",
     "my_profile": "My Profile",
+    "orders": "Orders",
     "exchanges": "exchanges",
     "coins": "Coins",
     "coin": "Coins"
@@ -303,6 +304,13 @@
     "total_invested": "Total Invested",
     "total_value": "Total Value"
   },
+  "orders": {
+    "page_title": "Order History",
+    "all_strategies": "All Strategies",
+    "all_sides": "All Sides",
+    "total_revenue": "Total Revenue",
+    "total_profit": "Total Profit"
+  },
   "strategy": {
     "manual_buy": "Manual Buy",
     "manual_sell": "Manual Sell",
@@ -435,7 +443,12 @@
     "logout": "Logout",
     "change_password": "Change Password",
     "current_email": "Current Email",
-    "verification_code": "Verification Code"
+    "verification_code": "Verification Code",
+    "registration_date": "Registration Date",
+    "strength_weak": "Weak",
+    "strength_fair": "Fair",
+    "strength_good": "Good",
+    "strength_strong": "Strong"
   },
   "activation": {
     "go_homepage": "Go back Homepage",
