@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import no_record from '@/assets/images/no_record.png';
@@ -150,6 +150,12 @@ const strategyDetailStyle = css`
     background: #fde8ec;
     color: #ff3860;
   }
+
+  .chart-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+  }
 `;
 
 interface StrategyDetail {
@@ -207,13 +213,45 @@ interface ChartProps {
 
 const PAGE_SIZE = 20;
 
+function getChartHeight(): number {
+  if (typeof window === 'undefined') return 400;
+  return window.innerWidth < 768 ? 250 : 400;
+}
+
 function Chart({ id, categories, series1, series2, series3, max, min, t }: ChartProps) {
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const chartInstanceRef = useRef<Highcharts.Chart | null>(null);
+  const [chartHeight, setChartHeight] = useState(getChartHeight);
+
   useEffect(() => {
+    let debounceTimer: ReturnType<typeof setTimeout>;
+
+    function handleResize() {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        setChartHeight(getChartHeight());
+        if (chartInstanceRef.current) {
+          chartInstanceRef.current.reflow();
+        }
+      }, 200);
+    }
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      clearTimeout(debounceTimer);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!chartContainerRef.current) return;
+
     const colors = Highcharts.getOptions().colors || [];
-    Highcharts.chart({
+    chartInstanceRef.current = Highcharts.chart(chartContainerRef.current, {
       chart: {
         type: 'spline',
-        renderTo: id,
+        height: chartHeight,
+        reflow: true,
       },
       title: {
         text: t('chart.investment_returns'),
@@ -272,10 +310,18 @@ function Chart({ id, categories, series1, series2, series3, max, min, t }: Chart
           data: series2,
         },
       ],
+      credits: { enabled: false },
     });
-  }, [id, categories, series1, series2, series3, max, min, t]);
 
-  return <div id={id} />;
+    return () => {
+      if (chartInstanceRef.current) {
+        chartInstanceRef.current.destroy();
+        chartInstanceRef.current = null;
+      }
+    };
+  }, [id, categories, series1, series2, series3, max, min, t, chartHeight]);
+
+  return <div ref={chartContainerRef} id={id} style={{ width: '100%' }} />;
 }
 
 function computeOrderStats(orders: Order[]): OrderStats {
@@ -329,6 +375,22 @@ export default function StrategyDetails() {
   const [categories, setCategories] = useState<string[]>([]);
   const [chartMax, setChartMax] = useState(0);
   const [chartMin, setChartMin] = useState(0);
+  const [timeRange, setTimeRange] = useState<number | null>(null); // null = all
+
+  // Filtered chart data by time range
+  const sliceCount = timeRange !== null ? Math.min(timeRange, categories.length) : categories.length;
+  const startIdx = categories.length - sliceCount;
+  const filteredCategories = categories.slice(startIdx);
+  const filteredBaseTotal = baseTotal.slice(startIdx);
+  const filteredValueTotal = valueTotal.slice(startIdx);
+  const filteredProfitRate = profitRate.slice(startIdx);
+  const filteredMax =
+    filteredProfitRate.length > 0 ? Math.max(...filteredProfitRate) : chartMax;
+  const filteredMin =
+    filteredProfitRate.length > 0 ? Math.min(...filteredProfitRate) : chartMin;
+  const filteredB = filteredMax - filteredMin * 1.4 - (filteredMax - filteredMin);
+  const filteredChartMax = filteredMax + filteredB / 2;
+  const filteredChartMin = filteredMin - filteredB / 2;
 
   // Order pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -522,8 +584,8 @@ export default function StrategyDetails() {
                     className={`status-badge ${details.status === 1 ? 'status-running' : 'status-stopped'}`}
                   >
                     {details.status === 1
-                      ? t('strategy.status_running')
-                      : t('strategy.status_stopped')}
+                      ? `● ${t('strategy.status_running')}`
+                      : `■ ${t('strategy.status_stopped')}`}
                   </span>
                 </div>
               </div>
@@ -545,6 +607,7 @@ export default function StrategyDetails() {
                   <p className={fontColor}>
                     {t('label.current_value')}:{' '}
                     <span>
+                      {Number(details.profit) > 0 ? '▲' : Number(details.profit) < 0 ? '▼' : ''}{' '}
                       {details.price_total} {details.base}
                     </span>
                   </p>
@@ -562,6 +625,7 @@ export default function StrategyDetails() {
                   <p className={fontColor}>
                     {t('label.profit')}:{' '}
                     <span>
+                      {Number(details.profit) > 0 ? '▲' : Number(details.profit) < 0 ? '▼' : ''}{' '}
                       {details.profit} {details.base}
                     </span>
                   </p>
@@ -578,22 +642,60 @@ export default function StrategyDetails() {
                     </span>
                   </p>
                   <p className={fontColor}>
-                    {t('label.profit_rate')}: <span>{details.profit_percentage}%</span>
+                    {t('label.profit_rate')}:{' '}
+                    <span>
+                      {Number(details.profit_percentage) > 0 ? '▲' : Number(details.profit_percentage) < 0 ? '▼' : ''}{' '}
+                      {details.profit_percentage}%
+                    </span>
                   </p>
                 </div>
               </div>
 
               {orders.length > 0 && (
-                <Chart
-                  id="line-container"
-                  categories={categories}
-                  series1={baseTotal}
-                  series2={valueTotal}
-                  series3={profitRate}
-                  max={chartMax}
-                  min={chartMin}
-                  t={t}
-                />
+                <>
+                  <div className="chart-controls">
+                    <div className="buttons has-addons">
+                      <button
+                        type="button"
+                        className={`button is-small ${timeRange === 7 ? 'is-info is-selected' : ''}`}
+                        onClick={() => setTimeRange(7)}
+                      >
+                        7{t('chart.days')}
+                      </button>
+                      <button
+                        type="button"
+                        className={`button is-small ${timeRange === 30 ? 'is-info is-selected' : ''}`}
+                        onClick={() => setTimeRange(30)}
+                      >
+                        30{t('chart.days')}
+                      </button>
+                      <button
+                        type="button"
+                        className={`button is-small ${timeRange === 90 ? 'is-info is-selected' : ''}`}
+                        onClick={() => setTimeRange(90)}
+                      >
+                        90{t('chart.days')}
+                      </button>
+                      <button
+                        type="button"
+                        className={`button is-small ${timeRange === null ? 'is-info is-selected' : ''}`}
+                        onClick={() => setTimeRange(null)}
+                      >
+                        {t('chart.all')}
+                      </button>
+                    </div>
+                  </div>
+                  <Chart
+                    id="line-container"
+                    categories={filteredCategories}
+                    series1={filteredBaseTotal}
+                    series2={filteredValueTotal}
+                    series3={filteredProfitRate}
+                    max={filteredChartMax}
+                    min={filteredChartMin}
+                    t={t}
+                  />
+                </>
               )}
             </>
           ) : (
