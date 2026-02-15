@@ -253,7 +253,7 @@ export default function AssetsPage() {
                 <p
                   className={`summary-value ${summary.totalProfit >= 0 ? 'has-text-success' : 'has-text-danger'}`}
                 >
-                  {summary.totalProfit >= 0 ? '+' : ''}
+                  {summary.totalProfit > 0 ? '▲ +' : summary.totalProfit < 0 ? '▼ ' : ''}
                   {summary.totalProfit.toFixed(2)} USDT
                 </p>
                 <p className="summary-label">{t('assets.total_profit')}</p>

@@ -273,6 +273,13 @@ export default function OrderHistory() {
     return '';
   }
 
+  function formatProfitWithIndicator(value: number, decimals: number = 2, suffix: string = ''): string {
+    const formatted = util.formatNumber(value, decimals, suffix);
+    if (value > 0) return `▲ ${formatted}`;
+    if (value < 0) return `▼ ${formatted}`;
+    return formatted;
+  }
+
   if (loading) {
     return (
       <div className="container" css={ordersPageStyle}>
@@ -330,7 +337,7 @@ export default function OrderHistory() {
               <div className="stat-item">
                 <div className="stat-label">{t('orders.total_profit')}</div>
                 <div className={`stat-value ${profitClass(statistics.total_profit)}`}>
-                  {util.formatNumber(statistics.total_profit, 2)}
+                  {formatProfitWithIndicator(statistics.total_profit, 2)}
                 </div>
               </div>
             </div>
@@ -400,10 +407,10 @@ export default function OrderHistory() {
                       </td>
                       <td>{row.cost}</td>
                       <td className={profitClass(row.profit)}>
-                        {util.formatNumber(row.profit, 2)}
+                        {formatProfitWithIndicator(row.profit, 2)}
                       </td>
                       <td className={profitClass(row.profit_percentage)}>
-                        {util.formatNumber(row.profit_percentage, 2, '%')}
+                        {formatProfitWithIndicator(row.profit_percentage, 2, '%')}
                       </td>
                     </tr>
                   ))}

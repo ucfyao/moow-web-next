@@ -139,9 +139,9 @@ export default function StrategyList() {
   function getStatusText(status: number): string {
     switch (status) {
       case 1:
-        return t('title.status_normal');
+        return `● ${t('title.status_normal')}`;
       case 2:
-        return t('title.status_stopped');
+        return `■ ${t('title.status_stopped')}`;
       case 3:
         return t('title.status_deleted');
       default:
@@ -204,12 +204,20 @@ export default function StrategyList() {
 
   function formatProfit(value: number | string): string {
     if (value === '-' || value === undefined || value === null) return '-';
-    return util.formatNumber(Number(value));
+    const num = Number(value);
+    const formatted = util.formatNumber(num);
+    if (num > 0) return `▲ ${formatted}`;
+    if (num < 0) return `▼ ${formatted}`;
+    return formatted;
   }
 
   function formatProfitPercentage(value: number | string): string {
     if (value === '-' || value === undefined || value === null) return '-';
-    return util.formatNumber(Number(value), 2, '%');
+    const num = Number(value);
+    const formatted = util.formatNumber(num, 2, '%');
+    if (num > 0) return `▲ ${formatted}`;
+    if (num < 0) return `▼ ${formatted}`;
+    return formatted;
   }
 
   function profitColorClass(value: number | string): string {
