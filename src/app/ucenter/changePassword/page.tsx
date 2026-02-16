@@ -1,14 +1,14 @@
 /** @jsxImportSource @emotion/react */
 'use client';
 
-import { useState, useEffect, useMemo, ChangeEvent } from 'react';
+import React, { useState, useEffect, useMemo, ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { css } from '@emotion/react';
 import { useTranslation } from 'react-i18next';
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 import auth from '@/utils/auth';
-import { getInvalidFields } from '@/utils/validator';
+import { getInvalidFields, validateField } from '@/utils/validator';
 import useUserStore from '@/store/user';
 import HTTP from '@/lib/http';
 
@@ -87,6 +87,15 @@ export default function ChangePasswordPage() {
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (invalidFields[name as keyof InvalidFields]) {
+      setInvalidFields((prev) => ({ ...prev, [name]: undefined }));
+    }
+  };
+
+  const handleBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const error = await validateField(name, value, rules());
+    setInvalidFields((prev) => ({ ...prev, [name]: error || undefined }));
   };
 
   const rules = () => ({
@@ -195,13 +204,14 @@ export default function ChangePasswordPage() {
                   <div className="control is-expanded">
                     <input
                       id="change-code"
-                      className="input"
+                      className={`input ${invalidFields.code ? 'is-danger' : ''}`}
                       type="text"
                       name="code"
                       placeholder={t('profile.verification_code')}
                       aria-label={t('profile.verification_code')}
                       value={formData.code}
                       onChange={handleChange}
+                      onBlur={handleBlur}
                       autoComplete="off"
                     />
                   </div>
@@ -225,13 +235,14 @@ export default function ChangePasswordPage() {
                 <div className="control has-icons-right">
                   <input
                     id="change-password"
-                    className="input"
+                    className={`input ${invalidFields.password ? 'is-danger' : ''}`}
                     type={showPassword ? 'text' : 'password'}
                     name="password"
                     placeholder={t('placeholder.password')}
                     aria-label={t('placeholder.password')}
                     value={formData.password}
                     onChange={handleChange}
+                    onBlur={handleBlur}
                     autoComplete="new-password"
                   />
                   <span
@@ -278,13 +289,14 @@ export default function ChangePasswordPage() {
                 <div className="control has-icons-right">
                   <input
                     id="change-password-check"
-                    className="input"
+                    className={`input ${invalidFields.passwordCheck ? 'is-danger' : ''}`}
                     type={showPasswordCheck ? 'text' : 'password'}
                     name="passwordCheck"
                     placeholder={t('placeholder.repeat_password')}
                     aria-label={t('placeholder.repeat_password')}
                     value={formData.passwordCheck}
                     onChange={handleChange}
+                    onBlur={handleBlur}
                     autoComplete="new-password"
                   />
                   <span
