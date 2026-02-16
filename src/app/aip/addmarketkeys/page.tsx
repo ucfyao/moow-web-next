@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { css } from '@emotion/react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
-import { getInvalidFields } from '@/utils/validator';
+import { getInvalidFields, validateField } from '@/utils/validator';
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 import HTTP from '@/lib/http';
@@ -79,6 +79,12 @@ export default function AddMarketKeysPage() {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setInvalidFields((prev) => ({ ...prev, [name]: undefined }));
+  }
+
+  async function handleInputBlur(e: React.FocusEvent<HTMLInputElement>) {
+    const { name, value } = e.target;
+    const error = await validateField(name, value, rules());
+    setInvalidFields((prev) => ({ ...prev, [name]: error || undefined }));
   }
 
   async function handleSubmit() {
@@ -175,11 +181,12 @@ export default function AddMarketKeysPage() {
             <div className="control">
               <input
                 id="market-access-key"
-                className="input key-input"
+                className={`input key-input ${invalidFields.access_key ? 'is-danger' : ''}`}
                 type="text"
                 name="access_key"
                 value={formData.access_key}
                 onChange={handleInputChange}
+                onBlur={handleInputBlur}
                 placeholder={t('placeholder.access_key')}
                 aria-label={t('label.access_key')}
               />
@@ -198,11 +205,12 @@ export default function AddMarketKeysPage() {
             <div className="control">
               <input
                 id="market-secret-key"
-                className="input key-input"
+                className={`input key-input ${invalidFields.secret_key ? 'is-danger' : ''}`}
                 type="text"
                 name="secret_key"
                 value={formData.secret_key}
                 onChange={handleInputChange}
+                onBlur={handleInputBlur}
                 placeholder={t('placeholder.secret_key')}
                 aria-label={t('label.secret_key')}
               />
@@ -221,11 +229,12 @@ export default function AddMarketKeysPage() {
             <div className="control">
               <input
                 id="market-desc"
-                className="input key-input"
+                className={`input key-input ${invalidFields.desc ? 'is-danger' : ''}`}
                 type="text"
                 name="desc"
                 value={formData.desc}
                 onChange={handleInputChange}
+                onBlur={handleInputBlur}
                 placeholder={t('placeholder.remark')}
                 aria-label={t('label.remark')}
               />
