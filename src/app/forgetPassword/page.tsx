@@ -1,16 +1,18 @@
+/** @jsxImportSource @emotion/react */
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ChangeEvent } from 'react';
+import { css } from '@emotion/react';
 import { useTranslation } from 'react-i18next';
 import Image from 'next/image';
-import '../styles/forgetPassword.css';
 import HTTP from '@/lib/http';
-import { getInvalidFields } from '@/utils/validator';
+import { getInvalidFields, validateField } from '@/utils/validator';
 
 interface InvalidFields {
-  email?: { message: string }[];
-  captcha?: { message: string }[];
+  email?: string;
+  captcha?: string;
 }
+
 const ForgetPassword = () => {
   const { t } = useTranslation('');
   const [captchaSrc, setCaptchaSrc] = useState('');
@@ -37,15 +39,29 @@ const ForgetPassword = () => {
     setCaptchaSrc('/api/v1/captcha?' + Math.random());
   };
 
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (invalidFields[name as keyof InvalidFields]) {
+      setInvalidFields((prev) => ({ ...prev, [name]: undefined }));
+    }
+  };
+
+  const handleBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const error = await validateField(name, value, rules());
+    setInvalidFields((prev) => ({ ...prev, [name]: error || undefined }));
+  };
+
   const handleForgetPassword = async () => {
-    const invalidFields = await getInvalidFields(formData, rules());
-    if (invalidFields) {
-      setInvalidFields(invalidFields);
+    const errors = await getInvalidFields(formData, rules());
+    if (errors) {
+      setInvalidFields(errors);
       return;
     }
     setIsProccessing(true);
     try {
-      let response = await HTTP.post('/v1/auth/passwordRecovery', formData);
+      await HTTP.post('/v1/auth/passwordRecovery', formData);
       setIsProccessing(false);
       setMailSent(true);
     } catch (error) {
@@ -55,11 +71,11 @@ const ForgetPassword = () => {
   };
 
   return (
-    <section className="section">
+    <section className="section" css={pageStyle}>
       <div className="container">
         <div className="box">
           <div className="header">
-            <p className="is-size-6 is-pulled-left margin-right: 10px;">
+            <p className="is-size-6 is-pulled-left" style={{ marginRight: '10px' }}>
               {t('caption.retrieve_password')}
             </p>
           </div>
@@ -76,17 +92,24 @@ const ForgetPassword = () => {
                 <div className="control has-icons-left">
                   <input
                     id="forget-email"
-                    className="input"
+                    className={`input ${invalidFields.email ? 'is-danger' : ''}`}
                     type="email"
+                    name="email"
                     value={formData.email}
                     placeholder={t('placeholder.email')}
                     aria-label={t('placeholder.email')}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
                   />
                   <span className="icon is-small is-left">
                     <i className="fa fa-envelope"></i>
                   </span>
                 </div>
-                {invalidFields.email && <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.email}</p>}
+                {invalidFields.email && (
+                  <p className="help is-danger" role="alert" aria-live="polite">
+                    {invalidFields.email}
+                  </p>
+                )}
               </div>
               <div className="field">
                 <div className="field-body">
@@ -94,11 +117,14 @@ const ForgetPassword = () => {
                     <p className="control is-expanded">
                       <input
                         id="forget-captcha"
-                        className="input"
+                        className={`input ${invalidFields.captcha ? 'is-danger' : ''}`}
                         type="text"
+                        name="captcha"
                         value={formData.captcha}
                         placeholder={t('placeholder.captcha')}
                         aria-label={t('placeholder.captcha')}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
                       />
                     </p>
                     <div className="control">
@@ -110,7 +136,12 @@ const ForgetPassword = () => {
                         role="button"
                         tabIndex={0}
                         onClick={updateCaptcha}
-                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); updateCaptcha(); } }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            updateCaptcha();
+                          }
+                        }}
                         width={150}
                         height={50}
                         style={{ cursor: 'pointer' }}
@@ -118,7 +149,11 @@ const ForgetPassword = () => {
                     </div>
                   </div>
                 </div>
-                {invalidFields.captcha && <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.captcha}</p>}
+                {invalidFields.captcha && (
+                  <p className="help is-danger" role="alert" aria-live="polite">
+                    {invalidFields.captcha}
+                  </p>
+                )}
               </div>
               <div className="field is-grouped">
                 <div className="control">
@@ -138,5 +173,18 @@ const ForgetPassword = () => {
     </section>
   );
 };
+
+const pageStyle = css`
+  .box {
+    padding-bottom: 50px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .box-body {
+    margin: 0 auto;
+    max-width: 500px;
+  }
+`;
 
 export default ForgetPassword;
