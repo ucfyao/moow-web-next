@@ -87,6 +87,12 @@ export default function DingtouChart({ orders }: DingtouChartProps) {
         type: 'spline',
         height: chartHeight,
         reflow: true,
+        zooming: {
+          type: 'x',
+          resetButton: {
+            position: { align: 'right', verticalAlign: 'top', x: -10, y: 10 },
+          },
+        },
       },
       title: { text: undefined },
       subtitle: { text: 'BTC/USDT' },
@@ -106,6 +112,13 @@ export default function DingtouChart({ orders }: DingtouChartProps) {
           opposite: true,
         },
       ],
+      tooltip: {
+        shared: true,
+        crosshairs: true,
+        headerFormat: '<b>{point.key}</b><br/>',
+        pointFormat:
+          '<span style="color:{series.color}">\u25CF</span> {series.name}: <b>{point.y:,.2f}</b><br/>',
+      },
       plotOptions: {
         line: {
           dataLabels: { enabled: true },
@@ -132,6 +145,9 @@ export default function DingtouChart({ orders }: DingtouChartProps) {
           data: series2,
         },
       ],
+      accessibility: {
+        description: 'Investment performance chart showing profit rate, total invested, and total value over time',
+      },
       credits: { enabled: false },
     });
 
@@ -143,5 +159,13 @@ export default function DingtouChart({ orders }: DingtouChartProps) {
     };
   }, [orders, t, chartHeight]);
 
-  return <div ref={chartRef} className="dingtou-line" style={{ width: '100%' }} />;
+  return (
+    <div
+      ref={chartRef}
+      className="dingtou-line"
+      style={{ width: '100%' }}
+      aria-label={t('chart.investment_performance')}
+      role="img"
+    />
+  );
 }
