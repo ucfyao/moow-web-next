@@ -1,25 +1,47 @@
+/** @jsxImportSource @emotion/react */
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, ChangeEvent, Suspense } from 'react';
+import { css } from '@emotion/react';
 import { useTranslation } from 'react-i18next';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
-import '../styles/resetPassword.css';
 import HTTP from '@/lib/http';
-import { getInvalidFields } from '@/utils/validator';
+import { getInvalidFields, validateField } from '@/utils/validator';
 
 interface InvalidFields {
   password?: string;
   passwordCheck?: string;
 }
+
 const ResetPassword = () => {
   const { t } = useTranslation('');
   const searchParams = useSearchParams();
-  const [captchaSrc, setCaptchaSrc] = useState('');
+  const router = useRouter();
   const [formData, setFormData] = useState({
     password: '',
     passwordCheck: '',
   });
+  const [invalidFields, setInvalidFields] = useState<InvalidFields>({});
+  const [isProccessing, setIsProccessing] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordCheck, setShowPasswordCheck] = useState(false);
+
+  const validatePass = (rule: any, value: string) => {
+    if (value === '') {
+      return Promise.reject(new Error('validator.password_required'));
+    }
+    return Promise.resolve();
+  };
+
+  const validatePassCheck = (rule: any, value: string) => {
+    if (value === '') {
+      return Promise.reject(new Error('validator.confirm_password_required'));
+    } else if (value !== formData.password) {
+      return Promise.reject(new Error('validator.password_dont_match'));
+    }
+    return Promise.resolve();
+  };
+
   const rules = () => ({
     password: [
       { required: true, message: 'validator.password_required' },
@@ -27,52 +49,31 @@ const ResetPassword = () => {
     ],
     passwordCheck: [{ validator: validatePassCheck, trigger: 'blur' }],
   });
-  const [invalidFields, setInvalidFields] = useState<InvalidFields>({});
-  const [isProccessing, setIsProccessing] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showPasswordCheck, setShowPasswordCheck] = useState(false);
 
-  const router = useRouter();
-
-  const formRef = useRef<any>(null);
-  const validatePass = (rule: any, value: string) => {
-    if (value === '') {
-      return Promise.reject(new Error('validator.password_required'));
-    } else {
-      if (formData.passwordCheck !== '') {
-        // Verify the second password box separately
-        formRef.current.validateField(['passwordCheck']);
-      }
-      return Promise.resolve();
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (invalidFields[name as keyof InvalidFields]) {
+      setInvalidFields((prev) => ({ ...prev, [name]: undefined }));
     }
   };
-  const validatePassCheck = (rule: any, value: string) => {
-    if (value === '') {
-      return Promise.reject(new Error('validator.confirm_password_required'));
-    } else if (value !== formData.password) {
-      return Promise.reject(new Error('validator.password_dont_match'));
-    } else {
-      return Promise.resolve();
-    }
-  };
-  useEffect(() => {
-    updateCaptcha();
-  }, []);
 
-  const updateCaptcha = () => {
-    setCaptchaSrc('/api/v1/captcha?' + Math.random());
+  const handleBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const error = await validateField(name, value, rules());
+    setInvalidFields((prev) => ({ ...prev, [name]: error || undefined }));
   };
 
   const handleResetPassword = async () => {
     const token = searchParams.get('token');
-    const invalidFields = await getInvalidFields(formData, rules());
-    if (invalidFields) {
-      setInvalidFields(invalidFields);
+    const errors = await getInvalidFields(formData, rules());
+    if (errors) {
+      setInvalidFields(errors);
       return;
     }
     setIsProccessing(true);
     try {
-      let response = await HTTP.patch('/v1/auth/passwordReset', {
+      await HTTP.patch('/v1/auth/passwordReset', {
         token,
         password: formData.password,
       });
@@ -86,12 +87,12 @@ const ResetPassword = () => {
   };
 
   return (
-    <div>
+    <div css={pageStyle}>
       <section className="section">
         <div className="container">
           <div className="box">
             <div className="header">
-              <p className="is-size-6 is-pulled-left margin-right: 10px;">
+              <p className="is-size-6 is-pulled-left" style={{ marginRight: '10px' }}>
                 {t('caption.reset_password')}
               </p>
             </div>
@@ -104,11 +105,14 @@ const ResetPassword = () => {
               <div className="control has-icons-left has-icons-right">
                 <input
                   id="reset-password"
-                  className="input"
+                  className={`input ${invalidFields.password ? 'is-danger' : ''}`}
                   type={showPassword ? 'text' : 'password'}
+                  name="password"
                   value={formData.password}
                   placeholder={t('placeholder.password')}
                   aria-label={t('placeholder.password')}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
                 />
                 <span className="icon is-small is-left">
                   <i className="fa fa-lock"></i>
@@ -120,12 +124,21 @@ const ResetPassword = () => {
                   role="button"
                   tabIndex={0}
                   aria-label={showPassword ? '隐藏密码' : '显示密码'}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowPassword(!showPassword); } }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setShowPassword(!showPassword);
+                    }
+                  }}
                 >
                   <i className={`fa ${showPassword ? 'fa-eye' : 'fa-eye-slash'}`}></i>
                 </span>
               </div>
-              {invalidFields.password && <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.password}</p>}
+              {invalidFields.password && (
+                <p className="help is-danger" role="alert" aria-live="polite">
+                  {invalidFields.password}
+                </p>
+              )}
             </div>
             <div className="field">
               <label className="label">
@@ -136,11 +149,14 @@ const ResetPassword = () => {
               <div className="control has-icons-left has-icons-right">
                 <input
                   id="reset-password-check"
-                  className="input"
+                  className={`input ${invalidFields.passwordCheck ? 'is-danger' : ''}`}
                   type={showPasswordCheck ? 'text' : 'password'}
+                  name="passwordCheck"
                   value={formData.passwordCheck}
                   placeholder={t('placeholder.repeat_password')}
                   aria-label={t('placeholder.repeat_password')}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
                 />
                 <span className="icon is-small is-left">
                   <i className="fa fa-lock"></i>
@@ -152,12 +168,21 @@ const ResetPassword = () => {
                   role="button"
                   tabIndex={0}
                   aria-label={showPasswordCheck ? '隐藏密码' : '显示密码'}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowPasswordCheck(!showPasswordCheck); } }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setShowPasswordCheck(!showPasswordCheck);
+                    }
+                  }}
                 >
                   <i className={`fa ${showPasswordCheck ? 'fa-eye' : 'fa-eye-slash'}`}></i>
                 </span>
               </div>
-              {invalidFields.passwordCheck && <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.passwordCheck}</p>}
+              {invalidFields.passwordCheck && (
+                <p className="help is-danger" role="alert" aria-live="polite">
+                  {invalidFields.passwordCheck}
+                </p>
+              )}
             </div>
             <div className="field is-grouped">
               <div className="control">
@@ -176,6 +201,18 @@ const ResetPassword = () => {
     </div>
   );
 };
+
+const pageStyle = css`
+  .box {
+    padding-bottom: 50px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .input {
+    max-width: 500px;
+  }
+`;
 
 export default function ResetPasswordPage() {
   return (

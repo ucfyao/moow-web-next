@@ -7,6 +7,7 @@ import { css } from '@emotion/react';
 const modalContentStyle = css`
   max-width: 480px;
   width: 90%;
+  animation: slideUp 300ms ease-out;
 `;
 
 const modalCardFootStyle = css`

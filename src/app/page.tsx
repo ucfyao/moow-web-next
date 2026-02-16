@@ -1,9 +1,12 @@
+/** @jsxImportSource @emotion/react */
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import Image from 'next/image';
+import { css } from '@emotion/react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Autoplay } from 'swiper/modules';
 import Highcharts from 'highcharts';
@@ -13,6 +16,34 @@ import iconDown from '@/assets/images/icon-down.png';
 
 import 'swiper/css';
 import 'swiper/css/pagination';
+
+const homePageStyle = css`
+  .tech_pf dl {
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+  }
+
+  .display-data .card {
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+
+    &:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+  }
+
+  .cta-button {
+    height: 48px;
+    font-size: 16px;
+    padding: 0 32px;
+    cursor: pointer;
+  }
+`;
 
 interface DingtouOrder {
   base_total: number;
@@ -134,7 +165,7 @@ export default function Home() {
   };
 
   return (
-    <div className="home">
+    <div className="home" css={homePageStyle}>
       {/* Banner Carousel */}
       <section className="swiper-box">
         <Swiper {...swiperParams}>
@@ -240,7 +271,7 @@ export default function Home() {
 
       {/* CTA */}
       <div className="notification">
-        <Link className="button is-info is-medium" href="/aip">
+        <Link className="button is-link cta-button" href="/aip">
           {t('home.go_invest')}
         </Link>
       </div>

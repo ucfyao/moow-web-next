@@ -21,6 +21,10 @@ const fundStyle = css`
   .fund-card {
     margin-bottom: 2rem;
     padding: 1.5rem;
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
   }
   .fund-header {
     display: flex;
@@ -83,7 +87,15 @@ function FundChart({
     const prices = data.map((d) => d.close);
 
     Highcharts.chart(chartRef.current, {
-      chart: { type: 'area' },
+      chart: {
+        type: 'area',
+        zooming: {
+          type: 'x',
+          resetButton: {
+            position: { align: 'right', verticalAlign: 'top', x: -10, y: 10 },
+          },
+        },
+      },
       title: { text: undefined },
       subtitle: { text: 'BTC/USDT' },
       xAxis: {
@@ -96,7 +108,11 @@ function FundChart({
         labels: { format: '${value:,.0f}' },
       },
       tooltip: {
-        pointFormat: '<b>${point.y:,.2f}</b>',
+        shared: true,
+        crosshairs: true,
+        headerFormat: '<b>{point.key}</b><br/>',
+        pointFormat:
+          '<span style="color:{series.color}">\u25CF</span> {series.name}: <b>${point.y:,.2f}</b><br/>',
       },
       plotOptions: {
         area: {
@@ -113,11 +129,14 @@ function FundChart({
           color,
         },
       ],
+      accessibility: {
+        description: 'Fund performance chart showing BTC price history',
+      },
       credits: { enabled: false },
     });
   }, [data, color, label]);
 
-  return <div ref={chartRef} className="fund-chart" />;
+  return <div ref={chartRef} className="fund-chart" aria-label={label} role="img" />;
 }
 
 export default function FundPage() {

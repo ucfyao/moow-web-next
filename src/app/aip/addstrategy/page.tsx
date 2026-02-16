@@ -5,7 +5,7 @@
 import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { css } from '@emotion/react';
 import Link from 'next/link';
-import { getInvalidFields } from '@/utils/validator';
+import { getInvalidFields, validateField } from '@/utils/validator';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { useTranslation } from 'react-i18next';
@@ -286,6 +286,12 @@ function AddStrategy() {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setInvalidFields((prev) => ({ ...prev, [name]: undefined }));
+  }
+
+  async function handleInputBlur(e: React.FocusEvent<HTMLInputElement>) {
+    const { name, value } = e.target;
+    const error = await validateField(name, value, validationRules());
+    setInvalidFields((prev) => ({ ...prev, [name]: error || undefined }));
   }
 
   function validationRules() {
@@ -656,11 +662,12 @@ function AddStrategy() {
             <div className="control">
               <input
                 id="baseLimitInput"
-                className="input"
+                className={`input ${invalidFields.base_limit ? 'is-danger' : ''}`}
                 type="text"
                 name="base_limit"
                 value={formData.base_limit}
                 onChange={handleInputChange}
+                onBlur={handleInputBlur}
                 placeholder={t('placeholder.input_single_purchase_amount')}
                 aria-label={t('label.single_purchase_amount')}
               />
@@ -726,11 +733,12 @@ function AddStrategy() {
             <div className="control">
               <input
                 id="stopProfitInput"
-                className="input"
+                className={`input ${invalidFields.stop_profit_percentage ? 'is-danger' : ''}`}
                 type="text"
                 name="stop_profit_percentage"
                 value={formData.stop_profit_percentage}
                 onChange={handleInputChange}
+                onBlur={handleInputBlur}
                 placeholder={t('placeholder.stop_profit_percentage')}
                 aria-label={t('label.stop_profit_rate')}
               />
@@ -749,11 +757,12 @@ function AddStrategy() {
             <div className="control">
               <input
                 id="drawdownInput"
-                className="input"
+                className={`input ${invalidFields.drawdown ? 'is-danger' : ''}`}
                 type="text"
                 name="drawdown"
                 value={formData.drawdown}
                 onChange={handleInputChange}
+                onBlur={handleInputBlur}
                 placeholder={t('placeholder.drawdown_percentage')}
                 aria-label={t('label.drawdown')}
               />

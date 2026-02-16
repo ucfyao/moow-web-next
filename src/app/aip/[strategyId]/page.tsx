@@ -104,7 +104,7 @@ const strategyDetailStyle = css`
   }
 
   .stat-value {
-    font-size: 16px;
+    font-size: 20px;
     font-weight: 600;
     color: #363636;
   }
@@ -117,6 +117,20 @@ const strategyDetailStyle = css`
   .side-sell {
     color: #ff3860;
     font-weight: 600;
+  }
+
+  tbody tr:hover {
+    background-color: #f5f5f5;
+  }
+
+  .columns {
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .columns .column p {
+    padding: var(--spacing-xs) 0;
   }
 
   .action-bar {

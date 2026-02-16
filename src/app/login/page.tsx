@@ -6,7 +6,7 @@ import { css } from '@emotion/react';
 import axios from 'axios';
 import auth from '../../utils/auth';
 import { useRouter, useSearchParams } from 'next/navigation';
-import {getInvalidFields} from '../../utils/validator';
+import { getInvalidFields, validateField } from '../../utils/validator';
 import { useTranslation } from 'react-i18next';
 import useUserStore from "../../store/user";
 import Alert from '@mui/material/Alert';
@@ -43,6 +43,15 @@ const Login = () => {
       ...formData,
       [name]: value,
     });
+    if (invalidFields[name as keyof InvalidFields]) {
+      setInvalidFields((prev) => ({ ...prev, [name]: undefined }));
+    }
+  };
+
+  const handleBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const error = await validateField(name, value, rules());
+    setInvalidFields((prev) => ({ ...prev, [name]: error || undefined }));
   };
 
   //input rules
@@ -138,13 +147,14 @@ const Login = () => {
                     <div className = 'control has-icons-left has-icons-right'>
                       <input
                         id="login-email"
-                        className='input'
+                        className={`input ${invalidFields.email ? 'is-danger' : ''}`}
                         type = 'email'
                         name='email'
                         placeholder = {t('placeholder.email')}
                         aria-label={t('placeholder.email')}
                         value = {formData.email}
                         onChange = {handleChange}
+                        onBlur={handleBlur}
                       />
                       <span className = 'icon is-small is-left'>
                         <i className = 'fa fa-envelope'></i>
@@ -156,13 +166,14 @@ const Login = () => {
                     <div className = 'control has-icons-left has-icons-right'>
                       <input
                         id="login-password"
-                        className='input'
+                        className={`input ${invalidFields.password ? 'is-danger' : ''}`}
                         type={showPassword ? 'text' : 'password'}
                         name='password'
                         placeholder = {t('placeholder.password')}
                         aria-label={t('placeholder.password')}
                         value = {formData.password}
                         onChange = {handleChange}
+                        onBlur={handleBlur}
                       />
                       <span className = 'icon is-small is-left'>
                         <i className = 'fa fa-lock'></i>
@@ -186,17 +197,18 @@ const Login = () => {
                       <p className = 'control is-expanded'>
                         <input
                           id="login-captcha"
-                          className='input'
+                          className={`input ${invalidFields.captcha ? 'is-danger' : ''}`}
                           type='text'
                           name='captcha'
                           placeholder={t('placeholder.captcha')}
                           aria-label={t('placeholder.captcha')}
                           value={formData.captcha}
                           onChange = {handleChange}
+                          onBlur={handleBlur}
                         />
                       </p>
                       {/* eslint-disable-next-line react/no-danger -- SVG captcha from our own API */}
-                      <div className ='control' dangerouslySetInnerHTML={{ __html: captchaSrc }}
+                      <div className='control' style={{ cursor: 'pointer' }} dangerouslySetInnerHTML={{ __html: captchaSrc }}
                         title={t('prompt.click_refresh_captcha')}
                         aria-label="验证码，点击刷新"
                         role="button"

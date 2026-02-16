@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useRef, ChangeEvent } from 'react';
 import axios from 'axios';
-import { getInvalidFields } from '../../utils/validator';
+import { getInvalidFields, validateField } from '../../utils/validator';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import auth from '../../utils/auth';
@@ -48,6 +48,15 @@ const SignUp = () => {
       ...formData,
       [name]: value,
     });
+    if (invalidFields[name as keyof InvalidFields]) {
+      setInvalidFields((prev) => ({ ...prev, [name]: undefined }));
+    }
+  };
+
+  const handleBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const error = await validateField(name, value, rules());
+    setInvalidFields((prev) => ({ ...prev, [name]: error || undefined }));
   };
 
   //confirm password
@@ -165,13 +174,14 @@ const SignUp = () => {
                     <div className="control has-icons-left has-icons-right">
                       <input
                         id="signup-name"
-                        className="input"
+                        className={`input ${invalidFields.name ? 'is-danger' : ''}`}
                         type="text"
                         placeholder={t('placeholder.name')}
                         aria-label={t('placeholder.name')}
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         autoComplete="name"
                       />
                       <span className="icon is-small is-left">
@@ -184,13 +194,14 @@ const SignUp = () => {
                     <div className="control has-icons-left has-icons-right">
                       <input
                         id="signup-email"
-                        className="input"
+                        className={`input ${invalidFields.email ? 'is-danger' : ''}`}
                         type="email"
                         placeholder={t('placeholder.email')}
                         aria-label={t('placeholder.email')}
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         autoComplete="email"
                       />
                       <span className="icon is-small is-left">
@@ -203,13 +214,14 @@ const SignUp = () => {
                     <div className="control has-icons-left has-icons-right">
                       <input
                         id="signup-password"
-                        className="input"
+                        className={`input ${invalidFields.password ? 'is-danger' : ''}`}
                         type={showPassword ? 'text' : 'password'}
                         placeholder={t('placeholder.password')}
                         aria-label={t('placeholder.password')}
                         name="password"
                         value={formData.password}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         autoComplete="new-password"
                       />
                       <span className="icon is-small is-left">
@@ -235,13 +247,14 @@ const SignUp = () => {
                     <div className="control has-icons-left has-icons-right">
                       <input
                         id="signup-confirm-password"
-                        className="input"
+                        className={`input ${invalidFields.confirmPassword ? 'is-danger' : ''}`}
                         type={showConfirmPassword ? 'text' : 'password'}
                         placeholder={t('placeholder.repeat_password')}
                         aria-label={t('placeholder.repeat_password')}
                         name="confirmPassword"
                         value={formData.confirmPassword}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         autoComplete="new-password"
                       />
                       <span className="icon is-small is-left">
@@ -267,13 +280,14 @@ const SignUp = () => {
                     <div className="control has-icons-left">
                       <input
                         id="signup-refcode"
-                        className="input"
+                        className={`input ${invalidFields.refCode ? 'is-danger' : ''}`}
                         type="text"
                         placeholder={t('placeholder.invitation_code')}
                         aria-label={t('placeholder.invitation_code')}
                         name="refCode"
                         value={formData.refCode}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         autoComplete="off"
                       />
                       <span className="icon is-small is-left">
@@ -289,18 +303,20 @@ const SignUp = () => {
                       <p className="control is-expanded">
                         <input
                           id="signup-captcha"
-                          className="input"
+                          className={`input ${invalidFields.captcha ? 'is-danger' : ''}`}
                           type="text"
                           placeholder={t('placeholder.captcha')}
                           aria-label={t('placeholder.captcha')}
                           name="captcha"
                           value={formData.captcha}
                           onChange={handleChange}
+                          onBlur={handleBlur}
                           autoComplete="off"
                         />
                       </p>
                       <div
                         className="control"
+                        style={{ cursor: 'pointer' }}
                         dangerouslySetInnerHTML={{ __html: captchaSrc }} /* SVG captcha from own API */
                         title={t('prompt.click_refresh_captcha')}
                         aria-label="验证码，点击刷新"

@@ -66,6 +66,10 @@ const invitePageStyle = css`
     flex: 1;
   }
 
+  .invite-link-row .button {
+    cursor: pointer;
+  }
+
   .invite-code-display {
     display: flex;
     align-items: center;
@@ -88,7 +92,8 @@ const invitePageStyle = css`
 
   .stats-row .col-red {
     color: #ff3860;
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 24px;
   }
 
   .table-wrapper {
@@ -496,7 +501,7 @@ export default function InvitePage() {
               </button>
               <button
                 type="button"
-                className={`button is-primary ${posterLoading ? 'is-loading' : ''}`}
+                className={`button is-link ${posterLoading ? 'is-loading' : ''}`}
                 onClick={handleGenPoster}
                 disabled={!inviteLink}
               >

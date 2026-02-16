@@ -91,4 +91,20 @@ export const getInvalidFields = async (data, rules) => {
   return invalidFields
 }
 
+/**
+ * Validates a single field against its rules.
+ * Returns null if valid, or the first error message string if invalid.
+ */
+export const validateField = async (fieldName, value, rules) => {
+  const fieldRules = rules[fieldName];
+  if (!fieldRules) return null;
+  try {
+    await valid({ [fieldName]: value }, fieldName, fieldRules);
+    return null;
+  } catch (errors) {
+    if (!errors || !Array.isArray(errors) || !errors.length) return null;
+    return errors[0].message;
+  }
+};
+
 export default validate

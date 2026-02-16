@@ -45,6 +45,10 @@ const ordersPageStyle = css`
     color: #4a4a4a;
   }
 
+  tbody tr:hover {
+    background-color: #f5f5f5;
+  }
+
   td {
     vertical-align: middle;
     text-align: center;
@@ -83,7 +87,7 @@ const ordersPageStyle = css`
   }
 
   .stat-value {
-    font-size: 16px;
+    font-size: 20px;
     font-weight: 600;
     color: #363636;
   }
