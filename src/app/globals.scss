@@ -84,6 +84,26 @@
   }
 }
 
+/* Error message fadeIn */
+.help.is-danger {
+  animation: fadeIn 200ms ease-out;
+}
+
+/* Pulse for running status indicators */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.status-running {
+  animation: pulse 2s ease-in-out infinite;
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -187,22 +207,18 @@ body {
   }
 
   .display-data {
-    overflow: hidden;
+    display: flex;
+    gap: var(--spacing-lg);
     width: 1200px;
     margin: 0 auto;
     padding: 2rem 2rem 1rem 2rem;
   }
 
   .display-data .card {
-    float: left;
-    width: 48%;
+    flex: 1;
     text-align: center;
     border-radius: 5px;
     box-shadow: none;
-  }
-
-  .display-data .card:last-child {
-    float: right;
   }
 
   .display-data .card .button {
@@ -426,19 +442,19 @@ body {
     padding-bottom: 70px;
   }
 
+  .pro_int .c_container {
+    display: flex;
+    gap: 60px;
+  }
+
   .pro_int dl {
-    float: left;
-    width: 50%;
+    flex: 1;
     box-sizing: border-box;
   }
 
   .pro_int dl:nth-of-type(1) {
     padding-right: 60px;
     border-right: 1px solid #ddd;
-  }
-
-  .pro_int dl:nth-of-type(2) {
-    padding-left: 60px;
   }
 
   .pro_int dl dt {
@@ -463,11 +479,13 @@ body {
 
   .pro_int .flag_box {
     margin-top: 60px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .pro_int .flag_box a {
     cursor: pointer;
-    float: left;
     width: 220px;
     margin: 0 10px;
     text-align: center;
@@ -554,12 +572,17 @@ body {
     padding: 0 0 60px;
   }
 
+  .advisors .c_container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
   .advisors dl {
     width: 180px;
     height: 295px;
     padding: 35px 50px 20px;
     background-color: #0b334d;
-    float: left;
     margin: 30px 10px 0;
     box-sizing: content-box;
   }
@@ -620,18 +643,16 @@ body {
 
   .investor {
     padding: 0 10px 40px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
   }
 
   .investor img {
     display: block;
     width: 270px;
     height: 100px;
-    margin: 30px 20px 0 0;
-    float: left;
-  }
-
-  .investor img:nth-child(4) {
-    margin-right: 0;
+    margin-top: 30px;
   }
 
   .faq {
@@ -639,20 +660,18 @@ body {
     padding: 1px 0;
   }
 
+  .faq .c_container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+  }
+
   .faq dl {
-    float: left;
-    width: 380px;
     height: 240px;
     padding: 32px 20px;
-    margin: 0 30px 30px 0;
     box-sizing: border-box;
     background: #0b334d;
     border-radius: 2px;
-  }
-
-  .faq dl:nth-of-type(3),
-  .faq dl:nth-of-type(6) {
-    margin-right: 0;
   }
 
   .faq dl dt {
@@ -671,6 +690,7 @@ body {
   }
 
   .road_map ul {
+    display: flex;
     line-height: 0;
   }
 
@@ -679,7 +699,6 @@ body {
     width: 140px;
     height: 234px;
     padding: 0 5px;
-    float: left;
     background: url(../assets/images/map-down2.png?v=2) center top no-repeat;
     background-size: 150px 131px;
     position: relative;
@@ -731,10 +750,7 @@ body {
     .display-data {
       width: 100%;
       padding: 0;
-    }
-
-    .display-data .card {
-      width: 100%;
+      flex-direction: column;
     }
 
     .c_container {
