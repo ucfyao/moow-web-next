@@ -50,7 +50,14 @@ const assetsPageStyle = css`
     text-align: center;
     padding: 20px 10px;
     background: #fafafa;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+
+    &:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
   }
 
   .summary-value {
@@ -69,7 +76,9 @@ const assetsPageStyle = css`
     display: flex;
     align-items: baseline;
     gap: 8px;
-    padding: 16px 0;
+    padding: var(--spacing-md);
+    background: #f0f7ff;
+    border-radius: var(--radius-md);
   }
 
   .xbt-amount {

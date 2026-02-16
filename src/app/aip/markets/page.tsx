@@ -193,7 +193,7 @@ export default function MarketsPage() {
                       <td>{util.formatDate(key.created_at)}</td>
                       <td>
                         <button
-                          className="button is-small is-link is-outlined"
+                          className="button is-small is-danger is-outlined"
                           onClick={() => handleDelete(key)}
                         >
                           {t('action.delete')}
@@ -244,6 +244,14 @@ const pageStyle = css`
 
   .search-bar {
     margin-bottom: 1rem;
+  }
+
+  tbody tr:hover {
+    background-color: #f5f5f5;
+  }
+
+  .button {
+    cursor: pointer;
   }
 
   .py-4 {

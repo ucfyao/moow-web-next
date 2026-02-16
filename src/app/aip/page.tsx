@@ -51,6 +51,10 @@ const strategyListStyle = css`
     color: #4a4a4a;
   }
 
+  tbody tr:hover {
+    background-color: #f5f5f5;
+  }
+
   td {
     vertical-align: middle;
   }
@@ -58,6 +62,10 @@ const strategyListStyle = css`
   .action-buttons {
     display: flex;
     gap: 8px;
+  }
+
+  .action-buttons .button {
+    cursor: pointer;
   }
 
   .no-record {
@@ -329,7 +337,7 @@ export default function StrategyList() {
                           </button>
                           <button
                             type="button"
-                            className="button is-small is-primary is-outlined"
+                            className="button is-small is-info is-outlined"
                             onClick={() => viewStrategy(row._id)}
                           >
                             {t('action.view')}
