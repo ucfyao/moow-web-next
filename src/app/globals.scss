@@ -815,10 +815,13 @@ body {
       border-bottom: 0;
     }
 
+    .pro_int .c_container {
+      flex-direction: column;
+      gap: 20px;
+    }
+
     .pro_int dl {
       width: 100%;
-      -webkit-box-sizing: border-box;
-      -moz-box-sizing: border-box;
       box-sizing: border-box;
       padding: 0 10px;
     }
@@ -892,7 +895,6 @@ body {
       height: 220px;
       padding: 3% 5%;
       background-color: #0b334d;
-      float: left;
       margin: 10px 1% 0;
     }
 
@@ -923,7 +925,7 @@ body {
 
     .investor img {
       width: 46%;
-      margin: 10px 2%;
+      margin-top: 10px;
       height: auto;
     }
 
@@ -957,10 +959,14 @@ body {
       bottom: 156px;
     }
 
+    .faq .c_container {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
     .faq dl {
-      float: none;
       width: 96%;
-      margin: 10px 2%;
+      margin: 0 2%;
       height: auto;
     }
   }
