@@ -26,12 +26,62 @@
   --color-danger: #ff3860;
   --color-warning: #ffdd57;
   --color-info: #209cee;
+
+  /* Transition tokens */
+  --transition-fast: 150ms ease-out;
+  --transition-base: 200ms ease-in-out;
+  --transition-slow: 300ms ease-out;
+
+  /* Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-blur: blur(12px);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* Focus visible */
 *:focus-visible {
   outline: 2px solid var(--color-info);
   outline-offset: 2px;
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Button transitions */
+.button {
+  transition: background-color var(--transition-fast), box-shadow var(--transition-fast), color var(--transition-fast);
+}
+
+/* Card hover */
+.box,
+.card {
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+/* Table row hover */
+.table:not(.is-narrow) tbody tr {
+  transition: background-color var(--transition-fast);
+}
+
+/* Glass utility */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
+  border-radius: var(--radius-lg);
+
+  @supports not (backdrop-filter: blur(12px)) {
+    background: rgba(255, 255, 255, 0.95);
+  }
 }
 
 /* Reduced motion */
