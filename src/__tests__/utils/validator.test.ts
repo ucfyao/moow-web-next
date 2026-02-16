@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { validate, getInvalidFields } from '@/utils/validator';
+import { validate, getInvalidFields, validateField } from '@/utils/validator';
 
 describe('validator', () => {
   const rules = {
@@ -73,6 +73,38 @@ describe('validator', () => {
       const result = await getInvalidFields(data, rules);
 
       expect(result).toBe(false);
+    });
+  });
+
+  describe('validateField', () => {
+    it('returns null when field is valid', async () => {
+      const result = await validateField('email', 'test@example.com', rules);
+      expect(result).toBeNull();
+    });
+
+    it('returns error message when required field is empty', async () => {
+      const result = await validateField('email', '', rules);
+      expect(result).toBe('Email is required');
+    });
+
+    it('returns error message for invalid email format', async () => {
+      const result = await validateField('email', 'not-an-email', rules);
+      expect(result).toBe('Invalid email format');
+    });
+
+    it('returns error message for too-short password', async () => {
+      const result = await validateField('password', 'abc', rules);
+      expect(result).toBe('Password must be 6-32 characters');
+    });
+
+    it('returns null for valid password', async () => {
+      const result = await validateField('password', 'validpassword', rules);
+      expect(result).toBeNull();
+    });
+
+    it('returns null when field has no matching rules', async () => {
+      const result = await validateField('nonexistent', 'value', rules);
+      expect(result).toBeNull();
     });
   });
 });
