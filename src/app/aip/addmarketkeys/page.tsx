@@ -150,6 +150,8 @@ export default function AddMarketKeysPage() {
                       type="button"
                       className="exchange-button"
                       onClick={() => handleSelectExchange(item.exchange)}
+                      aria-label={`${t('label.exchange')}: ${item.name}`}
+                      aria-pressed={formData.exchange === item.exchange}
                     >
                       <div className="exchange-title">
                         <img src={`/images/${item.exchange}.png`} alt={item.name} />
@@ -161,7 +163,7 @@ export default function AddMarketKeysPage() {
                 ))}
               </ul>
             </div>
-            {invalidFields.exchange && <p className="help is-danger">{invalidFields.exchange}</p>}
+            {invalidFields.exchange && <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.exchange}</p>}
           </div>
 
           <div className="field">
@@ -172,16 +174,18 @@ export default function AddMarketKeysPage() {
             </label>
             <div className="control">
               <input
+                id="market-access-key"
                 className="input key-input"
                 type="text"
                 name="access_key"
                 value={formData.access_key}
                 onChange={handleInputChange}
                 placeholder={t('placeholder.access_key')}
+                aria-label={t('label.access_key')}
               />
             </div>
             {invalidFields.access_key && (
-              <p className="help is-danger">{invalidFields.access_key}</p>
+              <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.access_key}</p>
             )}
           </div>
 
@@ -193,16 +197,18 @@ export default function AddMarketKeysPage() {
             </label>
             <div className="control">
               <input
+                id="market-secret-key"
                 className="input key-input"
                 type="text"
                 name="secret_key"
                 value={formData.secret_key}
                 onChange={handleInputChange}
                 placeholder={t('placeholder.secret_key')}
+                aria-label={t('label.secret_key')}
               />
             </div>
             {invalidFields.secret_key && (
-              <p className="help is-danger">{invalidFields.secret_key}</p>
+              <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.secret_key}</p>
             )}
           </div>
 
@@ -214,15 +220,17 @@ export default function AddMarketKeysPage() {
             </label>
             <div className="control">
               <input
+                id="market-desc"
                 className="input key-input"
                 type="text"
                 name="desc"
                 value={formData.desc}
                 onChange={handleInputChange}
                 placeholder={t('placeholder.remark')}
+                aria-label={t('label.remark')}
               />
             </div>
-            {invalidFields.desc && <p className="help is-danger">{invalidFields.desc}</p>}
+            {invalidFields.desc && <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.desc}</p>}
           </div>
 
           <div className="field is-grouped">

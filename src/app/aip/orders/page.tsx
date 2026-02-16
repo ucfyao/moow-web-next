@@ -3,10 +3,10 @@
 'use client';
 
 import { useState, useEffect, useCallback, ChangeEvent } from 'react';
-import Image from 'next/image';
-import no_record from '@/assets/images/no_record.png';
 import { css } from '@emotion/react';
 import Pagination from '@/components/Pagination';
+import Skeleton from '@/components/Skeleton';
+import EmptyState from '@/components/EmptyState';
 import util from '@/utils/util';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
@@ -273,12 +273,21 @@ export default function OrderHistory() {
     return '';
   }
 
+  function formatProfitWithIndicator(value: number, decimals: number = 2, suffix: string = ''): string {
+    const formatted = util.formatNumber(value, decimals, suffix);
+    if (value > 0) return `▲ ${formatted}`;
+    if (value < 0) return `▼ ${formatted}`;
+    return formatted;
+  }
+
   if (loading) {
     return (
       <div className="container" css={ordersPageStyle}>
         <section className="section">
           <div className="box">
-            <div className="loading-container">{t('prompt.loading')}</div>
+            <div style={{ padding: '20px 0' }}>
+              <Skeleton variant="text" count={5} height="2.5rem" />
+            </div>
           </div>
         </section>
       </div>
@@ -330,7 +339,7 @@ export default function OrderHistory() {
               <div className="stat-item">
                 <div className="stat-label">{t('orders.total_profit')}</div>
                 <div className={`stat-value ${profitClass(statistics.total_profit)}`}>
-                  {util.formatNumber(statistics.total_profit, 2)}
+                  {formatProfitWithIndicator(statistics.total_profit, 2)}
                 </div>
               </div>
             </div>
@@ -400,10 +409,10 @@ export default function OrderHistory() {
                       </td>
                       <td>{row.cost}</td>
                       <td className={profitClass(row.profit)}>
-                        {util.formatNumber(row.profit, 2)}
+                        {formatProfitWithIndicator(row.profit, 2)}
                       </td>
                       <td className={profitClass(row.profit_percentage)}>
-                        {util.formatNumber(row.profit_percentage, 2, '%')}
+                        {formatProfitWithIndicator(row.profit_percentage, 2, '%')}
                       </td>
                     </tr>
                   ))}
@@ -418,7 +427,12 @@ export default function OrderHistory() {
               />
             </div>
           ) : (
-            <Image className="no-record" src={no_record} alt="No records found" />
+            <EmptyState
+              title={t('empty.no_orders')}
+              description={t('empty.orders_will_appear')}
+              actionText={t('empty.view_strategies')}
+              actionHref="/aip"
+            />
           )}
         </div>
       </section>
