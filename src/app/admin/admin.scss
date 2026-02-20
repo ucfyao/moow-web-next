@@ -169,6 +169,129 @@
   margin-top: 0.25rem;
 }
 
+/* --- User Management Page --- */
+
+.admin-users-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-users-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+  gap: 0.75rem;
+  color: #7a7a7a;
+}
+
+.admin-users-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+  gap: 0.75rem;
+}
+
+.admin-users-table {
+  font-size: 0.85rem;
+}
+
+.admin-users-table thead th {
+  background-color: #fafafa;
+  color: #4f6475;
+  font-weight: 500;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.admin-users-table td {
+  vertical-align: middle;
+}
+
+.admin-user-deleted-row {
+  opacity: 0.6;
+  background-color: #fff5f5;
+}
+
+.admin-user-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.admin-role-edit {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.is-clickable {
+  cursor: pointer;
+}
+
+/* --- User Detail Modal --- */
+
+.admin-user-detail-modal {
+  max-width: 640px;
+  width: 90vw;
+}
+
+.admin-user-detail-modal .modal-card-body {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.admin-detail-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.admin-detail-section-title:first-child {
+  margin-top: 0;
+}
+
+.admin-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.admin-detail-item {
+  display: flex;
+  flex-direction: column;
+  padding: 0.35rem 0;
+}
+
+.admin-detail-label {
+  font-size: 0.75rem;
+  color: #7a7a7a;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.15rem;
+}
+
+.admin-detail-value {
+  font-size: 0.9rem;
+  color: #363636;
+  word-break: break-all;
+}
+
+.admin-xbt-value {
+  font-weight: 600;
+  color: #f39c12;
+}
+
 /* --- Responsive --- */
 
 @media screen and (max-width: 768px) {
