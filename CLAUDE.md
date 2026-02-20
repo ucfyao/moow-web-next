@@ -12,7 +12,7 @@ Moow - cryptocurrency robo-advisory platform. A Next.js App Router web applicati
 - **Framework**: Next.js 15 (App Router)
 - **Language**: TypeScript 5.8 (strict mode)
 - **UI**: React 19, Emotion CSS-in-JS, Bulma CSS, MUI 6, Tailwind CSS 3
-- **State**: Zustand 5 (preferred for new code), Redux 5 (legacy, avoid adding new usage)
+- **State**: Zustand 5
 - **i18n**: i18next + react-i18next (NOT next-i18next, which is for Pages Router)
 - **HTTP**: Axios with json-bigint for large number precision
 - **Charts**: Highcharts 11
@@ -54,7 +54,6 @@ src/
   lib/            # HTTP client (http.ts with Axios + json-bigint)
   store/          # State management
     user.ts       # Zustand store (user info, persisted to localStorage)
-    index.ts      # Redux store (legacy: locale, auth state)
   utils/          # Utilities
     auth.js       # Auth helpers (login, logout, token, localStorage)
     defines.tsx   # Constants (exchange symbol lists)
@@ -137,7 +136,6 @@ Four CSS frameworks coexist. Each has a specific role — do not mix their respo
 
 ### State Management
 - **New code**: Use Zustand with `create<StateType>()(...)` syntax (double parentheses for v5).
-- **Existing Redux**: Use `legacy_createStore` import to avoid deprecation warnings. Do not add new Redux usage.
 
 ### i18n
 - Import `useTranslation` from `'react-i18next'` (NOT `'next-i18next'`).

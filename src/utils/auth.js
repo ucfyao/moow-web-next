@@ -64,8 +64,8 @@ export default {
         let rawdata = window.localStorage.getItem(KEY_OF_USER)
         user = JSON.parse(rawdata)
       }
-    } catch (error) {
-      console.log(error)
+    } catch {
+      // Silent fail — invalid JSON in localStorage is non-fatal
     }
     return user
   },
@@ -77,8 +77,8 @@ export default {
         let rawdata = window.localStorage.getItem(KEY_OF_PERMISSION)
         permission = JSON.parse(rawdata) || {}
       }
-    } catch (error) {
-      console.log(error)
+    } catch {
+      // Silent fail — invalid JSON in localStorage is non-fatal
     }
 
     return permission[code]
