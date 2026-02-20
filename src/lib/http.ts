@@ -97,13 +97,7 @@ service.interceptors.response.use(
 		if (res.status === 40001 || res.status === 40002 || res.status === 40003) {
 			// 40001:非法的token; 40002:Token 过期了; 40003:其他客户端登录了;
 
-      // auth.logout()
-			// store.dispatch('SET_ISAUTHENTICATED', false)
-			// store.dispatch('SET_USER', null).then(() => {
-			// 	let lc = parent.location || location
-			// 	lc.href = '/login'
-			// })
-      // add flash message
+      // TODO: implement token expiry handling — logout and redirect to /login
 
 		} else if (res.status === 40005) {
 			// 账号尚未激活, 强制到激活邮件发送页面
