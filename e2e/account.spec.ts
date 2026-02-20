@@ -97,11 +97,13 @@ test.describe('Profile Page', () => {
     const nicknameInput = page.locator('input[type="text"]:not([disabled])').first();
     await nicknameInput.fill('NewNickname');
 
-    // Click save
+    // Click save and wait for PATCH request
+    const patchPromise = page.waitForRequest(
+      (req) => req.url().includes('/api/v1/users/') && req.method() === 'PATCH',
+      { timeout: 10000 },
+    );
     await page.click('.button.is-link');
-
-    // Wait for the API call
-    await page.waitForTimeout(1000);
+    await patchPromise;
 
     expect(patchCalled).toBe(true);
   });

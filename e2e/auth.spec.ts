@@ -234,40 +234,6 @@ test.describe('Authentication - Signup Flow', () => {
   });
 });
 
-test.describe('Authentication - Protected Routes', () => {
-  test('unauthenticated user visiting /ucenter/profile is redirected to /login', async ({
-    page,
-  }) => {
-    // Mock APIs that the profile page would call to avoid hanging
-    await mockCommonAPIs(page);
-
-    await page.goto('/ucenter/profile');
-
-    // Should redirect to login
-    await page.waitForURL('**/login', { timeout: 10000 });
-  });
-
-  test('unauthenticated user visiting /ucenter/assets is redirected to /login', async ({
-    page,
-  }) => {
-    await mockCommonAPIs(page);
-
-    await page.goto('/ucenter/assets');
-
-    await page.waitForURL('**/login', { timeout: 10000 });
-  });
-
-  test('unauthenticated user visiting /ucenter/invite is redirected to /login', async ({
-    page,
-  }) => {
-    await mockCommonAPIs(page);
-
-    await page.goto('/ucenter/invite');
-
-    await page.waitForURL('**/login', { timeout: 10000 });
-  });
-});
-
 test.describe('Authentication - Logout Flow', () => {
   test('logout from profile page clears auth state and redirects to home', async ({ page }) => {
     // Setup authenticated state

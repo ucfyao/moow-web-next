@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { mockAuthenticated, mockCommonAPIs, mockStrategiesAPI, mockKeysAPI } from './helpers';
+import { mockAuthenticated, mockCommonAPIs, mockStrategiesAPI } from './helpers';
 
 test.describe('Navigation', () => {
   test('homepage loads with banner', async ({ page }) => {
