@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/i18n';
 import HTTP from '@/lib/http';
@@ -68,7 +68,6 @@ export default function AdminRoles() {
 
   // Delete confirmation
   const [confirmAction, setConfirmAction] = useState<{
-    open: boolean;
     roleId: string;
   } | null>(null);
 
@@ -170,7 +169,7 @@ export default function AdminRoles() {
     setFormData(EMPTY_FORM);
   }, []);
 
-  const handleFormChange = useCallback((field: keyof RoleFormData, value: string) => {
+  const handleFormChange = useCallback((field: 'role_name' | 'role_description', value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   }, []);
 
@@ -231,7 +230,7 @@ export default function AdminRoles() {
   // --- Delete ---
 
   const handleDeleteClick = useCallback((role: Role) => {
-    setConfirmAction({ open: true, roleId: role._id });
+    setConfirmAction({ roleId: role._id });
   }, []);
 
   const handleConfirmDelete = useCallback(async () => {
@@ -262,8 +261,8 @@ export default function AdminRoles() {
 
   // --- Tree Checkbox Renderer ---
 
-  const renderTreeCheckbox = useMemo(() => {
-    const renderNode = (node: TreeNode, level: number = 0): React.ReactNode => {
+  const renderTreeCheckboxNode = useCallback(
+    (node: TreeNode, level: number = 0): React.ReactNode => {
       const isChecked = formData.resource.includes(node._id);
       const typeIcon =
         node.resource_type === 'group'
@@ -290,13 +289,12 @@ export default function AdminRoles() {
           </label>
           {node.children &&
             node.children.length > 0 &&
-            node.children.map((child) => renderNode(child, level + 1))}
+            node.children.map((child) => renderTreeCheckboxNode(child, level + 1))}
         </div>
       );
-    };
-
-    return resourceTree.map((node) => renderNode(node));
-  }, [resourceTree, formData.resource, handleToggleResource]);
+    },
+    [formData.resource, handleToggleResource],
+  );
 
   // --- Render ---
 
@@ -461,7 +459,9 @@ export default function AdminRoles() {
                     ({formData.resource.length})
                   </span>
                 </label>
-                <div className="admin-tree-checkbox-container">{renderTreeCheckbox}</div>
+                <div className="admin-tree-checkbox-container">
+                  {resourceTree.map((node) => renderTreeCheckboxNode(node))}
+                </div>
               </div>
             </section>
             <footer className="modal-card-foot">
@@ -484,7 +484,7 @@ export default function AdminRoles() {
       )}
 
       {/* Delete Confirmation Modal */}
-      {confirmAction && confirmAction.open && (
+      {confirmAction && (
         <div className="modal is-active">
           <div className="modal-background" onClick={() => setConfirmAction(null)} />
           <div className="modal-card" style={{ maxWidth: '420px' }}>

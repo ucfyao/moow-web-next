@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import { type ReactNode, type KeyboardEvent, useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/i18n';
 import HTTP from '@/lib/http';
@@ -58,6 +58,34 @@ function flattenTree(nodes: TreeNode[]): Resource[] {
   return result;
 }
 
+// --- Type Helpers ---
+
+function getTypeTagClass(type: string): string {
+  switch (type) {
+    case 'group':
+      return 'is-warning is-light';
+    case 'menu':
+      return 'is-info is-light';
+    case 'interface':
+      return 'is-success is-light';
+    default:
+      return 'is-light';
+  }
+}
+
+function getTypeIcon(type: string): string {
+  switch (type) {
+    case 'group':
+      return 'fa-folder';
+    case 'menu':
+      return 'fa-bars';
+    case 'interface':
+      return 'fa-plug';
+    default:
+      return 'fa-circle';
+  }
+}
+
 // --- Component ---
 
 export default function AdminResources() {
@@ -82,7 +110,6 @@ export default function AdminResources() {
 
   // Delete confirmation
   const [confirmAction, setConfirmAction] = useState<{
-    open: boolean;
     resourceId: string;
   } | null>(null);
 
@@ -147,7 +174,7 @@ export default function AdminResources() {
   }, [fetchTree, searchKeyword]);
 
   const handleSearchKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
+    (e: KeyboardEvent) => {
       if (e.key === 'Enter') {
         handleSearch();
       }
@@ -267,7 +294,7 @@ export default function AdminResources() {
   // --- Delete ---
 
   const handleDeleteClick = useCallback((resource: Resource) => {
-    setConfirmAction({ open: true, resourceId: resource._id });
+    setConfirmAction({ resourceId: resource._id });
   }, []);
 
   const handleConfirmDelete = useCallback(async () => {
@@ -314,36 +341,10 @@ export default function AdminResources() {
     [t],
   );
 
-  const getTypeTagClass = useCallback((type: string): string => {
-    switch (type) {
-      case 'group':
-        return 'is-warning is-light';
-      case 'menu':
-        return 'is-info is-light';
-      case 'interface':
-        return 'is-success is-light';
-      default:
-        return 'is-light';
-    }
-  }, []);
-
-  const getTypeIcon = useCallback((type: string): string => {
-    switch (type) {
-      case 'group':
-        return 'fa-folder';
-      case 'menu':
-        return 'fa-bars';
-      case 'interface':
-        return 'fa-plug';
-      default:
-        return 'fa-circle';
-    }
-  }, []);
-
   // --- Tree Renderer ---
 
   const renderTreeNode = useCallback(
-    (node: TreeNode, level: number = 0): React.ReactNode => {
+    (node: TreeNode, level: number = 0): ReactNode => {
       const hasChildren = node.children && node.children.length > 0;
       const isExpanded = expandedIds.has(node._id);
 
@@ -355,6 +356,12 @@ export default function AdminResources() {
               <span
                 className="admin-tree-toggle"
                 onClick={() => handleToggleExpand(node._id)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleToggleExpand(node._id);
+                  }
+                }}
                 role="button"
                 tabIndex={0}
               >
@@ -419,7 +426,7 @@ export default function AdminResources() {
         </div>
       );
     },
-    [expandedIds, handleToggleExpand, getTypeIcon, getTypeLabel, getTypeTagClass, handleOpenEdit, handleDeleteClick, t],
+    [expandedIds, handleToggleExpand, getTypeLabel, handleOpenEdit, handleDeleteClick, t],
   );
 
   // --- Render ---
@@ -604,7 +611,7 @@ export default function AdminResources() {
       )}
 
       {/* Delete Confirmation Modal */}
-      {confirmAction && confirmAction.open && (
+      {confirmAction && (
         <div className="modal is-active">
           <div className="modal-background" onClick={() => setConfirmAction(null)} />
           <div className="modal-card" style={{ maxWidth: '420px' }}>

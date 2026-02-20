@@ -558,7 +558,6 @@
     "resource_search_placeholder": "Search by resource name...",
     "no_resources": "No resources found",
     "loading_resources": "Loading resources...",
-    "resource_root": "Root (No Parent)",
-    "no_resource_selected": "No resources selected"
+    "resource_root": "Root (No Parent)"
   }
 }
