@@ -41,52 +41,52 @@ export default function AdminDashboard() {
 
   const fetchStats = useCallback(async () => {
     setLoading(true);
-    try {
-      const results = await Promise.allSettled([
-        HTTP.get('/api/v1/users', { params: { pageSize: 1 } }),
-        HTTP.get('/api/v1/purchases', { params: { pageSize: 1 } }),
-        HTTP.get('/api/v1/roles'),
-        HTTP.get('/api/v1/resources'),
-      ]);
+    const results = await Promise.allSettled([
+      HTTP.get('/api/v1/users', { params: { pageSize: 1 } }),
+      HTTP.get('/api/v1/purchases', { params: { pageSize: 1 } }),
+      HTTP.get('/api/v1/roles'),
+      HTTP.get('/api/v1/resources'),
+    ]);
 
-      const newStats: DashboardStats = {
-        totalUsers: '--',
-        totalPurchases: '--',
-        totalRoles: '--',
-        totalResources: '--',
-      };
+    const newStats: DashboardStats = {
+      totalUsers: '--',
+      totalPurchases: '--',
+      totalRoles: '--',
+      totalResources: '--',
+    };
 
-      if (results[0].status === 'fulfilled') {
-        const res: any = results[0].value;
-        newStats.totalUsers = String(res.data.total ?? '--');
-      }
+    if (results[0].status === 'fulfilled') {
+      const res: any = results[0].value;
+      newStats.totalUsers = String(res.data.total ?? '--');
+    }
 
-      if (results[1].status === 'fulfilled') {
-        const res: any = results[1].value;
-        newStats.totalPurchases = String(res.data.total ?? '--');
-      }
+    if (results[1].status === 'fulfilled') {
+      const res: any = results[1].value;
+      newStats.totalPurchases = String(res.data.total ?? '--');
+    }
 
-      if (results[2].status === 'fulfilled') {
-        const res: any = results[2].value;
-        newStats.totalRoles = String(res.data.list?.length ?? '--');
-      }
+    if (results[2].status === 'fulfilled') {
+      const res: any = results[2].value;
+      newStats.totalRoles = String(res.data.list?.length ?? '--');
+    }
 
-      if (results[3].status === 'fulfilled') {
-        const res: any = results[3].value;
-        newStats.totalResources = String(res.data.list?.length ?? '--');
-      }
+    if (results[3].status === 'fulfilled') {
+      const res: any = results[3].value;
+      newStats.totalResources = String(res.data.list?.length ?? '--');
+    }
 
-      setStats(newStats);
-    } catch (error: any) {
-      console.error('Failed to fetch dashboard stats:', error);
+    setStats(newStats);
+
+    const failedCount = results.filter((r) => r.status === 'rejected').length;
+    if (failedCount > 0) {
       setSnackbar({
         open: true,
-        message: error?.message || t('prompt.operation_failed'),
+        message: t('prompt.operation_failed'),
         severity: 'error',
       });
-    } finally {
-      setLoading(false);
     }
+
+    setLoading(false);
   }, [t]);
 
   useEffect(() => {
@@ -136,7 +136,7 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div className="admin-dashboard-toolbar">
         <div>
           <h1 className="title is-4">{t('admin.dashboard')}</h1>
           <p className="subtitle is-6">{t('admin.dashboard_subtitle')}</p>

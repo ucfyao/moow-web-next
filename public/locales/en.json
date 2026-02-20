@@ -608,7 +608,6 @@
     "dashboard_total_users": "Total Users",
     "dashboard_total_purchases": "Total Purchases",
     "dashboard_total_roles": "Total Roles",
-    "dashboard_total_resources": "Total Resources",
-    "dashboard_loading": "Loading..."
+    "dashboard_total_resources": "Total Resources"
   }
 }

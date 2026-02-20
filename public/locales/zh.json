@@ -608,7 +608,6 @@
     "dashboard_total_users": "总用户数",
     "dashboard_total_purchases": "总订单数",
     "dashboard_total_roles": "角色总数",
-    "dashboard_total_resources": "资源总数",
-    "dashboard_loading": "加载中..."
+    "dashboard_total_resources": "资源总数"
   }
 }
