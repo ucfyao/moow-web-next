@@ -601,6 +601,68 @@
   overflow-y: auto;
 }
 
+/* --- Rates Page --- */
+
+.admin-rates-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-rates-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+  gap: 0.75rem;
+  color: #7a7a7a;
+}
+
+.admin-rates-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+  gap: 0.75rem;
+}
+
+.admin-rates-table {
+  font-size: 0.85rem;
+}
+
+.admin-rates-table thead th {
+  background-color: #fafafa;
+  color: #4f6475;
+  font-weight: 500;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.admin-rates-table td {
+  vertical-align: middle;
+}
+
+.admin-rates-currency {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.admin-rates-currency .icon {
+  color: #f7931a;
+}
+
+.admin-rates-value {
+  font-family: monospace;
+  font-size: 0.9rem;
+}
+
 /* --- Responsive --- */
 
 @media screen and (max-width: 768px) {

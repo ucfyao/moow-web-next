@@ -593,6 +593,22 @@
     "purchase_status_fail": "Failed",
     "purchase_status_invalid": "Invalid",
     "no_purchases": "No purchases found",
-    "loading_purchases": "Loading purchases..."
+    "loading_purchases": "Loading purchases...",
+    "rate_management": "Exchange Rates",
+    "rate_currency": "Currency",
+    "rate_exchange_rate": "Exchange Rate (RMB)",
+    "rate_updated": "Last Updated",
+    "rate_type": "Type",
+    "rate_type_virtual": "Virtual",
+    "rate_type_legal": "Legal Tender",
+    "rate_search_placeholder": "Search by currency...",
+    "rate_refresh": "Refresh",
+    "no_rates": "No rates found",
+    "loading_rates": "Loading rates...",
+    "dashboard_total_users": "Total Users",
+    "dashboard_total_purchases": "Total Purchases",
+    "dashboard_total_roles": "Total Roles",
+    "dashboard_total_resources": "Total Resources",
+    "dashboard_loading": "Loading..."
   }
 }

@@ -593,6 +593,22 @@
     "purchase_status_fail": "已失败",
     "purchase_status_invalid": "已作废",
     "no_purchases": "未找到订单",
-    "loading_purchases": "正在加载订单..."
+    "loading_purchases": "正在加载订单...",
+    "rate_management": "汇率管理",
+    "rate_currency": "币种",
+    "rate_exchange_rate": "汇率（人民币）",
+    "rate_updated": "更新时间",
+    "rate_type": "类型",
+    "rate_type_virtual": "虚拟货币",
+    "rate_type_legal": "法定货币",
+    "rate_search_placeholder": "按币种搜索...",
+    "rate_refresh": "刷新",
+    "no_rates": "未找到汇率",
+    "loading_rates": "正在加载汇率...",
+    "dashboard_total_users": "总用户数",
+    "dashboard_total_purchases": "总订单数",
+    "dashboard_total_roles": "角色总数",
+    "dashboard_total_resources": "资源总数",
+    "dashboard_loading": "加载中..."
   }
 }
