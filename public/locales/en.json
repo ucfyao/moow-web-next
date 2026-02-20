@@ -455,5 +455,25 @@
   "activation": {
     "go_homepage": "Go back Homepage",
     "go_activation_page": "Go to Activation Email Page"
+  },
+  "admin": {
+    "panel_title": "Admin Panel",
+    "navigation": "Navigation",
+    "dashboard": "Dashboard",
+    "dashboard_subtitle": "System overview at a glance",
+    "users": "Users",
+    "roles": "Roles",
+    "resources": "Resources",
+    "purchases": "Purchases",
+    "rates": "Rates",
+    "back_to_site": "Back to Site",
+    "loading": "Loading...",
+    "access_denied": "Access Denied",
+    "access_denied_message": "You don't have permission to access this page.",
+    "total_users": "Total Users",
+    "active_strategies": "Active Strategies",
+    "total_orders": "Total Orders",
+    "todays_new_users": "Today's New Users",
+    "coming_soon": "Coming soon"
   }
 }
