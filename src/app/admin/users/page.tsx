@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import '@/i18n';
 import HTTP from '@/lib/http';
 import util from '@/utils/util';
+import Pagination from '@/components/Pagination';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 
@@ -50,6 +51,11 @@ type StatusFilter = 'all' | 'active' | 'deleted';
 
 const PAGE_SIZE = 20;
 
+function isVipActive(vipDate: string | null): boolean {
+  if (!vipDate) return false;
+  return new Date(vipDate) > new Date();
+}
+
 // --- Component ---
 
 export default function AdminUsers() {
@@ -83,8 +89,9 @@ export default function AdminUsers() {
   const [confirmAction, setConfirmAction] = useState<{
     open: boolean;
     message: string;
-    onConfirm: () => void;
-  }>({ open: false, message: '', onConfirm: () => {} });
+    userId: number;
+    actionType: 'delete' | 'restore';
+  } | null>(null);
 
   // Snackbar
   const [snackbar, setSnackbar] = useState<{
@@ -159,41 +166,9 @@ export default function AdminUsers() {
 
   // --- Pagination ---
 
-  const totalPages = Math.ceil(total / PAGE_SIZE) || 1;
-
   const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page);
   }, []);
-
-  const paginationRange = useMemo(() => {
-    const pages: (number | string)[] = [];
-    const maxVisible = 7;
-
-    if (totalPages <= maxVisible) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      pages.push(1);
-      if (currentPage > 4) {
-        pages.push('start-ellipsis');
-      }
-
-      const start = Math.max(2, currentPage - 1);
-      const end = Math.min(totalPages - 1, currentPage + 1);
-
-      for (let i = start; i <= end; i++) {
-        pages.push(i);
-      }
-
-      if (currentPage < totalPages - 3) {
-        pages.push('end-ellipsis');
-      }
-      pages.push(totalPages);
-    }
-
-    return pages;
-  }, [totalPages, currentPage]);
 
   // --- Role helpers ---
 
@@ -205,13 +180,6 @@ export default function AdminUsers() {
     },
     [roles, t],
   );
-
-  // --- VIP helpers ---
-
-  const isVipActive = useCallback((vipDate: string | null): boolean => {
-    if (!vipDate) return false;
-    return new Date(vipDate) > new Date();
-  }, []);
 
   // --- Actions ---
 
@@ -290,32 +258,36 @@ export default function AdminUsers() {
       setConfirmAction({
         open: true,
         message: isDeleting ? t('admin.confirm_delete') : t('admin.confirm_restore'),
-        onConfirm: async () => {
-          try {
-            await HTTP.patch(`/api/v1/users/${user.seq_id}`, {
-              is_deleted: isDeleting,
-            });
-            setSnackbar({
-              open: true,
-              message: isDeleting ? t('admin.user_deleted') : t('admin.user_restored'),
-              severity: 'success',
-            });
-            fetchUsers(currentPage);
-          } catch (error: any) {
-            console.error('Failed to toggle user delete:', error);
-            setSnackbar({
-              open: true,
-              message: error?.message || t('prompt.operation_failed'),
-              severity: 'error',
-            });
-          } finally {
-            setConfirmAction((prev) => ({ ...prev, open: false }));
-          }
-        },
+        userId: user.seq_id,
+        actionType: isDeleting ? 'delete' : 'restore',
       });
     },
-    [currentPage, fetchUsers, t],
+    [t],
   );
+
+  const handleConfirmAction = useCallback(async () => {
+    if (!confirmAction) return;
+    const { userId, actionType } = confirmAction;
+    const isDeleting = actionType === 'delete';
+    try {
+      await HTTP.patch(`/api/v1/users/${userId}`, { is_deleted: isDeleting });
+      setSnackbar({
+        open: true,
+        message: isDeleting ? t('admin.user_deleted') : t('admin.user_restored'),
+        severity: 'success',
+      });
+      fetchUsers(currentPage);
+    } catch (error: any) {
+      console.error('Failed to toggle user delete:', error);
+      setSnackbar({
+        open: true,
+        message: error?.message || t('prompt.operation_failed'),
+        severity: 'error',
+      });
+    } finally {
+      setConfirmAction(null);
+    }
+  }, [confirmAction, currentPage, fetchUsers, t]);
 
   const handleCloseSnackbar = useCallback(() => {
     setSnackbar((prev) => ({ ...prev, open: false }));
@@ -521,59 +493,23 @@ export default function AdminUsers() {
 
           {/* Pagination */}
           {total > PAGE_SIZE && (
-            <nav
-              className="pagination is-centered is-small"
-              role="navigation"
-              aria-label="pagination"
-              style={{ marginTop: '1rem' }}
-            >
-              <button
-                type="button"
-                className="pagination-previous"
-                disabled={currentPage === 1}
-                onClick={() => handlePageChange(currentPage - 1)}
-              >
-                {t('pager.prev')}
-              </button>
-              <button
-                type="button"
-                className="pagination-next"
-                disabled={currentPage === totalPages}
-                onClick={() => handlePageChange(currentPage + 1)}
-              >
-                {t('pager.next')}
-              </button>
-              <ul className="pagination-list">
-                {paginationRange.map((item, idx) => {
-                  if (typeof item === 'string') {
-                    return (
-                      <li key={item}>
-                        <span className="pagination-ellipsis">&hellip;</span>
-                      </li>
-                    );
-                  }
-                  return (
-                    <li key={idx}>
-                      <button
-                        type="button"
-                        className={`pagination-link ${currentPage === item ? 'is-current' : ''}`}
-                        onClick={() => handlePageChange(item)}
-                      >
-                        {item}
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </nav>
+            <div style={{ marginTop: '1rem' }}>
+              <Pagination
+                current={currentPage}
+                total={total}
+                pageSize={PAGE_SIZE}
+                showTotal={false}
+                onPageChange={handlePageChange}
+              />
+            </div>
           )}
         </>
       )}
 
       {/* Confirmation Modal */}
-      {confirmAction.open && (
+      {confirmAction && confirmAction.open && (
         <div className="modal is-active">
-          <div className="modal-background" onClick={() => setConfirmAction((prev) => ({ ...prev, open: false }))} />
+          <div className="modal-background" onClick={() => setConfirmAction(null)} />
           <div className="modal-card" style={{ maxWidth: '420px' }}>
             <header className="modal-card-head">
               <p className="modal-card-title">{t('title.confirm_operation')}</p>
@@ -581,7 +517,7 @@ export default function AdminUsers() {
                 type="button"
                 className="delete"
                 aria-label="close"
-                onClick={() => setConfirmAction((prev) => ({ ...prev, open: false }))}
+                onClick={() => setConfirmAction(null)}
               />
             </header>
             <section className="modal-card-body">
@@ -592,14 +528,14 @@ export default function AdminUsers() {
                 <button
                   type="button"
                   className="button is-danger"
-                  onClick={confirmAction.onConfirm}
+                  onClick={handleConfirmAction}
                 >
                   {t('action.confirm')}
                 </button>
                 <button
                   type="button"
                   className="button"
-                  onClick={() => setConfirmAction((prev) => ({ ...prev, open: false }))}
+                  onClick={() => setConfirmAction(null)}
                 >
                   {t('action.cancel')}
                 </button>
@@ -723,7 +659,7 @@ export default function AdminUsers() {
                     <span className="icon is-small">
                       <i className="fa fa-star" />
                     </span>
-                    VIP & {t('admin.user_balance')}
+                    {t('admin.user_vip_and_balance')}
                   </h2>
                   <div className="admin-detail-grid">
                     <div className="admin-detail-item">

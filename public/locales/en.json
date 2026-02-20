@@ -519,6 +519,7 @@
     "user_active": "Active",
     "user_deleted_status": "Deleted",
     "user_yes": "Yes",
-    "user_no": "No"
+    "user_no": "No",
+    "user_vip_and_balance": "VIP & Balance"
   }
 }

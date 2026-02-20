@@ -519,6 +519,7 @@
     "user_active": "正常",
     "user_deleted_status": "已删除",
     "user_yes": "是",
-    "user_no": "否"
+    "user_no": "否",
+    "user_vip_and_balance": "VIP与余额"
   }
 }
