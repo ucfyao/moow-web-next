@@ -96,8 +96,12 @@ service.interceptors.response.use(
 		if (res.status === 40001 || res.status === 40002 || res.status === 40003) {
 			// 40001: invalid token; 40002: token expired; 40003: logged in from another client
 
-      // TODO: implement token expiry handling — logout and redirect to /login
-
+			if (typeof window !== 'undefined') {
+				localStorage.removeItem('token');
+				localStorage.removeItem('user');
+				window.location.href = '/login';
+			}
+			return Promise.reject(new Error('Session expired'));
 		} else if (res.status === 40005) {
 			// Account not activated — redirect to activation page
 			location.href = '/activate'

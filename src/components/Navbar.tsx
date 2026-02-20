@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState, useEffect, useRef, useCallback, KeyboardEvent } from 'react';
+import { memo, useState, useEffect, useRef, useCallback, KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import auth from '@/utils/auth';
 import '@/i18n';
@@ -12,7 +12,7 @@ import HTTP from '../lib/http';
 import logo1 from '@/assets/images/logo1.png';
 import logo2 from '@/assets/images/logo2.png';
 
-export default function Header({ isFixed = true }: { isFixed?: boolean }) {
+function Header({ isFixed = true }: { isFixed?: boolean }) {
   const { t, i18n } = useTranslation();
   const [burgerActive, setBurgerActive] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -219,3 +219,5 @@ export default function Header({ isFixed = true }: { isFixed?: boolean }) {
     </nav>
   );
 }
+
+export default memo(Header);

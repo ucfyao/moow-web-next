@@ -18,7 +18,7 @@ i18n
     resources,
     lng: 'zh', // if you're using a language detector, do not define the lng option
     fallbackLng: 'zh',
-    debug: true,
+    debug: process.env.NODE_ENV === 'development',
     interpolation: {
       escapeValue: false, // react already safes from xss => https://www.i18next.com/translation-function/interpolation#unescape
     },

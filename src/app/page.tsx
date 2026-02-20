@@ -10,7 +10,12 @@ import { css } from '@emotion/react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Autoplay } from 'swiper/modules';
 import Highcharts from 'highcharts';
-import DingtouChart from '@/components/DingtouChart';
+import dynamic from 'next/dynamic';
+
+const DingtouChart = dynamic(() => import('@/components/DingtouChart'), {
+  ssr: false,
+  loading: () => <div style={{ height: 400 }} />,
+});
 import HTTP from '@/lib/http';
 import iconDown from '@/assets/images/icon-down.png';
 

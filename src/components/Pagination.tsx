@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 interface PaginationProps {
@@ -17,42 +17,24 @@ function Pagination({
   onPageChange,
 }: PaginationProps) {
   const { t } = useTranslation('');
-  const [currentPage, setCurrentPage] = useState(current);
-  const [currentPageSize, setCurrentPageSize] = useState(pageSize);
 
-  const allPages = Math.ceil(total / currentPageSize) || 1;
-
-  useEffect(() => {
-    setCurrentPage(current);
-  }, [current]);
-
-  useEffect(() => {
-    setCurrentPageSize(pageSize);
-  }, [pageSize]);
-
-  useEffect(() => {
-    const maxPage = Math.ceil(total / currentPageSize);
-    if (maxPage < currentPage && maxPage > 0) {
-      setCurrentPage(maxPage);
-    }
-  }, [total, currentPage, currentPageSize]);
+  const allPages = Math.ceil(total / pageSize) || 1;
 
   function changePage(page: number) {
-    if (currentPage !== page) {
-      setCurrentPage(page);
+    if (current !== page) {
       onPageChange(page);
     }
   }
 
   function prev() {
-    if (currentPage > 1) {
-      changePage(currentPage - 1);
+    if (current > 1) {
+      changePage(current - 1);
     }
   }
 
   function next() {
-    if (currentPage < allPages) {
-      changePage(currentPage + 1);
+    if (current < allPages) {
+      changePage(current + 1);
     }
   }
 
@@ -69,7 +51,7 @@ function Pagination({
             type="button"
             className="pagination-link pagination-previous"
             onClick={prev}
-            disabled={currentPage === 1}
+            disabled={current === 1}
           >
             &lt;
           </button>
@@ -77,91 +59,91 @@ function Pagination({
         <li title="1">
           <button
             type="button"
-            className={`pagination-link ${currentPage === 1 ? 'is-current' : ''}`}
+            className={`pagination-link ${current === 1 ? 'is-current' : ''}`}
             onClick={() => changePage(1)}
           >
             1
           </button>
         </li>
-        {currentPage > 5 && (
+        {current > 5 && (
           <li>
             <span className="pagination-ellipsis">&hellip;</span>
           </li>
         )}
-        {currentPage === 5 && (
-          <li title={(currentPage - 3).toString()}>
+        {current === 5 && (
+          <li title={(current - 3).toString()}>
             <button
               type="button"
               className="pagination-link"
-              onClick={() => changePage(currentPage - 3)}
+              onClick={() => changePage(current - 3)}
             >
-              {currentPage - 3}
+              {current - 3}
             </button>
           </li>
         )}
-        {currentPage - 2 > 1 && (
-          <li title={(currentPage - 2).toString()}>
+        {current - 2 > 1 && (
+          <li title={(current - 2).toString()}>
             <button
               type="button"
               className="pagination-link"
-              onClick={() => changePage(currentPage - 2)}
+              onClick={() => changePage(current - 2)}
             >
-              {currentPage - 2}
+              {current - 2}
             </button>
           </li>
         )}
-        {currentPage - 1 > 1 && (
-          <li title={(currentPage - 1).toString()}>
+        {current - 1 > 1 && (
+          <li title={(current - 1).toString()}>
             <button
               type="button"
               className="pagination-link"
-              onClick={() => changePage(currentPage - 1)}
+              onClick={() => changePage(current - 1)}
             >
-              {currentPage - 1}
+              {current - 1}
             </button>
           </li>
         )}
-        {currentPage !== 1 && currentPage !== allPages && (
-          <li title={currentPage.toString()}>
+        {current !== 1 && current !== allPages && (
+          <li title={current.toString()}>
             <button type="button" className="pagination-link is-current">
-              {currentPage}
+              {current}
             </button>
           </li>
         )}
-        {currentPage + 1 < allPages && (
-          <li title={(currentPage + 1).toString()}>
+        {current + 1 < allPages && (
+          <li title={(current + 1).toString()}>
             <button
               type="button"
               className="pagination-link"
-              onClick={() => changePage(currentPage + 1)}
+              onClick={() => changePage(current + 1)}
             >
-              {currentPage + 1}
+              {current + 1}
             </button>
           </li>
         )}
-        {currentPage + 2 < allPages && (
-          <li title={(currentPage + 2).toString()}>
+        {current + 2 < allPages && (
+          <li title={(current + 2).toString()}>
             <button
               type="button"
               className="pagination-link"
-              onClick={() => changePage(currentPage + 2)}
+              onClick={() => changePage(current + 2)}
             >
-              {currentPage + 2}
+              {current + 2}
             </button>
           </li>
         )}
-        {allPages - currentPage === 4 && (
-          <li title={(currentPage + 3).toString()}>
+        {allPages - current === 4 && (
+          <li title={(current + 3).toString()}>
             <button
               type="button"
               className="pagination-link"
-              onClick={() => changePage(currentPage + 3)}
+              onClick={() => changePage(current + 3)}
             >
-              {currentPage + 3}
+              {current + 3}
             </button>
           </li>
         )}
-        {allPages - currentPage >= 5 && (
+        {allPages - current >= 5 && (
           <li>
             <span className="pagination-ellipsis">&hellip;</span>
           </li>
@@ -170,7 +152,7 @@ function Pagination({
           <li title={allPages.toString()}>
             <button
               type="button"
-              className={`pagination-link ${currentPage === allPages ? 'is-current' : ''}`}
+              className={`pagination-link ${current === allPages ? 'is-current' : ''}`}
               onClick={() => changePage(allPages)}
             >
               {allPages}
@@ -181,7 +163,7 @@ function Pagination({
           <button
             type="button"
             className="pagination-link pagination-next"
-            disabled={currentPage === allPages}
+            disabled={current === allPages}
             onClick={next}
           >
             &gt;
@@ -192,4 +174,4 @@ function Pagination({
   );
 }
 
-export default Pagination;
+export default memo(Pagination);

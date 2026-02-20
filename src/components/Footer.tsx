@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { memo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslation } from 'react-i18next';
@@ -9,7 +9,7 @@ import telegram from '../assets/images/telegram.png';
 import wechat from '../assets/images/wechat.png';
 import Tip from './Tip';
 
-export default function Footer() {
+function Footer() {
   const { t } = useTranslation('');
   return (
     <footer className="footer">
@@ -68,3 +68,5 @@ export default function Footer() {
     </footer>
   );
 }
+
+export default memo(Footer);
