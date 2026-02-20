@@ -208,6 +208,10 @@ export async function mockStrategiesAPI(page: Page) {
  */
 export async function mockOrdersAPI(page: Page) {
   await page.route(/\/api\/v1\/orders/, (route) => {
+    if (route.request().method() !== 'GET') {
+      route.continue();
+      return;
+    }
     route.fulfill({
       status: 200,
       contentType: 'application/json',

@@ -3,7 +3,6 @@ import {
   mockAuthenticated,
   mockCommonAPIs,
   mockStrategiesAPI,
-  mockLogoutAPI,
 } from './helpers';
 
 test.describe('Profile Page', () => {
@@ -61,34 +60,6 @@ test.describe('Profile Page', () => {
   });
 
   test('updating nickname calls PATCH API', async ({ page }) => {
-    let patchCalled = false;
-    await page.route('**/api/v1/users/*', (route) => {
-      if (route.request().method() === 'PATCH') {
-        patchCalled = true;
-        route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({ status: 0 }),
-        });
-      } else {
-        route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            status: 0,
-            data: {
-              _id: '1',
-              email: 'test@test.com',
-              nick_name: 'TestUser',
-              vip_time_out_at: '2027-12-31T00:00:00Z',
-              is_activated: true,
-              created_at: '2024-01-01T00:00:00Z',
-            },
-          }),
-        });
-      }
-    });
-
     await page.goto('/ucenter/profile');
 
     await page.waitForSelector('.action-buttons', { timeout: 15000 });
@@ -103,9 +74,11 @@ test.describe('Profile Page', () => {
       { timeout: 10000 },
     );
     await page.click('.button.is-link');
-    await patchPromise;
+    const patchRequest = await patchPromise;
 
-    expect(patchCalled).toBe(true);
+    // Verify the request was made with the correct nickname
+    const body = patchRequest.postDataJSON();
+    expect(body.nick_name).toBe('NewNickname');
   });
 });
 
