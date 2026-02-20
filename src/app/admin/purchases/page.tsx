@@ -9,7 +9,7 @@ export default function AdminPurchases() {
   return (
     <div>
       <h1 className="title is-4">{t('admin.purchases')}</h1>
-      <p className="subtitle is-6">Coming soon</p>
+      <p className="subtitle is-6">{t('admin.coming_soon')}</p>
     </div>
   );
 }

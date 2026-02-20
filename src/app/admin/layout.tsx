@@ -45,7 +45,7 @@ export default function AdminLayout({ children }: Readonly<{ children: React.Rea
   const hasPermission = useCallback(
     (code: string): boolean => {
       if (!permission.role) return false;
-      if (permission.role.role_name === 'admin') return true;
+      if (ALLOWED_ADMIN_ROLES.includes(permission.role.role_name)) return true;
       return permission.resources.some((r) => r.resource_code === code);
     },
     [permission],

@@ -473,6 +473,7 @@
     "total_users": "Total Users",
     "active_strategies": "Active Strategies",
     "total_orders": "Total Orders",
-    "todays_new_users": "Today's New Users"
+    "todays_new_users": "Today's New Users",
+    "coming_soon": "Coming soon"
   }
 }

@@ -473,6 +473,7 @@
     "total_users": "总用户数",
     "active_strategies": "活跃策略",
     "total_orders": "总订单数",
-    "todays_new_users": "今日新增用户"
+    "todays_new_users": "今日新增用户",
+    "coming_soon": "即将上线"
   }
 }

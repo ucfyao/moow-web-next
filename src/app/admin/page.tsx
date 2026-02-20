@@ -7,25 +7,10 @@ export default function AdminDashboard() {
   const { t } = useTranslation();
 
   const stats = [
-    { label: t('admin.total_users'), value: '1,024', icon: 'fa-users', color: 'is-primary' },
-    {
-      label: t('admin.active_strategies'),
-      value: '256',
-      icon: 'fa-line-chart',
-      color: 'is-success',
-    },
-    {
-      label: t('admin.total_orders'),
-      value: '8,192',
-      icon: 'fa-shopping-cart',
-      color: 'is-info',
-    },
-    {
-      label: t('admin.todays_new_users'),
-      value: '12',
-      icon: 'fa-user-plus',
-      color: 'is-warning',
-    },
+    { label: t('admin.total_users'), value: '--', icon: 'fa-users', color: 'is-primary' },
+    { label: t('admin.active_strategies'), value: '--', icon: 'fa-line-chart', color: 'is-success' },
+    { label: t('admin.total_orders'), value: '--', icon: 'fa-shopping-cart', color: 'is-info' },
+    { label: t('admin.todays_new_users'), value: '--', icon: 'fa-user-plus', color: 'is-warning' },
   ];
 
   return (
