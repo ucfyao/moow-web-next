@@ -292,6 +292,239 @@
   color: #f39c12;
 }
 
+/* --- Role Management Page --- */
+
+.admin-roles-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-roles-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+  gap: 0.75rem;
+  color: #7a7a7a;
+}
+
+.admin-roles-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+  gap: 0.75rem;
+}
+
+.admin-roles-table {
+  font-size: 0.85rem;
+}
+
+.admin-roles-table thead th {
+  background-color: #fafafa;
+  color: #4f6475;
+  font-weight: 500;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.admin-roles-table td {
+  vertical-align: middle;
+}
+
+.admin-roles-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.admin-roles-modal {
+  max-width: 700px;
+  width: 90vw;
+}
+
+.admin-roles-modal .modal-card-body {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* --- Resource Management Page --- */
+
+.admin-resources-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-resources-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+  gap: 0.75rem;
+  color: #7a7a7a;
+}
+
+.admin-resources-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+  gap: 0.75rem;
+}
+
+.admin-resources-modal {
+  max-width: 560px;
+  width: 90vw;
+}
+
+.admin-resources-modal .modal-card-body {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* --- Resource Tree View --- */
+
+.admin-tree-container {
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+  background-color: #fff;
+}
+
+.admin-tree-node {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.admin-tree-node:last-child {
+  border-bottom: none;
+}
+
+.admin-tree-row {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  transition: background-color 100ms ease;
+}
+
+.admin-tree-row:hover {
+  background-color: #fafafa;
+}
+
+.admin-tree-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  color: #7a7a7a;
+  flex-shrink: 0;
+}
+
+.admin-tree-toggle-placeholder {
+  width: 20px;
+  flex-shrink: 0;
+}
+
+.admin-tree-icon {
+  flex-shrink: 0;
+  width: 20px;
+  text-align: center;
+}
+
+.admin-tree-icon .fa-folder {
+  color: #f0ad4e;
+}
+
+.admin-tree-icon .fa-bars {
+  color: #3273dc;
+}
+
+.admin-tree-icon .fa-plug {
+  color: #23d160;
+}
+
+.admin-tree-name {
+  font-weight: 500;
+  color: #363636;
+  min-width: 120px;
+}
+
+.admin-tree-code {
+  color: #7a7a7a;
+  font-size: 0.8rem;
+  font-family: monospace;
+  min-width: 100px;
+}
+
+.admin-tree-type {
+  min-width: 80px;
+}
+
+.admin-tree-url {
+  color: #7a7a7a;
+  font-size: 0.8rem;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-tree-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.admin-tree-children {
+  padding-left: 1.25rem;
+}
+
+/* --- Resource Tree Checkbox (in Role modal) --- */
+
+.admin-tree-checkbox-container {
+  border: 1px solid #dbdbdb;
+  border-radius: 4px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 0.5rem;
+  background-color: #fafafa;
+}
+
+.admin-tree-checkbox-node {
+  padding: 0;
+}
+
+.admin-tree-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.25rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.admin-tree-checkbox-row:hover {
+  background-color: #f0f0f0;
+}
+
+.admin-tree-checkbox-row input[type='checkbox'] {
+  margin: 0;
+  cursor: pointer;
+}
+
 /* --- Responsive --- */
 
 @media screen and (max-width: 768px) {
