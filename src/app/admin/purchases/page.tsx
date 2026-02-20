@@ -11,13 +11,15 @@ import Alert from '@mui/material/Alert';
 
 // --- Types ---
 
+type PurchaseStatus = 'waiting' | 'success' | 'fail' | 'invalid';
+
 interface Purchase {
   _id: string;
   user: string;
   eth_address: string;
   tx_hash: string;
   amount: number;
-  status: string;
+  status: PurchaseStatus;
   comment: string;
   email: string;
   ref: string;
@@ -31,7 +33,7 @@ interface PurchaseDetail {
   eth_address: string;
   tx_hash: string;
   amount: number;
-  status: string;
+  status: PurchaseStatus;
   comment: string;
   email: string;
 }
@@ -44,7 +46,7 @@ const PAGE_SIZE = 20;
 
 // --- Module-level pure functions ---
 
-function getStatusTagClass(status: string): string {
+function getStatusTagClass(status: PurchaseStatus): string {
   switch (status) {
     case 'waiting':
       return 'is-warning';
@@ -64,7 +66,19 @@ function calculateVipMonths(amount: number): { months: number; hasBonus: boolean
   if (baseMonths >= 2) {
     return { months: Math.floor(baseMonths * 1.2), hasBonus: true };
   }
-  return { months: baseMonths, hasBonus: false };
+  return { months: Math.floor(baseMonths), hasBonus: false };
+}
+
+function formatVipDuration(
+  amount: number,
+  t: (key: string, options?: Record<string, unknown>) => string,
+): string {
+  const { months, hasBonus } = calculateVipMonths(amount);
+  const monthText =
+    months === 1
+      ? t('admin.purchase_promote_months_value_one', { months })
+      : t('admin.purchase_promote_months_value', { months });
+  return hasBonus ? `${monthText} ${t('admin.purchase_promote_bonus')}` : monthText;
 }
 
 // --- Component ---
@@ -90,9 +104,8 @@ export default function AdminPurchases() {
 
   // Edit modal
   const [editPurchase, setEditPurchase] = useState<Purchase | null>(null);
-  const [editStatus, setEditStatus] = useState('');
+  const [editStatus, setEditStatus] = useState<PurchaseStatus>('waiting');
   const [editComment, setEditComment] = useState('');
-  const [editModalOpen, setEditModalOpen] = useState(false);
 
   // Promote confirmation
   const [promoteAction, setPromoteAction] = useState<{
@@ -100,6 +113,9 @@ export default function AdminPurchases() {
     email: string;
     amount: number;
   } | null>(null);
+
+  // Submitting (double-click protection)
+  const [submitting, setSubmitting] = useState(false);
 
   // Snackbar
   const [snackbar, setSnackbar] = useState<{
@@ -200,18 +216,17 @@ export default function AdminPurchases() {
     setEditPurchase(purchase);
     setEditStatus(purchase.status);
     setEditComment(purchase.comment || '');
-    setEditModalOpen(true);
   }, []);
 
   const handleCloseEdit = useCallback(() => {
-    setEditModalOpen(false);
     setEditPurchase(null);
-    setEditStatus('');
+    setEditStatus('waiting');
     setEditComment('');
   }, []);
 
   const handleSaveEdit = useCallback(async () => {
     if (!editPurchase) return;
+    setSubmitting(true);
     try {
       await HTTP.patch(`/api/v1/purchases/${editPurchase._id}`, {
         status: editStatus,
@@ -231,6 +246,8 @@ export default function AdminPurchases() {
         message: error?.message || t('prompt.operation_failed'),
         severity: 'error',
       });
+    } finally {
+      setSubmitting(false);
     }
   }, [editPurchase, editStatus, editComment, currentPage, submittedKeyword, fetchPurchases, handleCloseEdit, t]);
 
@@ -244,6 +261,7 @@ export default function AdminPurchases() {
 
   const handleConfirmPromote = useCallback(async () => {
     if (!promoteAction) return;
+    setSubmitting(true);
     try {
       await HTTP.post(`/api/v1/purchases/${promoteAction.purchaseId}/promote`);
       setSnackbar({
@@ -260,6 +278,7 @@ export default function AdminPurchases() {
         severity: 'error',
       });
     } finally {
+      setSubmitting(false);
       setPromoteAction(null);
     }
   }, [promoteAction, currentPage, submittedKeyword, fetchPurchases, t]);
@@ -451,16 +470,7 @@ export default function AdminPurchases() {
                       {t('admin.purchase_promote_months')}
                     </span>
                     <span className="admin-detail-value">
-                      {(() => {
-                        const { months, hasBonus } = calculateVipMonths(promoteAction.amount);
-                        const monthText =
-                          months === 1
-                            ? t('admin.purchase_promote_months_value_one', { months })
-                            : t('admin.purchase_promote_months_value', { months });
-                        return hasBonus
-                          ? `${monthText} ${t('admin.purchase_promote_bonus')}`
-                          : monthText;
-                      })()}
+                      {formatVipDuration(promoteAction.amount, t)}
                     </span>
                   </div>
                 </div>
@@ -471,7 +481,12 @@ export default function AdminPurchases() {
             </section>
             <footer className="modal-card-foot">
               <div className="buttons">
-                <button type="button" className="button is-success" onClick={handleConfirmPromote}>
+                <button
+                  type="button"
+                  className={`button is-success ${submitting ? 'is-loading' : ''}`}
+                  disabled={submitting}
+                  onClick={handleConfirmPromote}
+                >
                   {t('admin.purchase_promote_confirm')}
                 </button>
                 <button type="button" className="button" onClick={() => setPromoteAction(null)}>
@@ -484,7 +499,7 @@ export default function AdminPurchases() {
       )}
 
       {/* Edit Modal */}
-      {editModalOpen && editPurchase && (
+      {editPurchase && (
         <div className="modal is-active">
           <div className="modal-background" onClick={handleCloseEdit} />
           <div className="modal-card" style={{ maxWidth: '480px' }}>
@@ -502,7 +517,7 @@ export default function AdminPurchases() {
                 <label className="label is-small">{t('admin.purchase_status')}</label>
                 <div className="control">
                   <div className="select is-fullwidth">
-                    <select value={editStatus} onChange={(e) => setEditStatus(e.target.value)}>
+                    <select value={editStatus} onChange={(e) => setEditStatus(e.target.value as PurchaseStatus)}>
                       <option value="waiting">{t('admin.purchase_status_waiting')}</option>
                       <option value="success">{t('admin.purchase_status_success')}</option>
                       <option value="fail">{t('admin.purchase_status_fail')}</option>
@@ -525,7 +540,12 @@ export default function AdminPurchases() {
             </section>
             <footer className="modal-card-foot">
               <div className="buttons">
-                <button type="button" className="button is-success" onClick={handleSaveEdit}>
+                <button
+                  type="button"
+                  className={`button is-success ${submitting ? 'is-loading' : ''}`}
+                  disabled={submitting}
+                  onClick={handleSaveEdit}
+                >
                   {t('action.confirm')}
                 </button>
                 <button type="button" className="button" onClick={handleCloseEdit}>
