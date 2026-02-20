@@ -105,7 +105,7 @@ const Login = () => {
         }
         setIsLogging(false);
       } catch (error: any) {
-        console.log('Error:',error)
+        console.error('Login failed:', error)
         const errorMessage = error.response?.data?.message || t('prompt.error_occurs') ;
         setAlertMessage({ type: 'error', message: errorMessage });
         setOpen(true);

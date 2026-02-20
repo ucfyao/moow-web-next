@@ -122,11 +122,6 @@ export default function Header({ isFixed = true }: { isFixed?: boolean }) {
     closeDropdown();
   }, [pathname, closeDropdown]);
 
-  //useEffect(() => {
-    //console.log('Current user info:', userInfo);
-    //console.log('Is authenticated:', isAuthenticated);
-  //}, [userInfo, isAuthenticated]);
-
   return (
     <nav
       className={

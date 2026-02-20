@@ -25,7 +25,7 @@ let config = {
 	timeout: 60 * 1000, // Timeout
 	// withCredentials: true, // Check cross-site Access-Control
 };
-// 初始化axios
+// Initialize axios instance
 const service = axios.create({
   ...config,
   transformResponse: [
@@ -64,7 +64,7 @@ service.interceptors.request.use(
       return config;
     }
 
-    // 响应超时处理
+    // Request timeout handling
     const source = axios.CancelToken.source();
     setTimeout(() => {
       source.cancel(
@@ -81,7 +81,6 @@ service.interceptors.request.use(
     return { ...config, cancelToken: source.token };
   },
   (error: any) => {
-    console.log(error); // for debug
     return Promise.reject(error);
   },
 );
@@ -93,20 +92,18 @@ service.interceptors.response.use(
 			return res
 		}
 
-		// res.status !== 0, 返回错误码的相关拦截处理
+		// Non-zero status — handle error codes
 		if (res.status === 40001 || res.status === 40002 || res.status === 40003) {
-			// 40001:非法的token; 40002:Token 过期了; 40003:其他客户端登录了;
+			// 40001: invalid token; 40002: token expired; 40003: logged in from another client
 
       // TODO: implement token expiry handling — logout and redirect to /login
 
 		} else if (res.status === 40005) {
-			// 账号尚未激活, 强制到激活邮件发送页面
+			// Account not activated — redirect to activation page
 			location.href = '/activate'
-			// router.push({name: 'activate'})
 		} else if (res.status === 40008) {
-			// 账号不是VIP, 强制到续费页面
+			// Account not VIP — redirect to purchase page
 			location.href = '/purchase'
-			// router.push({name: 'purchase'})
 		}
 		return Promise.reject(res)
   },
