@@ -1,5 +1,8 @@
 import axios from "axios";
 import JsonBigint from "json-bigint";
+import auth from "@/utils/auth";
+
+let isRedirecting = false;
 
 const JSONBIG = JsonBigint({
   storeAsString: true,
@@ -95,9 +98,12 @@ service.interceptors.response.use(
 		// Non-zero status — handle error codes
 		if (res.status === 40001 || res.status === 40002 || res.status === 40003) {
 			// 40001: invalid token; 40002: token expired; 40003: logged in from another client
-
-      // TODO: implement token expiry handling — logout and redirect to /login
-
+			auth.logout();
+			if (typeof window !== 'undefined' && !isRedirecting) {
+				isRedirecting = true;
+				window.location.href = '/login';
+			}
+			return Promise.reject(new Error(`Session expired (${res.status})`));
 		} else if (res.status === 40005) {
 			// Account not activated — redirect to activation page
 			location.href = '/activate'
