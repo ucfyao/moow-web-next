@@ -21,6 +21,16 @@ vi.mock('@/components/DingtouChart', () => ({
   default: (props: any) => <div data-testid="dingtou-chart">DingtouChart</div>,
 }));
 
+// Mock next/dynamic to bypass lazy loading in tests.
+// Returns the already-mocked DingtouChart component synchronously.
+vi.mock('next/dynamic', () => ({
+  __esModule: true,
+  default: () => {
+    // Return the mock DingtouChart directly (matches the vi.mock above)
+    return (props: any) => <div data-testid="dingtou-chart">DingtouChart</div>;
+  },
+}));
+
 // Mock Swiper modules
 vi.mock('swiper/react', () => ({
   Swiper: ({ children, ...props }: any) => <div data-testid="swiper">{children}</div>,

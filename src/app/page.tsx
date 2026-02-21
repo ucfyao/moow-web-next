@@ -11,16 +11,16 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Autoplay } from 'swiper/modules';
 import Highcharts from 'highcharts';
 import dynamic from 'next/dynamic';
-
-const DingtouChart = dynamic(() => import('@/components/DingtouChart'), {
-  ssr: false,
-  loading: () => <div style={{ height: 400 }} />,
-});
 import HTTP from '@/lib/http';
 import iconDown from '@/assets/images/icon-down.png';
 
 import 'swiper/css';
 import 'swiper/css/pagination';
+
+const DingtouChart = dynamic(() => import('@/components/DingtouChart'), {
+  ssr: false,
+  loading: () => <div style={{ height: 400 }} />,
+});
 
 const homePageStyle = css`
   .tech_pf dl {

@@ -1,5 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
+// Mock auth utility
+const mockLogout = vi.fn();
+vi.mock('@/utils/auth', () => ({
+  default: {
+    logout: (...args: any[]) => mockLogout(...args),
+  },
+}));
+
 // Use vi.hoisted() so these are available inside the hoisted vi.mock() factory
 const {
   captured,
@@ -68,6 +76,7 @@ describe('http client', () => {
   beforeEach(() => {
     localStorage.clear();
     mockCancelFn.mockClear();
+    mockLogout.mockClear();
     // Reset location.href to default
     Object.defineProperty(window, 'location', {
       value: { href: 'http://localhost/' },
@@ -269,37 +278,37 @@ describe('http client', () => {
       });
     });
 
-    it('rejects for token error status 40001', async () => {
+    it('rejects for token error status 40001 and calls auth.logout()', async () => {
       const response = {
         data: { status: 40001, message: 'invalid token' },
       };
 
-      await expect(captured.responseFulfilled!(response)).rejects.toEqual({
-        status: 40001,
-        message: 'invalid token',
-      });
+      await expect(captured.responseFulfilled!(response)).rejects.toThrow(
+        'Session expired (40001)',
+      );
+      expect(mockLogout).toHaveBeenCalled();
     });
 
-    it('rejects for token error status 40002', async () => {
+    it('rejects for token error status 40002 and calls auth.logout()', async () => {
       const response = {
         data: { status: 40002, message: 'token expired' },
       };
 
-      await expect(captured.responseFulfilled!(response)).rejects.toEqual({
-        status: 40002,
-        message: 'token expired',
-      });
+      await expect(captured.responseFulfilled!(response)).rejects.toThrow(
+        'Session expired (40002)',
+      );
+      expect(mockLogout).toHaveBeenCalled();
     });
 
-    it('rejects for token error status 40003', async () => {
+    it('rejects for token error status 40003 and calls auth.logout()', async () => {
       const response = {
         data: { status: 40003, message: 'logged in from another client' },
       };
 
-      await expect(captured.responseFulfilled!(response)).rejects.toEqual({
-        status: 40003,
-        message: 'logged in from another client',
-      });
+      await expect(captured.responseFulfilled!(response)).rejects.toThrow(
+        'Session expired (40003)',
+      );
+      expect(mockLogout).toHaveBeenCalled();
     });
 
     it('redirects to /activate for status 40005', async () => {
