@@ -2,11 +2,11 @@
 'use client';
 
 import React, { useState, useEffect, useRef, ChangeEvent } from 'react';
-import axios from 'axios';
 import { getInvalidFields, validateField } from '../../utils/validator';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import auth from '../../utils/auth';
+import HTTP from '@/lib/http';
 import { css } from '@emotion/react';
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
@@ -26,7 +26,10 @@ const SignUp = () => {
   const [captchaSrc, setCaptchaSrc] = useState('');
   const [invalidFields, setInvalidFields] = useState<InvalidFields>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [alertMessage, setAlertMessage] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [alertMessage, setAlertMessage] = useState<{
+    type: 'success' | 'error';
+    message: string;
+  } | null>(null);
   const [open, setOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -96,7 +99,7 @@ const SignUp = () => {
 
   // handle Captcha picture
   const updateCaptcha = async () => {
-    const response = await axios.get('/api/v1/captcha?');
+    const response = await HTTP.get('/v1/captcha');
     setCaptchaSrc(response.data);
   };
 
@@ -124,9 +127,9 @@ const SignUp = () => {
     }
     setIsSubmitting(true);
     try {
-      const response = await axios.post('/api/v1/auth/signup', formData);
+      const response = await HTTP.post('/v1/auth/signup', formData);
       setIsSubmitting(false);
-      const data = response.data.data;
+      const data = response.data;
       const userId = data?._id;
       const email = data?.email;
       setAlertMessage({ type: 'success', message: 'Successful registration, quick activation.' });
@@ -135,7 +138,7 @@ const SignUp = () => {
         router.push(`/activate/${userId}?email=${encodeURIComponent(email)}`);
       }, 2000);
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message ;
+      const errorMessage = error?.message;
       setAlertMessage({ type: 'error', message: errorMessage });
       setOpen(true);
       setIsSubmitting(false);
@@ -145,7 +148,7 @@ const SignUp = () => {
   const handleClose = () => {
     setOpen(false);
   };
-  
+
   return (
     <div css={signUpStyle}>
       <Snackbar
@@ -188,7 +191,11 @@ const SignUp = () => {
                         <i className="fa fa-user"></i>
                       </span>
                     </div>
-                    {invalidFields.name && <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.name}</p>}
+                    {invalidFields.name && (
+                      <p className="help is-danger" role="alert" aria-live="polite">
+                        {invalidFields.name}
+                      </p>
+                    )}
                   </div>
                   <div className="field">
                     <div className="control has-icons-left has-icons-right">
@@ -208,7 +215,11 @@ const SignUp = () => {
                         <i className="fa fa-envelope"></i>
                       </span>
                     </div>
-                    {invalidFields.email && <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.email}</p>}
+                    {invalidFields.email && (
+                      <p className="help is-danger" role="alert" aria-live="polite">
+                        {invalidFields.email}
+                      </p>
+                    )}
                   </div>
                   <div className="field">
                     <div className="control has-icons-left has-icons-right">
@@ -234,13 +245,20 @@ const SignUp = () => {
                         role="button"
                         tabIndex={0}
                         aria-label={showPassword ? '隐藏密码' : '显示密码'}
-                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowPassword(!showPassword); } }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            setShowPassword(!showPassword);
+                          }
+                        }}
                       >
                         <i className={`fa ${showPassword ? 'fa-eye' : 'fa-eye-slash'}`}></i>
                       </span>
                     </div>
                     {invalidFields.password && (
-                      <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.password}</p>
+                      <p className="help is-danger" role="alert" aria-live="polite">
+                        {invalidFields.password}
+                      </p>
                     )}
                   </div>
                   <div className="field">
@@ -267,13 +285,20 @@ const SignUp = () => {
                         role="button"
                         tabIndex={0}
                         aria-label={showConfirmPassword ? '隐藏密码' : '显示密码'}
-                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowConfirmPassword(!showConfirmPassword); } }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            setShowConfirmPassword(!showConfirmPassword);
+                          }
+                        }}
                       >
                         <i className={`fa ${showConfirmPassword ? 'fa-eye' : 'fa-eye-slash'}`}></i>
                       </span>
                     </div>
                     {invalidFields.confirmPassword && (
-                      <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.confirmPassword}</p>
+                      <p className="help is-danger" role="alert" aria-live="polite">
+                        {invalidFields.confirmPassword}
+                      </p>
                     )}
                   </div>
                   <div className="field">
@@ -295,7 +320,9 @@ const SignUp = () => {
                       </span>
                     </div>
                     {invalidFields.refCode && (
-                      <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.refCode}</p>
+                      <p className="help is-danger" role="alert" aria-live="polite">
+                        {invalidFields.refCode}
+                      </p>
                     )}
                   </div>
                   <div className="field">
@@ -317,17 +344,26 @@ const SignUp = () => {
                       <div
                         className="control"
                         style={{ cursor: 'pointer' }}
-                        dangerouslySetInnerHTML={{ __html: captchaSrc }} /* SVG captcha from own API */
+                        dangerouslySetInnerHTML={{
+                          __html: captchaSrc,
+                        }} /* SVG captcha from own API */
                         title={t('prompt.click_refresh_captcha')}
                         aria-label="验证码，点击刷新"
                         role="button"
                         tabIndex={0}
                         onClick={updateCaptcha}
-                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); updateCaptcha(); } }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            updateCaptcha();
+                          }
+                        }}
                       />
                     </div>
                     {invalidFields.captcha && (
-                      <p className="help is-danger" role="alert" aria-live="polite">{invalidFields.captcha}</p>
+                      <p className="help is-danger" role="alert" aria-live="polite">
+                        {invalidFields.captcha}
+                      </p>
                     )}
                   </div>
                   <div className="field" style={{ marginTop: '30px' }}>
@@ -335,7 +371,8 @@ const SignUp = () => {
                       <button
                         className={`button is-link is-fullwidth is-focused ${isSubmitting ? 'is-loading' : ''}`}
                         onClick={handleSignUp}
-                        disabled={isSubmitting}>
+                        disabled={isSubmitting}
+                      >
                         {t('sign_up')}
                       </button>
                     </p>
@@ -419,7 +456,6 @@ const signUpStyle = css`
   .feature {
     padding: 5rem;
   }
-
 
   .card-footer-item {
     font-size: 12px;
