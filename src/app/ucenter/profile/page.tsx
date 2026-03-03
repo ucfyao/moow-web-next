@@ -120,7 +120,7 @@ export default function ProfilePage() {
   const handleLogout = async () => {
     if (!window.confirm(t('prompt.confirm_logout'))) return;
     try {
-      await HTTP.post('/api/v1/auth/logout');
+      await HTTP.post('/v1/auth/logout');
     } catch {
       // ignore logout API errors
     }
@@ -129,9 +129,7 @@ export default function ProfilePage() {
     router.push('/');
   };
 
-  const isVipActive = user?.vip_time_out_at
-    ? new Date(user.vip_time_out_at) > new Date()
-    : false;
+  const isVipActive = user?.vip_time_out_at ? new Date(user.vip_time_out_at) > new Date() : false;
 
   if (loading) {
     return (
@@ -211,9 +209,7 @@ export default function ProfilePage() {
                 onChange={(e: ChangeEvent<HTMLInputElement>) => setNickName(e.target.value)}
               />
             </div>
-            {invalidFields.nick_name && (
-              <p className="help is-danger">{invalidFields.nick_name}</p>
-            )}
+            {invalidFields.nick_name && <p className="help is-danger">{invalidFields.nick_name}</p>}
           </div>
 
           <div className="field is-grouped action-buttons">

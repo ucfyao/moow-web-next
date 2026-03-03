@@ -4,13 +4,13 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
 import { format } from 'date-fns';
 import { css } from '@emotion/react';
 import Image from 'next/image';
 import { QRCodeCanvas } from 'qrcode.react';
 import { useTranslation } from 'react-i18next';
 import auth from '@/utils/auth';
+import HTTP from '@/lib/http';
 import Skeleton from '@/components/Skeleton';
 import no_record from '@/assets/images/no_record.png';
 
@@ -209,8 +209,9 @@ const posterContentStyle = css`
   background: #438dec;
   text-align: center;
   box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'PingFang SC',
-    'Microsoft YaHei', sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei',
+    sans-serif;
   position: absolute;
   left: -9999px;
   top: 0;
@@ -352,20 +353,14 @@ export default function InvitePage() {
 
     async function fetchData() {
       try {
-        const token = auth.getToken();
-        const headers: Record<string, string> = {};
-        if (token) headers.token = token;
-        if (localUser._id) headers.user_id = localUser._id;
-
         const [userRes, invitationsRes] = await Promise.all([
-          axios.get(`/api/v1/users/${userId}`, { headers }),
-          axios.get(`/api/v1/users/${userId}`, {
-            headers,
+          HTTP.get(`/v1/users/${userId}`),
+          HTTP.get(`/v1/users/${userId}`, {
             params: { invitations: true },
           }),
         ]);
 
-        const userData = userRes.data?.data;
+        const userData = userRes.data;
         if (userData) {
           const code = userData.invitation_code || '';
           setInviteCode(code);
@@ -378,7 +373,7 @@ export default function InvitePage() {
           }
         }
 
-        const invitationData = invitationsRes.data?.data;
+        const invitationData = invitationsRes.data;
         if (invitationData?.invitations) {
           setInviteList(invitationData.invitations);
         }
@@ -448,7 +443,7 @@ export default function InvitePage() {
         </span>
       ) : (
         <span key={i}>{part}</span>
-      ),
+      )
     );
   }
 
@@ -592,18 +587,10 @@ export default function InvitePage() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={posterImg} alt="Invite Poster" onClick={(e) => e.stopPropagation()} />
           <div className="poster-actions" onClick={(e) => e.stopPropagation()}>
-            <a
-              href={posterImg}
-              download={`moow_invite_${inviteCode}`}
-              className="button is-info"
-            >
+            <a href={posterImg} download={`moow_invite_${inviteCode}`} className="button is-info">
               {t('invite.poster_save')}
             </a>
-            <button
-              type="button"
-              className="button is-light"
-              onClick={() => setShowPoster(false)}
-            >
+            <button type="button" className="button is-light" onClick={() => setShowPoster(false)}>
               {t('action.cancel')}
             </button>
           </div>
